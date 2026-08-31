@@ -11,7 +11,7 @@ Satu bot Telegram (`das9router_bot`) dipake buat mantau uptime, deploy Vercel, a
 | **Storage** | `watchlist.json` (file-based) |
 
 ```
-/addweb situsklien.com repo:situsklien Situs Klien
+addweb situsklien.com repo:situsklien Situs Klien
 > ✅ Web ditambahin ke pantauan
 > Situs Klien
 > https://situsklien.com
