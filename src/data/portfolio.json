@@ -1,0 +1,206 @@
+{
+  "whatsapp": "+6285281144792",
+  "profile": {
+    "name": "Ibnu Dexton",
+    "fullName": "Muhammad Ibnu Dexton",
+    "username": "detonnn",
+    "terminalTitle": "ibnu@portfolio: ~",
+    "heroCommand": "whoami && cat profile.json",
+    "roles": [
+      "Game Developer",
+      "Frontend Developer",
+      "Developer Engineer",
+      "UI/UX Designer"
+    ],
+    "description": "High level experience in web design & development, building, testing and shipping high quality software end-to-end.",
+    "socials": [
+      { "icon": "uil-instagram", "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh" },
+      { "icon": "uil-github-alt", "url": "https://github.com/detonnn" },
+      { "icon": "uil-music", "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc" },
+      { "icon": "uil-whatsapp", "url": "https://api.whatsapp.com/send?phone=6285281144792" }
+    ]
+  },
+  "about": {
+    "title": "whoami",
+    "subtitle": "cat about.md",
+    "windowTitle": "about.md",
+    "image": "frontend/assets/img/Ibnu Dexton.jpg",
+    "description": "Software Engineer with extensive knowledge and years of experience, working across web technologies, DevOps and UI/UX, delivering quality work end-to-end.",
+    "stats": [
+      { "value": "02+", "label": "years\nuptime" },
+      { "value": "10+", "label": "projects\nshipped" },
+      { "value": "04+", "label": "tahun pengalaman" }
+    ],
+    "cv": "frontend/assets/pdf/MUHAMMAD IBNU DEXTON ALFATHIR.pdf"
+  },
+  "skills": {
+    "title": "stack --list",
+    "subtitle": "tech stack & proficiency levels",
+    "groups": [
+      {
+        "icon": "uil-brackets-curly",
+        "title": "Frontend developer",
+        "subtitle": "More than 2 years",
+        "items": [
+          { "name": "Tailwind", "level": 70 },
+          { "name": "React", "level": 90 },
+          { "name": "Next Js", "level": 67 },
+          { "name": "css", "level": 87 },
+          { "name": "Vue.js", "level": 69 }
+        ]
+      },
+      { 
+        "icon": "uil-server-network",
+        "title": "Backend developer",
+        "subtitle": "More than 1 years",
+        "items": [
+            { "name": "PHP", "level": 40 },
+            { "name": "Node.js", "level": 70 },
+            { "name": "Python", "level": 40 },
+            { "name": "Java", "level": 20 }
+        ]
+      },
+      {
+        "icon": "uil-share-alt",
+        "title": "Dev tools & Version Control",
+        "subtitle": "More than 5 months",
+        "items": [
+          { "name": "C++", "level": 25 },
+          { "name": "Visual Studio Code (VS Code)", "level": 80 },
+          { "name": "Postman", "level": 30 },
+          { "name": "Docker", "level": 40 },
+          { "name": "Github", "level": 70 } 
+        ]
+      },
+      {
+        "icon": "uil-swatchbook",
+        "title": "Designer",
+        "subtitle": "More than 3 years",
+        "items": [
+          { "name": "Figma", "level": 90 },
+          { "name": "Adobe Illustrator", "level": 80 },
+          { "name": "Photoshop", "level": 90 },
+          { "name": "Corel Draw", "level": 50 }
+        ]
+      }
+    ]
+  },
+  "github": {
+    "title": "git log --graph",
+    "subtitle": "my github contribution activity"
+  },
+  "qualification": {
+    "title": "git log --journey",
+    "subtitle": "commit history of my career",
+    "education": [
+      { "title": "Middle School", "place": "SMPN 14 Kota Tangerang", "date": "2019-2022" },
+      { "title": "vocational secondary schools", "place": "SMkN 5 kota tangerang", "date": "2022-2025" },
+      { "title": "Informatics Engineering", "place": "Pamulang University", "date": "2026-present" }
+    ],
+    "work": [
+      { "title": "Internship-Administrasi & Operasional", "place": "Azka Group", "date": "Januari 2025-juni 2025" },
+      { "title": "Internship-digital assets support", "place": "dispora", "date": "2025-2026" },
+      { "title": "Game Developer", "place": "Freelancer", "date": "2025-2026" },
+      { "title": "Freelancer Editing(EVOS)","place": "Freelancer", "date": "2025-present" },
+      { "title": "UI UX Design", "place": "Pamulang University", "date": "2026-present" }
+    ]
+  },
+  "services": {
+    "title": "./services --list",
+    "subtitle": "what i can build & ship for you",
+    "items": [
+      {
+        "icon": "uil-pen",
+        "title": "Developer enggineer",
+        "modalTitle": "Software Quality",
+        "services": [
+          "I create testcase and idea for test strategies.",
+          "Implementations in the automation tools."
+        ]
+      },
+      {
+        "icon": "uil-arrow",
+        "title": "Frontend Developer",
+        "modalTitle": "Frontend Developer",
+        "services": [
+          "Client-side development",
+          "Test web for usability.",
+          "Operation a API between server.",
+          "maintenance features."
+        ]
+      },
+      {
+        "icon": "uil-server-connection",
+        "title": "Backend Developer",
+        "modalTitle": "Backend Developer",
+        "services": [
+          "Make a system.",
+          "adding features and maintennace.",
+          "make API between client side."
+        ]
+      },
+      {
+        "icon": "uil-web-grid",
+        "title": "Ui/Ux Designer",
+        "modalTitle": "Ui/Ux Designer",
+        "services": [
+          "I develop the user interface.",
+          "Web page development.",
+          "I create ux element interactions.",
+          "I position your company brand."
+        ]
+      }
+    ]
+  },
+  "portfolio": {
+    "title": "ls ./projects",
+    "subtitle": "recent deployments & live builds",
+    "items": [
+      { "image": "frontend/assets/img/1.jpg", "title": "Print Media Design & Packaging Workflow", "description": "Six months of internship experience in the printing and online shop packing industry, handling the preparation of design files prior to printing.", "url": "https://www.instagram.com/azkaprint.official/" },
+      { "image": "frontend/assets/img/3.jpg", "title": "Esports Video Editing & Social Content", "description": "video editor for Evos Street, crafting engaging short-form and long-form content optimized for YouTube and TikTok audience retention.", "url": "https://youtu.be/WwLDZrngERA" },
+      { "image": "frontend/assets/img/2.jpg", "title": "Technical & Digital Asset Support", "description": "Four months of internship experience at the Department of Youth and Sports (DISPORA), managing digital technical operations, IT support, and media asset distribution for institutional events", "url": "https://dispora.tangerangkota.go.id/" },
+      { "image": "frontend/assets/img/4.jpg", "title": "Infrastructure & Telegram Ops Bot (9Router)", "description": "Built a custom Node.js & PM2 remote control bot for Telegram to monitor web uptime, handle Vercel deployments, track GitHub repos, and execute git commands on-the-fly..", "url": "https://github.com/detonnn/Bot-telegram" }
+    ]
+  },
+  "projectCta": {
+    "title": "init new-project",
+    "description": "Got an idea in the backlog? Run the deploy with me and get a 30% discount on your new project.",
+    "button": "run --deploy",
+    "image": "frontend/assets/img/elgato.gif"
+  },
+  "testimonials": {
+    "title": "cat reviews.log",
+    "subtitle": "what my clients are saying",
+    "items": [
+      { "image": "frontend/assets/img/client.jpg", "name": "Andi Simorangkir, S.T", "role": "Client", "rating": 5, "text": "I get a good impression, I carry out my project with all the possible quality and attention and support 24 hours a day." },
+      { "image": "frontend/assets/img/client4.jpg", "name": "Riko Gamer78", "role": "Client", "rating": 1, "text": "He doesn't know how to play Roblox properly." },
+      { "image": "frontend/assets/img/client2.jpg", "name": "Preddy Budiman, S.H", "role": "Client", "rating": 5, "text": "Super fast response and clean code. Delivered exactly what was promised ahead of schedule." },
+      { "image": "frontend/assets/img/client3.jpg", "name": "Doni Budiman, S.H", "role": "Client", "rating": 4, "text": "Great UI/UX work, really improved our conversion. Minor revisions but handled quickly." }
+    ]
+  },
+  "contact": {
+    "title": "ssh ibnu@contact",
+    "subtitle": "open a connection — let's talk",
+    "items": [
+   { "icon": "uil-phone", "title": "Call me", "value": "+6285281144792" },
+       { "icon": "uil-envelope", "title": "Email", "value": "ibnudexton@gmail.com" },
+      { "icon": "uil-map-marker", "title": "Location", "value": "Ciledug - Kota Tangerang", "href": "https://www.google.com/maps/place/Kec.+Ciledug,+Kota+Tangerang,+Banten/@-6.240094,106.704859,15z/data=!3m1!4b1!4m6!3m5!1s0x2e69fa14971f8dfb:0x16790a55b650b013!8m2!3d-6.2417271!4d106.7023326!16s%2Fm%2F047t451?entry=ttu&g_ep=EgoyMDI2MDgyNi4wIKXMDSoASAFQAw%3D%3D" }
+    ]
+  },
+  "footer": {
+    "title": "dxtnn",
+    "subtitle": "Fullstack Developer · UI/UX Designer · Developer Engineer",
+    "copyright": "Ibnu Dexton. All right reserved",
+    "links": [
+      { "label": "Services", "href": "#services" },
+      { "label": "Portofolio", "href": "#portfolio" },
+      { "label": "Contactme", "href": "#contact" }
+    ],
+    "socials": [
+      { "icon": "uil-whatsapp", "url": "https://wa.me/6285281144792" },
+      { "icon": "uil-instagram", "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh" },
+      { "icon": "uil-github-alt", "url": "https://github.com/detonnn" },
+      { "icon": "uil-music", "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc" }
+    ]
+  }
+}
