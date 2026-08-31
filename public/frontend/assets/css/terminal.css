@@ -1303,10 +1303,15 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
     position: fixed;
     right: 1rem;
     bottom: 20px;
-    z-index: 10002;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    pointer-events: none;
+}
+
+.chatbot-toggle-btn {
+    pointer-events: auto;
 }
 
 
@@ -1424,6 +1429,12 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
 }
 
 
+
+
+.chatbot-widget.open {
+    z-index: 10002;
+    pointer-events: auto;
+}
 
 .chatbot-widget.open .chatbot-panel {
     opacity: 1;
@@ -1554,7 +1565,7 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
-    z-index: 4;
+    z-index: 0;
     border-radius: 0 0 20px 20px;
 }
 
