@@ -3,21 +3,21 @@ const FACTS = {
   food: 'Makanan favorit Ibnu: nasi goreng dan ayam geprek Sabana!',
   hobby: 'Hobi Ibnu: eksplorasi & eksperimen hal baru, bersepeda, dan hunting inspirasi desain.',
   game: 'Game favorit Ibnu: Red Dead Redemption 2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox, plus game indie & party.',
-  fav: 'Favorit Ibnu — Makanan: nasi goreng & ayam geprek Sabana. Hobi: eksplor hal baru & bersepeda. Game: RDR2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox. Creator: Deddy Corbuzier, Raditya Dika, Arif Muhammad, Jerome Polin, Bayu Skak, Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, Deankt.',
-  age: 'Ibnu umur 19 tahun, domisili Tangerang — anak pertama dari 2 bersaudara, kuliah di Universitas Pamulang.',
+  fav: 'Favorit Ibnu — Makanan: nasi goreng & ayam geprek Sabana. Hobi: eksplor hal baru & bersepeda. Game: RDR2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox. Creator: Jerome Polin, Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, Deankt.',
+  age: 'umur 19 tahun, domisili Tangerang — , kuliah di Universitas Pamulang.',
   profile: 'Muhammad Ibnu Dexton Alfathir — 19 th, Tangerang, mahasiswa Universitas Pamulang, lulusan SMKN 5 Kota Tangerang DKV. Fokus UI/UX, graphic design, motion & frontend dev.',
   skill: 'Skill Ibnu: Graphic Design 95% (AI/PS), UI/UX 90% (Figma), Motion 80% (CapCut), Frontend 75% (React/Tailwind/Vite/JS), Layout Print 85%.',
   tech: 'Tech stack: React 19, Tailwind CSS, Vite, Vanilla JS, Lenis, OGL. Deploy Vercel + Serverless Node.js.',
 };
 
 const MAP = [
-  { keys: ['creator favorit', 'content creator', 'deankt', 'deddy', 'raditya', 'windah', 'jerome'], reply: FACTS.creator },
-  { keys: ['makanan favorit', 'makanan kesukaan', 'nasi goreng', 'ayam geprek', 'sabana'], reply: FACTS.food },
-  { keys: ['game favorit', 'game kesukaan', 'rdr2', 'clair obscur', 'dark souls', 'ghost of yotei', 'diablo', 'roblox'], reply: FACTS.game },
+  { keys: ['creator favorit', 'content creator', 'deankt', 'Luthfi Halimawan', 'Ade Setiawan', 'windah', 'jerome', 'creator favorite', 'favorite creator'], reply: FACTS.creator },
+  { keys: ['makanan favorit', 'makanan kesukaan', 'nasi goreng', 'ayam geprek', 'sabana', 'makanan favorite', 'favorite food'], reply: FACTS.food },
+  { keys: ['game favorit', 'game kesukaan', 'rdr2', 'clair obscur', 'dark souls', 'ghost of yotei', 'diablo', 'roblox', 'game favorite', 'favorite game'], reply: FACTS.game },
   { keys: ['hobi', 'hobby'], reply: FACTS.hobby },
   { keys: ['umur', 'usia', 'lahir', 'ulang tahun', '19 tahun'], reply: FACTS.age },
-  { keys: ['favorit', 'kesukaan'], reply: FACTS.fav },
-  { keys: ['siapa ibnu', 'tentang ibnu', 'profil ibnu'], reply: FACTS.profile },
+  { keys: ['favorit', 'kesukaan', 'favorite', 'fav'], reply: FACTS.fav },
+  { keys: ['siapa dexton', 'tentang dexton', 'profil dexton'], reply: FACTS.profile },
   { keys: ['skill', 'keahlian', 'bisa apa'], reply: FACTS.skill },
   { keys: ['tech stack', 'teknologi', 'pakai apa', 'framework'], reply: FACTS.tech },
 ];
