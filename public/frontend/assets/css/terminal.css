@@ -1305,6 +1305,78 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
   .nav__list { gap: 1rem .5rem; }
 }
 
+/*==================== NOW PLAYING (music badge, kanan atas berbarengan navbar) ====================*/
+.now-playing {
+    position: fixed;
+    top: 0;
+    right: 1rem;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    z-index: calc(var(--z-fixed) + 1);
+    pointer-events: none;
+}
+
+.now-playing__icon {
+    color: var(--green);
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.now-playing__info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    max-width: 160px;
+}
+
+.now-playing__title {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.now-playing__artist {
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.now-playing-fade-enter-active,
+.now-playing-fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.now-playing-fade-enter-from,
+.now-playing-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+@media screen and (max-width: 767px) {
+    .now-playing__info {
+        max-width: 100px;
+    }
+    .now-playing {
+        right: 0.5rem;
+        padding: 0 8px;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .now-playing__title,
+    .now-playing__artist {
+        display: none;
+    }
+}
+
 /*==================== AI ASSISTANT WIDGET ====================*/
 .chatbot-widget {
     position: fixed;
@@ -1525,6 +1597,34 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
 @keyframes chatbotStatusBlink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
+}
+
+
+
+.chatbot-music-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 15px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+}
+
+.chatbot-music-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+}
+
+.chatbot-music-toggle.active {
+    color: var(--green);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 
@@ -1848,6 +1948,50 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
 
 .chatbot-link-btn i {
     font-size: 12px;
+}
+
+
+
+.chatbot-playlist-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+    animation: chatbotMsgIn 0.3s ease both;
+}
+
+.chatbot-playlist-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 11.5px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.22s ease;
+}
+
+.chatbot-playlist-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chatbot-playlist-btn i {
+    color: var(--green);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.chatbot-playlist-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--green);
+    transform: translateY(-1px);
 }
 
 

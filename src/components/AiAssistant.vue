@@ -10,6 +10,17 @@
             <span>Online</span>
           </span>
         </div>
+        <button
+          class="chatbot-music-toggle"
+          :class="{ active: musicPlaying }"
+          type="button"
+          :aria-label="musicPlaying ? 'Pause musik' : 'Putar musik'"
+          :title="musicPlaying ? 'Pause musik' : 'Putar musik'"
+          @click.stop="handleMusicToggleClick"
+        >
+          <i class="uil" :class="musicPlaying ? 'uil-pause' : 'uil-music'"></i>
+        </button>
+
         <div class="chatbot-menu-wrap" :class="{ open: menuOpen }" id="chatbotMenuWrap" ref="menuWrap">
           <button class="chatbot-menu-btn" aria-label="Menu Chat" @click.stop="menuOpen = !menuOpen">
             <i class="uil uil-ellipsis-h"></i>
@@ -40,6 +51,11 @@
             <a v-for="(l, j) in m.links" :key="j" :href="l.url" target="_blank" rel="noopener noreferrer" class="chatbot-link-btn">
               <i :class="l.iconClass"></i> {{ l.label }}
             </a>
+          </div>
+          <div v-if="m.playlist && m.playlist.length" class="chatbot-playlist-row">
+            <button v-for="opt in m.playlist" :key="opt.index" class="chatbot-playlist-btn" @click="selectTrack(opt.index)">
+              <i class="uil uil-play"></i> <span>{{ opt.label }}</span>
+            </button>
           </div>
         </div>
         <div v-if="historyView" class="chatbot-msg bot chatbot-history-list">
@@ -78,6 +94,8 @@
 </template>
 
 <script>
+import { musicState, MUSIC_TRACKS, hasTracks, playTrack, pauseMusic, toggleMusic, onTrackEnded } from './musicPlayer';
+
 const CONTACT_LINKS = {
   instagram: { label: 'Buka Instagram', url: 'https://www.instagram.com/dxtnn_', iconClass: 'uil uil-instagram' },
   tiktok: { label: 'Buka TikTok', url: 'https://www.tiktok.com/@risemss', iconClass: 'uil uil-video' },
@@ -123,7 +141,24 @@ const ANSWERS = {
   ansHome: 'Balik ke Home ya — aku scroll ke atas.',
   ansContactDetail: 'Kontak Dexton — Email: ibnudexton@gmail.com, WA: +62 852-8114-4792, IG: @dxtnn_, GitHub: detonnn',
   fallbackHelp: 'Boleh tanya apa aja soal Dexton — profil, skill & tech stack, proyek, makanan/hobi/game favorit, creator favorit, atau cara kontak. Coba tanya misalnya: "creator favorit siapa?" atau "hobi Dexton apa?"',
+  ansMusicNoTracks: 'Duh, playlist-nya masih kosong nih, belum ada lagu yang di-setting. Coba lagi nanti ya!',
+  ansMusicPaused: 'Oke, musiknya gw pause dulu ya.',
+  ansMusicPlaylistIntro: 'Nih playlist-nya, tinggal pilih mau dengerin yang mana:',
 };
+
+// Kata kunci yang mentrigger munculnya PLAYLIST (bukan langsung muter).
+const MUSIC_PLAY_KEYWORDS = [
+  'music', 'musik', 'lagu', 'song', 'putar musik', 'puter musik', 'play music',
+  'play lagu', 'putar lagu', 'puter lagu', 'nyalain musik', 'setel musik',
+  'setel lagu', 'mainkan musik', 'mainin musik', 'dengerin musik', 'dengerin lagu',
+  'denger musik', 'denger lagu',
+];
+
+// Kata kunci buat berhenti — ini langsung dieksekusi, gak perlu playlist.
+const MUSIC_STOP_KEYWORDS = [
+  'stop musik', 'pause musik', 'berhenti musik', 'berhentiin musik', 'stop lagu',
+  'matiin musik', 'matiin lagu', 'berhentiin lagu',
+];
 
 const KEYWORD_MAP = [
   { keys: ['makasih', 'terima kasih', 'thanks', 'thank you'], answer: 'ansThanks' },
@@ -174,8 +209,15 @@ export default {
     showQuick() {
       return !this.historyView && this.chatInitialized;
     },
+    musicPlaying() {
+      return musicState.isPlaying;
+    },
+    currentTrack() {
+      return musicState.currentTrack;
+    },
   },
   mounted() {
+    this.stopListenEnded = onTrackEnded(this.handleTrackEnded);
     document.addEventListener('click', this.onDocClick);
     this.$nextTick(() => {
       const b = this.$refs.body;
@@ -188,6 +230,7 @@ export default {
   },
   beforeUnmount() {
     document.removeEventListener('click', this.onDocClick);
+    if (this.stopListenEnded) this.stopListenEnded();
   },
   methods: {
     onDocClick(e) {
@@ -223,8 +266,8 @@ export default {
       this.chatInitialized = false;
       this.closeChat();
     },
-    addMessage(text, sender, links) {
-      this.messages.push({ text, sender, links: links || null });
+    addMessage(text, sender, links, playlist) {
+      this.messages.push({ text, sender, links: links || null, playlist: playlist || null });
       this.scrollDown();
     },
     scrollDown() {
@@ -268,6 +311,52 @@ export default {
       }
       return matched;
     },
+    detectMusicIntent(text) {
+      const lower = ' ' + text.toLowerCase() + ' ';
+      if (MUSIC_STOP_KEYWORDS.some((k) => lower.includes(k))) return 'stop';
+      if (MUSIC_PLAY_KEYWORDS.some((k) => lower.includes(k))) return 'play';
+      return null;
+    },
+    // Kalau user minta musik lewat chat -> tampilin playlist, JANGAN langsung muter.
+    showPlaylist() {
+      if (!hasTracks()) {
+        this.addMessage(ANSWERS.ansMusicNoTracks, 'bot');
+        return;
+      }
+      const options = MUSIC_TRACKS.map((t, i) => ({ index: i, label: `${t.title} — ${t.artist}` }));
+      this.addMessage(ANSWERS.ansMusicPlaylistIntro, 'bot', null, options);
+    },
+    // User pilih salah satu lagu dari tombol playlist di dalam chat.
+    selectTrack(index) {
+      const track = MUSIC_TRACKS[index];
+      if (!track) return;
+      playTrack(index);
+      this.showTyping(() => {
+        this.addMessage(`Oke, muter "${track.title}" — ${track.artist} nih. Cek pojok kanan atas ya!`, 'bot');
+      });
+    },
+    // Lagu selesai natural (bukan di-stop user) -> kasih tau, JANGAN auto-next.
+    handleTrackEnded(track) {
+      if (!this.chatInitialized) return;
+      const label = track ? `"${track.title}" — ${track.artist}` : 'Lagunya';
+      this.showTyping(() => {
+        this.addMessage(`${label} udah selesai nih. Mau putar lagi atau pilih lagu lain dari playlist?`, 'bot');
+      });
+    },
+    // Tombol toggle manual di header chatbot — on/off langsung, gak perlu ketik apa-apa.
+    handleMusicToggleClick() {
+      const result = toggleMusic();
+      if (!this.isOpen || !this.chatInitialized) return;
+      let text;
+      if (result === 'no-tracks') text = ANSWERS.ansMusicNoTracks;
+      else if (result === 'playing') {
+        const t = musicState.currentTrack;
+        text = t ? `Muter "${t.title}" — ${t.artist} lagi nih` : ANSWERS.ansMusicNoTracks;
+      } else {
+        text = ANSWERS.ansMusicPaused;
+      }
+      this.showTyping(() => this.addMessage(text, 'bot'));
+    },
     detectAnswer(text) {
       const lower = ' ' + text.toLowerCase() + ' ';
       let best = null;
@@ -285,6 +374,19 @@ export default {
       this.addMessage(displayText, 'user');
       this.saveHistoryEntry(displayText);
       this.inputText = '';
+
+      if (!forcedAnswerKey) {
+        const musicIntent = this.detectMusicIntent(displayText);
+        if (musicIntent === 'stop') {
+          pauseMusic();
+          this.showTyping(() => this.addMessage(ANSWERS.ansMusicPaused, 'bot'));
+          return;
+        }
+        if (musicIntent === 'play') {
+          this.showTyping(() => this.showPlaylist());
+          return;
+        }
+      }
 
       const answerKey = forcedAnswerKey || this.detectAnswer(displayText);
 

@@ -57,11 +57,31 @@
                 </div>
             </div>
         </nav>
+
+        <transition name="now-playing-fade">
+            <div class="now-playing" v-if="musicPlaying && currentTrack">
+                <i class="uil uil-music now-playing__icon"></i>
+                <div class="now-playing__info">
+                    <span class="now-playing__title">{{ currentTrack.title }}</span>
+                    <span class="now-playing__artist">{{ currentTrack.artist }}</span>
+                </div>
+            </div>
+        </transition>
     </header>
 </template>
 
 <script>
+import { musicState } from '../../components/musicPlayer';
+
 export default {
-    name: 'Header'
+    name: 'Header',
+    computed: {
+        musicPlaying() {
+            return musicState.isPlaying;
+        },
+        currentTrack() {
+            return musicState.currentTrack;
+        },
+    },
 }
 </script>
