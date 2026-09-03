@@ -59,8 +59,8 @@
         </nav>
 
         <transition name="now-playing-fade">
-            <div class="now-playing" v-if="musicPlaying && currentTrack">
-                <i class="uil uil-music now-playing__icon"></i>
+            <div class="now-playing" v-if="currentTrack" :class="{ paused: !musicPlaying }" @click="toggleTrack" :title="musicPlaying ? 'Mute musik' : 'Putar musik'">
+                <i class="uil now-playing__icon" :class="musicPlaying ? 'uil-music' : 'uil-volume-mute'"></i>
                 <div class="now-playing__info">
                     <span class="now-playing__title">{{ currentTrack.title }}</span>
                     <span class="now-playing__artist">{{ currentTrack.artist }}</span>
@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import { musicState } from '../../components/musicPlayer';
+import { musicState, toggleMusic } from '../../components/musicPlayer';
 
 export default {
     name: 'Header',
@@ -81,6 +81,11 @@ export default {
         },
         currentTrack() {
             return musicState.currentTrack;
+        },
+    },
+    methods: {
+        toggleTrack() {
+            toggleMusic();
         },
     },
 }
