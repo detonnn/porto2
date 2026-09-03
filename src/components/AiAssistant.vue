@@ -106,7 +106,7 @@ const CONTACT_LINKS = {
 const QUICK_REPLIES = [
   { key: 'q1', label: 'Tentang Dexton?', answer: 'ans1' },
   { key: 'q2', label: 'Keahlian & Skill?', answer: 'ans2' },
-  { key: 'q3', label: 'Mau Sambil Dengenr Musik?', answer: 'ansMusicPlaylistIntro' },
+  { key: 'q3', label: 'Mau Sambil Dengerin Musik?', answer: 'ansMusicPlaylistIntro' },
   { key: 'q4', label: 'Cara Kontak?', answer: 'ans4' },
 ];
 
