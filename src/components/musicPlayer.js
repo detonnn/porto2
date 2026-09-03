@@ -1,24 +1,20 @@
-import { reactive } from 'vue';
-
-/**
- * ================================================================
- *  MANUAL TRACK LIST — isi sendiri di sini bre.
- * ================================================================
- * - title  : judul lagu
- * - artist : nama artis
- * - src    : path/URL ke file audio (taruh file-nya di /public/frontend/assets/audio/
- *            terus isi src: '/frontend/assets/audio/nama-file.mp3', atau boleh
- *            langsung link https:// kalau audio-nya di-hosting eksternal)
- * - cover  : (opsional) path/URL cover art, dipakai kalau nanti mau ditampilin
- *
- * Contoh:
- * { title: 'Sicko Mode', artist: 'Travis Scott', src: '/frontend/assets/audio/sicko-mode.mp3' },
- * ================================================================
- */
+import { reactive } from "vue";
 export const MUSIC_TRACKS = [
-  {title: 'Tunggu aku di Jakarta', artist: 'Sheila on 7', src: '/frontend/assets/audio/jakarta.mp3'},
-  {title: 'Something Going On', artist: 'Kaysha ', src: '/frontend/assets/audio/eyes.mp3'},
-  {title: 'i want you back', artist: 'jakcson 5 ', src: '/frontend/assets/audio/want.mp3'},
+  {
+    title: "Tunggu aku di Jakarta",
+    artist: "Sheila on 7",
+    src: "/frontend/assets/audio/jakarta.mp3",
+  },
+  {
+    title: "A Sorrowful Reunion",
+    artist: "Reality Club",
+    src: "/frontend/assets/audio/eyes.mp3",
+  },
+  {
+    title: "i want you back",
+    artist: "jakcson 5",
+    src: "/frontend/assets/audio/want.mp3",
+  },
 ];
 
 export const musicState = reactive({
@@ -33,24 +29,32 @@ let endedListeners = [];
 // ponytail: pub-sub sederhana, ganti event bus kalau listener makin banyak
 export function onTrackEnded(cb) {
   endedListeners.push(cb);
-  return () => { endedListeners = endedListeners.filter((f) => f !== cb); };
+  return () => {
+    endedListeners = endedListeners.filter((f) => f !== cb);
+  };
 }
 
 function handleEnded() {
   musicState.isPlaying = false;
   const finished = musicState.currentTrack;
-  endedListeners.forEach((cb) => { try { cb(finished); } catch { /* abaikan */ } });
+  endedListeners.forEach((cb) => {
+    try {
+      cb(finished);
+    } catch {
+      /* abaikan */
+    }
+  });
 }
 
 function getAudio() {
   if (!audioEl) {
     audioEl = new Audio();
-    audioEl.addEventListener('ended', handleEnded);
-    audioEl.addEventListener('pause', () => {
+    audioEl.addEventListener("ended", handleEnded);
+    audioEl.addEventListener("pause", () => {
       // keep UI in sync if paused from outside our own controls (e.g. OS media keys)
       if (!audioEl.ended) musicState.isPlaying = false;
     });
-    audioEl.addEventListener('play', () => {
+    audioEl.addEventListener("play", () => {
       musicState.isPlaying = true;
     });
   }
@@ -106,18 +110,18 @@ export function stopMusic() {
  * Return: 'no-tracks' | 'playing' | 'paused'
  */
 export function toggleMusic() {
-  if (!hasTracks()) return 'no-tracks';
+  if (!hasTracks()) return "no-tracks";
   const audio = getAudio();
   if (!musicState.currentTrack) {
     playTrack(0);
-    return 'playing';
+    return "playing";
   }
   if (musicState.isPlaying) {
     audio.pause();
-    return 'paused';
+    return "paused";
   }
   audio.play().catch(() => {
     musicState.isPlaying = false;
   });
-  return 'playing';
+  return "playing";
 }

@@ -393,6 +393,8 @@ export default {
         const NAV_MAP = { ansServices: '#services', ansPortfolio: '#portfolio', ansAbout: '#about', ansContact: '#contact', ansSkills: '#skills', ansQualification: '#qualification', ansGithub: '#github', ansHome: '#home' };
         if (answerKey === 'ansFavAsk') {
           this.showTyping(() => this.addMessage(ANSWERS.ansFavAsk, 'bot'));
+        } else if (answerKey === 'ansMusicPlaylistIntro') {
+          this.showTyping(() => this.showPlaylist());
         } else if (answerKey) {
           const links = answerKey === 'ans4' ? this.detectContactLinks(displayText) : null;
           const hash = NAV_MAP[answerKey];
