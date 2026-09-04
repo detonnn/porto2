@@ -5,12 +5,14 @@
 </style>
 
 <template>
+  <visitor-counter></visitor-counter>
   <master></master>
 </template>
 
 <script>
 
 import Master from "./views/MasterView.vue"
+import VisitorCounter from "./components/VisitorCounter.vue"
 
 export default {
   mounted() {
@@ -25,7 +27,7 @@ export default {
     };
     document.head.appendChild(LenisScript);
   },
-  components: {Master}
+  components: { Master, VisitorCounter }
 };
 
 </script>

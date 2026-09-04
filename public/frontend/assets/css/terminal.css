@@ -1375,8 +1375,25 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
         max-width: 100px;
     }
     .now-playing {
+        top: calc(var(--header-height) + 8px);
         right: 0.5rem;
-        padding: 0 8px;
+        height: auto;
+        padding: 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: var(--bg-elev);
+        box-shadow: 0 4px 14px rgba(0,0,0,.35);
+    }
+}
+
+/* di rentang tablet/laptop kecil (768–1100px), navbar udah rame,
+   jadi widget lagu disederhanain jadi icon doang biar gak nabrak menu */
+@media screen and (min-width: 768px) and (max-width: 1100px) {
+    .now-playing__info {
+        display: none;
+    }
+    .now-playing {
+        padding: 0 10px;
     }
 }
 

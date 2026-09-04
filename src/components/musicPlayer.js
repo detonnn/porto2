@@ -15,6 +15,11 @@ export const MUSIC_TRACKS = [
     artist: "jakcson 5",
     src: "/frontend/assets/audio/want.mp3",
   },
+  {
+    title: "Love Songs",
+    artist: "Kaash Paige",
+    src: "/frontend/assets/audio/ls.mp3",
+  },
 ];
 
 export const musicState = reactive({
