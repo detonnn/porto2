@@ -245,7 +245,7 @@ const ANSWERS = {
   ansFavAsk:
     'Kamu mau nanya favorit yang mana dulu? Ada makanan favorit, game favorit, musik favorit, sama content creator favorit. Ketik aja misal "musik favorit" atau "creator favorit" — atau ketik "semuanya" kalau mau rangkuman lengkap.',
   ansMusicFav:
-    "Musik favorit: Sheila on 7 – Tunggu Aku di Jakarta, Reality Club – A Sorrowful Reunion, Lord Huron – The Night We Met, Cup of Joe – Multo, Kaash Paige – Love Songs. Ketik aja “putar musik” kalau mau dengerin langsung!",
+    "Musik favorit: Alex Crichton – What If I Call, Reality Club – A Sorrowful Reunion, Lord Huron – The Night We Met, Cup of Joe – Multo, Kaash Paige – Love Songs. Ketik aja “putar musik” kalau mau dengerin langsung!",
   ansTestimonial: "Siap! Ke Reviews ya — aku scroll-in ke kata-kata klien.",
   ansAge: "Umur 19 tahun, domisili Tangerang — kuliah di Universitas Pamulang.",
   ansServices:
@@ -383,7 +383,8 @@ const KEYWORD_MAP = [
       "musik kesukaan",
       "lagu fav",
       "musik fav",
-      "sheila on 7",
+      "what if i call",
+      "alex crichton",
       "reality club",
       "lord huron",
       "cup of joe",

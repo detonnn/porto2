@@ -1,9 +1,9 @@
 import { reactive } from "vue";
 export const MUSIC_TRACKS = [
   {
-    title: "Tunggu aku di Jakarta",
-    artist: "Sheila on 7",
-    src: "/frontend/assets/audio/jakarta.mp3",
+    title: "What If I Call",
+    artist: "Alex Crichton",
+    src: "/frontend/assets/audio/whatif.mp3",
   },
   {
     title: "A Sorrowful Reunion",
