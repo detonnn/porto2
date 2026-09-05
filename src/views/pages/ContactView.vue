@@ -37,7 +37,7 @@
                         <i class="uil button__icon" :class="sent ? 'uil-check' : showError ? 'uil-exclamation-triangle' : 'uil-message'"></i>
                     </button>
                     <p v-if="error" style="margin-top:.6rem;color:var(--red,#ff5a5a);font-size:var(--small-font-size)">{{ error }}</p>
-                    <p v-if="sent" style="margin-top:.6rem;color:var(--green);font-size:var(--small-font-size)">✓ Message delivered to ibnudexton@gmail.com</p>
+                    <p v-if="sent" style="margin-top:.6rem;color:var(--green);font-size:var(--small-font-size)">✓ Membuka aplikasi email — tinggal tekan kirim ke ibnudexton@gmail.com</p>
                 </div>
             </form>
         </div>
@@ -83,6 +83,10 @@ export default {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) return this.triggerError('⚠ Harap isi kolom contact terlebih dahulu — valid email required.')
             if (!this.form.message) return this.triggerError('⚠ Harap isi kolom contact terlebih dahulu — message required.')
             this.error = ''; this.showError = false; this.sending = true
+            // ponytail: belum ada backend — buka mailto biar pesan beneran kekirim
+            const subject = encodeURIComponent('Portfolio contact dari ' + this.form.name)
+            const body = encodeURIComponent(this.form.message + '\n\n— ' + this.form.name + ' (' + this.form.email + ')')
+            window.location.href = `mailto:ibnudexton@gmail.com?subject=${subject}&body=${body}`
             setTimeout(() => { this.sending = false; this.sent = true; this.form = { name: '', email: '', message: '' }; setTimeout(() => this.sent = false, 4000) }, 900)
         }
     }

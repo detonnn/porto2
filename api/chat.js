@@ -1,17 +1,17 @@
 const FACTS = {
-  creator: 'Content creator favorit Ibnu:Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, dan Deankt!',
-  food: 'Makanan favorit Ibnu: nasi goreng dan ayam geprek Sabana!',
-  hobby: 'Hobi Ibnu: eksplorasi & eksperimen hal baru, bersepeda, dan hunting inspirasi desain.',
-  game: 'Game favorit Ibnu: Red Dead Redemption 2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox, plus game indie & party.',
-  fav: 'Favorit Ibnu — Makanan: nasi goreng & ayam geprek Sabana. Hobi: eksplor hal baru & bersepeda. Game: RDR2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox. Creator: Jerome Polin, Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, Deankt.',
-  age: 'umur 19 tahun, domisili Tangerang — , kuliah di Universitas Pamulang.',
+  creator: 'Content creator favorit: Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, dan Deankt!',
+  food: 'Makanan favorit: nasi goreng dan ayam geprek Sabana!',
+  hobby: 'Hobi: eksplorasi & eksperimen hal baru, bersepeda, dan hunting inspirasi desain.',
+  game: 'Game favorit: Red Dead Redemption 2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox, plus game indie & party.',
+  fav: 'Favorit — Makanan: nasi goreng & ayam geprek Sabana. Hobi: eksplor hal baru & bersepeda. Game: RDR2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox. Creator: Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, Deankt.',
+  age: 'Umur 19 tahun, domisili Tangerang — kuliah di Universitas Pamulang.',
   profile: 'Muhammad Ibnu Dexton Alfathir — 19 th, Tangerang, mahasiswa Universitas Pamulang, lulusan SMKN 5 Kota Tangerang DKV. Fokus UI/UX, graphic design, motion & frontend dev.',
-  skill: 'Skill Ibnu: Graphic Design 95% (AI/PS), UI/UX 90% (Figma), Motion 80% (CapCut), Frontend 75% (React/Tailwind/Vite/JS), Layout Print 85%.',
+  skill: 'Skill: Graphic Design 95% (AI/PS), UI/UX 90% (Figma), Motion 80% (CapCut), Frontend 75% (React/Tailwind/Vite/JS), Layout Print 85%.',
   tech: 'Tech stack: React 19, Tailwind CSS, Vite, Vanilla JS, Lenis, OGL. Deploy Vercel + Serverless Node.js.',
 };
 
 const MAP = [
-  { keys: ['creator favorit', 'content creator', 'deankt', 'Luthfi Halimawan', 'Ade Setiawan', 'windah', 'jerome', 'creator favorite', 'favorite creator'], reply: FACTS.creator },
+  { keys: ['creator favorit', 'content creator', 'deankt', 'Luthfi Halimawan', 'Ade Setiawan', 'windah', 'creator favorite', 'favorite creator'], reply: FACTS.creator },
   { keys: ['makanan favorit', 'makanan kesukaan', 'nasi goreng', 'ayam geprek', 'sabana', 'makanan favorite', 'favorite food'], reply: FACTS.food },
   { keys: ['game favorit', 'game kesukaan', 'rdr2', 'clair obscur', 'dark souls', 'ghost of yotei', 'diablo', 'roblox', 'game favorite', 'favorite game'], reply: FACTS.game },
   { keys: ['hobi', 'hobby'], reply: FACTS.hobby },
@@ -30,7 +30,7 @@ function localAnswer(msg) {
     for (const k of e.keys) if (l.includes(k)) s += k.length;
     if (s > bestScore) { bestScore = s; best = e.reply; }
   }
-  return best || 'Boleh tanya apa aja soal si dexton — profil, skill & tech stack, proyek, makanan/hobi/game favorit, creator favorit, atau cara kontak. Coba: " siapa?"';
+  return best || 'Boleh tanya apa aja — profil, skill & tech stack, proyek, makanan/hobi/game favorit, creator favorit, atau cara kontak.';
 }
 
 export default async function handler(req, res) {

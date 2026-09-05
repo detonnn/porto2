@@ -32,8 +32,8 @@ export default {
   },
   methods: {
     async registerVisit() {
-      const alreadyCounted = localStorage.getItem('porto2_visited');
       try {
+        const alreadyCounted = localStorage.getItem('porto2_visited');
         if (!alreadyCounted) {
           const res = await fetch('/api/visitors', { method: 'POST' });
           if (!res.ok) throw new Error(`POST /api/visitors failed: ${res.status}`);
@@ -53,6 +53,7 @@ export default {
     async fetchCount() {
       try {
         const res = await fetch('/api/visitors');
+        if (!res.ok) return;
         const data = await res.json();
         if (Number.isFinite(Number(data.count))) this.count = Number(data.count);
       } catch (e) {

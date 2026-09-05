@@ -1,5 +1,5 @@
 <template>
-    <section class="qualification section">
+    <section class="qualification section" id="qualification">
         <h2 class="section__title">{{ qualification.title }}</h2>
         <span class="section__subtitle">{{ qualification.subtitle }}</span>
 

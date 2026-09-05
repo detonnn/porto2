@@ -203,7 +203,7 @@ const CONTACT_LINKS = {
 };
 
 const QUICK_REPLIES = [
-  { key: "q1", label: "Tentang Dexton?", answer: "ans1" },
+  { key: "q1", label: "Profil singkat?", answer: "ans1" },
   { key: "q2", label: "Keahlian & Skill?", answer: "ans2" },
   {
     key: "q3",
@@ -214,19 +214,19 @@ const QUICK_REPLIES = [
 ];
 
 const ANSWERS = {
-  ans1: "Ibnu Dexton — 19 tahun, Tangerang, mahasiswa Universitas Pamulang, anak pertama dari 2 bersaudara. Lulusan SMKN 5 Kota Tangerang DKV, fokus di UI/UX, graphic design, motion design, dan frontend dev.",
-  ans2: "Keahlian Ibnu: Graphic Design 95% (Illustrator/Photoshop), UI/UX 90% (Figma), Motion & Video Editing 80% (CapCut), Frontend 75% (React, Tailwind, Vite, Vanilla JS, Canvas/Web Audio), Layout & Print 85%.",
-  ans3: "Proyek Ibnu: Brand Identity Garuda Private Server, Custom Vector Logo & Typography, Internship Azka Print (packaging workflow), Brand fashion Attics (katalog), Packaging Keripik Tempe & Social Media Kit sneaker lokal.",
+  ans1: "Muhammad Ibnu Dexton Alfathir — 19 tahun, Tangerang, mahasiswa Universitas Pamulang, anak pertama dari 2 bersaudara. Lulusan SMKN 5 Kota Tangerang DKV, fokus di UI/UX, graphic design, motion design, dan frontend dev.",
+  ans2: "Keahlian: Graphic Design 95% (Illustrator/Photoshop), UI/UX 90% (Figma), Motion & Video Editing 80% (CapCut), Frontend 75% (React, Tailwind, Vite, Vanilla JS, Canvas/Web Audio), Layout & Print 85%.",
+  ans3: "Proyek: Brand Identity Garuda Private Server, Custom Vector Logo & Typography, Internship Azka Print (packaging workflow), Brand fashion Attics (katalog), Packaging Keripik Tempe & Social Media Kit sneaker lokal.",
   ans4: "Gampang! Scroll ke section kontak di bawah, isi form, atau langsung klik salah satu link ini",
-  greeting: "Halo! Tanyakan sesuatu tentang Ibnu Dexton",
+  greeting: "Halo! Tanyakan sesuatu seputar portfolio ini",
   ansGreeting:
-    "Halo juga! Mau tanya apa soal dexton? Bisa profil, skill, proyek, hobi/favorit, game, creator favorit, atau kontak.",
+    "Halo juga! Mau tanya apa? Bisa profil, skill, proyek, hobi/favorit, game, creator favorit, atau kontak.",
   ansThanks: "Sama-sama! Ada lagi yang mau ditanyain?",
   ansBotId:
-    "Aku asisten virtual di portfolio Ibnu Dexton, siap bantu jawab pertanyaan seputar dia dan karyanya!",
-  ansLocation: "Dexton berbasis di Tangerang, Indonesia",
+    "Aku asisten virtual di portfolio ini, siap bantu jawab pertanyaan seputar pemiliknya dan karyanya!",
+  ansLocation: "Berbasis di Tangerang, Indonesia",
   ansEducation:
-    "Dexton lulusan SMKN 5 Kota Tangerang jurusan Desain Komunikasi Visual, sekarang mahasiswa aktif di Universitas Pamulang.",
+    "Lulusan SMKN 5 Kota Tangerang jurusan Desain Komunikasi Visual, sekarang mahasiswa aktif di Universitas Pamulang.",
   ansExperience:
     "Udah beberapa tahun terjun di dunia desain & frontend dev, kerja bareng berbagai klien dari macam-macam industri.",
   ansTech:
@@ -239,18 +239,22 @@ const ANSWERS = {
   ansGame:
     "Game favorit: Red Dead Redemption 2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox, plus game indie & party.",
   ansCreator:
-    "Content creator favorit:, Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, dan Deankt!",
+    "Content creator favorit: Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, dan Deankt!",
   ansFav:
-    "Favorit — Makanan: nasi goreng & ayam geprek Sabana. Hobi: eksplor hal baru & bersepeda. Game: RDR2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox. Creator: , Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, Deankt.",
+    "Favorit — Makanan: nasi goreng & ayam geprek Sabana. Hobi: eksplor hal baru & bersepeda. Game: RDR2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox. Creator: Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, Deankt.",
   ansFavAsk:
-    'Kamu mau nanya favorit yang mana dulu? Ada makanan favorit, game favorit, sama content creator favorit. Ketik aja misal "makanan favorit" atau "creator favorit" — atau ketik "semuanya" kalau mau rangkuman lengkap.',
+    'Kamu mau nanya favorit yang mana dulu? Ada makanan favorit, game favorit, musik favorit, sama content creator favorit. Ketik aja misal "musik favorit" atau "creator favorit" — atau ketik "semuanya" kalau mau rangkuman lengkap.',
+  ansMusicFav:
+    "Musik favorit: Sheila on 7 – Tunggu Aku di Jakarta, Reality Club – A Sorrowful Reunion, Lord Huron – The Night We Met, Cup of Joe – Multo, Kaash Paige – Love Songs. Ketik aja “putar musik” kalau mau dengerin langsung!",
+  ansTestimonial:
+    "Siap! Ke Reviews ya — aku scroll-in ke kata-kata klien.",
   ansAge:
-    "umur 19 tahun, domisili Tangerang — , kuliah di Universitas Pamulang.",
+    "Umur 19 tahun, domisili Tangerang — kuliah di Universitas Pamulang.",
   ansServices:
     "Siap! Aku arahin kamu ke Services ya — klik link ini atau scroll ke section Services di bawah.",
   ansPortfolio:
-    "Siap! Ke Portfolio ya — aku scroll-in ke bagian karya-karya Dexton.",
-  ansAbout: "Siap! Ke About ya — aku bawa kamu ke section profil Dexton.",
+    "Siap! Ke Portfolio ya — aku scroll-in ke bagian karya-karya di bawah.",
+  ansAbout: "Siap! Ke About ya — aku bawa kamu ke section profil Dexton di bawah.",
   ansContact: "Siap! Ke Contact ya — aku arahin ke form kontak di bawah.",
   ansSkills: "Skill lengkap ada di section Skills — aku scroll-in ke sana ya.",
   ansQualification:
@@ -261,7 +265,7 @@ const ANSWERS = {
   ansContactDetail:
     "Kontak — Email: ibnudexton@gmail.com, WA: +62 852-8114-4792, IG: @dxtnn_, GitHub: detonnn",
   fallbackHelp:
-    'Boleh tanya apa aja soal Dexton — profil, skill & tech stack, proyek, makanan/hobi/game favorit, creator favorit, atau cara kontak. Coba tanya misalnya: "Tiktoknya apa?" atau "hobinya apa?"',
+    'Boleh tanya apa aja — profil, skill & tech stack, proyek, makanan/hobi/game/musik favorit, creator favorit, review klien, atau cara kontak. Coba tanya misalnya: "musik favorit apa?" atau "hobinya apa?"',
   ansMusicNoTracks:
     "Duh, playlist-nya masih kosong nih, belum ada lagu yang di-setting. Coba lagi nanti ya!",
   ansMusicPaused: "Oke, musiknya gw pause dulu ya.",
@@ -369,6 +373,24 @@ const KEYWORD_MAP = [
       "roblox",
     ],
     answer: "ansGame",
+  },
+  {
+    keys: [
+      "lagu favorit",
+      "musik favorit",
+      "song favorit",
+      "music favorit",
+      "lagu kesukaan",
+      "musik kesukaan",
+      "lagu fav",
+      "musik fav",
+      "sheila on 7",
+      "reality club",
+      "lord huron",
+      "cup of joe",
+      "kaash paige",
+    ],
+    answer: "ansMusicFav",
   },
   {
     keys: [
@@ -510,18 +532,36 @@ const KEYWORD_MAP = [
     answer: "ansSkills",
   },
   {
-    keys: ["qualification", "kualifikasi", "pendidikan", "riwayat"],
+    keys: [
+      "qualification",
+      "kualifikasi",
+      "pendidikan",
+      "riwayat",
+      "karir",
+      "karier",
+      "journey",
+      "sekolah",
+      "kuliah dimana",
+    ],
     answer: "ansQualification",
+  },
+  {
+    keys: [
+      "review",
+      "reviews",
+      "ulasan",
+      "testimoni",
+      "testimonial",
+      "kata klien",
+      "kata client",
+    ],
+    answer: "ansTestimonial",
   },
   { keys: ["github", "aktivitas github", "repo"], answer: "ansGithub" },
   { keys: ["home", "beranda", "ke atas"], answer: "ansHome" },
   { keys: ["services", "layanan"], answer: "ansServices" },
   { keys: ["portfolio", "portofolio"], answer: "ansPortfolio" },
   { keys: ["contact", "kontak"], answer: "ansContact" },
-  {
-    keys: ["semuanya", "semua favorit", "all favorit", "rangkuman favorit"],
-    answer: "ansFav",
-  },
   {
     keys: ["favorit", "kesukaan", "suka apa", "favorite", "fav"],
     answer: "ansFavAsk",
@@ -639,9 +679,16 @@ export default {
       }
     },
     saveHistoryEntry(text) {
-      const hist = this.loadHistory();
-      hist.unshift({ text, time: Date.now() });
-      localStorage.setItem("chatbot_history", JSON.stringify(hist.slice(0, 8)));
+      try {
+        const hist = this.loadHistory();
+        hist.unshift({ text, time: Date.now() });
+        localStorage.setItem(
+          "chatbot_history",
+          JSON.stringify(hist.slice(0, 8)),
+        );
+      } catch {
+        // storage penuh / diblokir — chat tetap jalan, riwayat aja yang skip
+      }
     },
     showHistory() {
       this.closeMenu();
@@ -760,23 +807,27 @@ export default {
       return VISITOR_KEYWORDS.some((k) => l.includes(k));
     },
     async replyVisitor() {
-      this.showTyping(async () => {
-        try {
-          const r = await fetch("/api/visitors");
-          const j = await r.json();
-          const n = Number(j.count);
-          const c = Number.isFinite(n) ? n.toLocaleString("id-ID") : "banyak";
-          this.addMessage(
-            `Portfolio ini sudah dikunjungi ${c} orang — kamu salah satunya!`,
-            "bot",
-          );
-        } catch {
-          this.addMessage(
-            "Visitor count lagi offline, tapi portfolio ini tetap rame kok!",
-            "bot",
-          );
-        }
-      });
+      this.typing = true;
+      this.scrollDown();
+      await new Promise((r) => setTimeout(r, 900 + Math.random() * 900));
+      try {
+        const r = await fetch("/api/visitors");
+        if (!r.ok) throw new Error("visitors API " + r.status);
+        const j = await r.json();
+        const n = Number(j.count);
+        const c = Number.isFinite(n) ? n.toLocaleString("id-ID") : "banyak";
+        this.addMessage(
+          `Portfolio ini sudah dikunjungi ${c} orang — kamu salah satunya!`,
+          "bot",
+        );
+      } catch {
+        this.addMessage(
+          "Visitor count lagi offline, tapi portfolio ini tetap rame kok!",
+          "bot",
+        );
+      } finally {
+        this.typing = false;
+      }
     },
     handleUserInput(displayText, forcedAnswerKey) {
       if (!displayText || !displayText.trim()) return;
@@ -790,7 +841,10 @@ export default {
           this.replyVisitor();
           return;
         }
-        const musicIntent = this.detectMusicIntent(displayText);
+        // "lagu favorit apa?" itu nanya favorit, bukan minta muter musik
+        const musicIntent = displayText.toLowerCase().includes("favorit")
+          ? null
+          : this.detectMusicIntent(displayText);
         if (musicIntent === "stop") {
           pauseMusic();
           this.showTyping(() => this.addMessage(ANSWERS.ansMusicPaused, "bot"));
@@ -811,6 +865,7 @@ export default {
         ansContact: "#contact",
         ansSkills: "#skills",
         ansQualification: "#qualification",
+        ansTestimonial: "#testimonial",
         ansGithub: "#github",
         ansHome: "#home",
       };

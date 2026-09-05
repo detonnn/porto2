@@ -29,6 +29,7 @@ document.addEventListener('click', (e) => {
 const navLink = document.querySelectorAll('.nav__link')
 function linkAction() {
   const navMenu = document.getElementById('nav-menu')
+  if (!navMenu) return
   navMenu.classList.remove('show-menu')
 }
 navLink.forEach(n => n.addEventListener('click', linkAction))
@@ -57,6 +58,7 @@ const tabs = document.querySelectorAll('[data-target]'),
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     const target = document.querySelector(tab.dataset.target)
+    if (!target) return
 
     tabContents.forEach(tc => tc.classList.remove('qualification__active'))
     target.classList.add('qualification__active')
@@ -90,6 +92,7 @@ modalViews.forEach((modalView) => {
 })
 
 /*==================== PORTFOLIO SWIPER ====================*/
+if (typeof Swiper !== 'undefined') {
 let portofolio__container = new Swiper(".portofolio__container", {
   cssMode: true,
   loop: true,
@@ -108,6 +111,7 @@ let testimonial__container = new Swiper(".testimonial__container", {
   pagination: { el: ".swiper-pagination", clickable: true, dynamicBullets: true },
   breakpoints: { 568: { slidesPerView: 2 } },
 })
+}
 
 /*==================== SCROLL SECTIONS ACTIVE LINK (rAF-throttled) ====================*/
 const sections = document.querySelectorAll('section[id]')
