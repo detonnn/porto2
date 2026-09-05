@@ -7,14 +7,12 @@
 //   UPSTASH_REDIS_REST_URL
 //   UPSTASH_REDIS_REST_TOKEN
 
-const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
-const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const COUNT_KEY = 'porto2:visitor_count';
 
-async function redis(pathParts) {
-  const url = `${REDIS_URL}/${pathParts.map(encodeURIComponent).join('/')}`;
+async function redis(pathParts, redisUrl, redisToken) {
+  const url = `${redisUrl}/${pathParts.map(encodeURIComponent).join('/')}`;
   const r = await fetch(url, {
-    headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
+    headers: { Authorization: `Bearer ${redisToken}` },
   });
   if (!r.ok) throw new Error(`Redis error ${r.status}`);
   const data = await r.json();
@@ -22,6 +20,11 @@ async function redis(pathParts) {
 }
 
 export default async function handler(req, res) {
+  // baca env di dalam handler biar kebaca di runtime Vercel (bukan build-time), + cegah cache
+  const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+  const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+
   if (!REDIS_URL || !REDIS_TOKEN) {
     return res.status(500).json({
       error: 'Redis belum dikonfigurasi. Set UPSTASH_REDIS_REST_URL & UPSTASH_REDIS_REST_TOKEN di Vercel env vars.',
@@ -31,13 +34,13 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'POST') {
       // dipanggil sekali per browser (lihat VisitorCounter.vue) buat nambah counter
-      const count = await redis(['incr', COUNT_KEY]);
+      const count = await redis(['incr', COUNT_KEY], REDIS_URL, REDIS_TOKEN);
       return res.status(200).json({ count });
     }
 
     if (req.method === 'GET') {
       // dipanggil buat polling angka realtime tanpa nambah counter
-      const raw = await redis(['get', COUNT_KEY]);
+      const raw = await redis(['get', COUNT_KEY], REDIS_URL, REDIS_TOKEN);
       const count = raw ? parseInt(raw, 10) : 0;
       return res.status(200).json({ count });
     }

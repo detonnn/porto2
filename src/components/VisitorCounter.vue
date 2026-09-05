@@ -1,5 +1,5 @@
 <template>
-  <div class="visitor-badge" :title="`${count === null ? 0 : count} total pengunjung`">
+  <div class="visitor-badge" :title="`${count ?? 0} total pengunjung`">
     <span class="dot"></span>
     <span class="visitor-badge__count">{{ displayCount }}</span>
     <span class="visitor-badge__label">visitors</span>
@@ -17,7 +17,9 @@ export default {
   },
   computed: {
     displayCount() {
-      return this.count === null ? '—' : this.count.toLocaleString('id-ID');
+      if (this.count == null) return '—';
+      const n = Number(this.count);
+      return Number.isFinite(n) ? n.toLocaleString('id-ID') : '—';
     },
   },
   async mounted() {
@@ -36,7 +38,7 @@ export default {
           const res = await fetch('/api/visitors', { method: 'POST' });
           if (!res.ok) throw new Error(`POST /api/visitors failed: ${res.status}`);
           const data = await res.json();
-          this.count = data.count;
+          if (Number.isFinite(Number(data.count))) this.count = Number(data.count);
           // cuma di-mark "udah dihitung" kalau request-nya beneran sukses,
           // biar kalau API sempet error, visit-nya kehitung pas API udah sehat lagi
           localStorage.setItem('porto2_visited', '1');
@@ -45,14 +47,14 @@ export default {
         }
       } catch (e) {
         // jangan sampe error di sini nge-break web utamanya
-        this.count = this.count ?? 0;
+        if (!Number.isFinite(Number(this.count))) this.count = 0;
       }
     },
     async fetchCount() {
       try {
         const res = await fetch('/api/visitors');
         const data = await res.json();
-        this.count = data.count;
+        if (Number.isFinite(Number(data.count))) this.count = Number(data.count);
       } catch (e) {
         // diemin aja, biarin badge tetep nampilin angka terakhir
       }
