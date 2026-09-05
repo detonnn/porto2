@@ -14,10 +14,10 @@
           />
         </div>
         <div class="chatbot-header-info">
-          <strong>Ibnu's Virtual Assistant</strong>
-          <span class="chatbot-status">
+          <strong>Dexton Asisstant</strong>
+          <span class="chatbot-status" :class="{ typing: typing }">
             <span class="chatbot-status-dot"></span>
-            <span>Online</span>
+            <span>{{ typing ? "mengetik..." : "Online" }}</span>
           </span>
         </div>
         <button
@@ -123,6 +123,7 @@
         </div>
         <div v-if="typing" class="chatbot-typing">
           <span></span><span></span><span></span>
+          <em class="chatbot-typing-label">Assistant Is Typing...</em>
         </div>
       </div>
 
@@ -232,15 +233,15 @@ const ANSWERS = {
     "Tech stack: React 19, Tailwind CSS, Vite, Vanilla, Lenis (smooth scroll), Vue. Deploy di Vercel dengan Serverless Functions Node.js.",
   ansOrder:
     "Buat order jasa atau kerja sama, langsung aja isi form di section kontak ya!",
-  ansFood: "Makanan favorit Dexton: nasi goreng dan ayam geprek Sabana!",
+  ansFood: "Makanan favorit: nasi goreng dan ayam geprek Sabana!",
   ansHobby:
-    "Hobi Dexton: eksplorasi & eksperimen hal baru, bersepeda, dan hunting inspirasi desain.",
+    "Hobi: eksplorasi & eksperimen hal baru, bersepeda, dan hunting inspirasi desain.",
   ansGame:
-    "Game favorit Dexton: Red Dead Redemption 2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox, plus game indie & party.",
+    "Game favorit: Red Dead Redemption 2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox, plus game indie & party.",
   ansCreator:
-    "Content creator favorit Dexton:, Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, dan Deankt!",
+    "Content creator favorit:, Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, dan Deankt!",
   ansFav:
-    "Favorit Dexton — Makanan: nasi goreng & ayam geprek Sabana. Hobi: eksplor hal baru & bersepeda. Game: RDR2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox. Creator: , Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, Deankt.",
+    "Favorit — Makanan: nasi goreng & ayam geprek Sabana. Hobi: eksplor hal baru & bersepeda. Game: RDR2, Clair Obscur: Expedition 33, Dark Souls III, Ghost of Yotei, Diablo V, Roblox. Creator: , Windah Basudara, Luthfi Halimawan, Ace Anthem, Ade Setiawan, Deankt.",
   ansFavAsk:
     'Kamu mau nanya favorit yang mana dulu? Ada makanan favorit, game favorit, sama content creator favorit. Ketik aja misal "makanan favorit" atau "creator favorit" — atau ketik "semuanya" kalau mau rangkuman lengkap.',
   ansAge:
@@ -258,9 +259,9 @@ const ANSWERS = {
     "Aktivitas GitHub ada di section Github Activity — aku arahin ke sana.",
   ansHome: "Balik ke Home ya — aku scroll ke atas.",
   ansContactDetail:
-    "Kontak Dexton — Email: ibnudexton@gmail.com, WA: +62 852-8114-4792, IG: @dxtnn_, GitHub: detonnn",
+    "Kontak — Email: ibnudexton@gmail.com, WA: +62 852-8114-4792, IG: @dxtnn_, GitHub: detonnn",
   fallbackHelp:
-    'Boleh tanya apa aja soal Dexton — profil, skill & tech stack, proyek, makanan/hobi/game favorit, creator favorit, atau cara kontak. Coba tanya misalnya: "creator favorit siapa?" atau "hobi Dexton apa?"',
+    'Boleh tanya apa aja soal Dexton — profil, skill & tech stack, proyek, makanan/hobi/game favorit, creator favorit, atau cara kontak. Coba tanya misalnya: "Tiktoknya apa?" atau "hobinya apa?"',
   ansMusicNoTracks:
     "Duh, playlist-nya masih kosong nih, belum ada lagu yang di-setting. Coba lagi nanti ya!",
   ansMusicPaused: "Oke, musiknya gw pause dulu ya.",
@@ -601,7 +602,7 @@ export default {
       this.messages = [];
       this.historyView = false;
       this.chatInitialized = true;
-      this.addMessage(ANSWERS.greeting, "bot");
+      this.showTyping(() => this.addMessage(ANSWERS.greeting, "bot"));
     },
     endChat() {
       this.chatInitialized = false;
@@ -628,7 +629,7 @@ export default {
       setTimeout(() => {
         this.typing = false;
         cb();
-      }, 350 + Math.random() * 250);
+      }, 900 + Math.random() * 900);
     },
     loadHistory() {
       try {

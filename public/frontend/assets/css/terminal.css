@@ -1907,6 +1907,7 @@ body.light-theme .chatbot-menu-item:hover {
 .chatbot-typing {
     align-self: flex-start;
     display: flex;
+    align-items: center;
     gap: 4px;
     padding: 11px 14px;
     background: var(--bg-elev-2);
@@ -1914,6 +1915,23 @@ body.light-theme .chatbot-menu-item:hover {
     border-radius: 14px;
     border-bottom-left-radius: 4px;
     animation: chatbotMsgIn 0.3s ease both;
+}
+
+.chatbot-typing-label {
+    font-style: normal;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: 6px;
+    animation: chatbotTypingBlink 1.2s ease-in-out infinite;
+}
+
+.chatbot-status.typing {
+    color: var(--green);
+}
+
+@keyframes chatbotTypingBlink {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
 }
 
 
