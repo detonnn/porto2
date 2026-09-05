@@ -1719,11 +1719,9 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
     right: 16px;
     left: auto;
     min-width: 180px;
-    background: #ffffffd8; /* Mengubah background menjadi putih solid agar kontras tinggi */
-    backdrop-filter: blur(28px) saturate(140%);
-    -webkit-backdrop-filter: blur(28px) saturate(140%);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background: var(--bg-elev-2);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
     border-radius: 12px;
     padding: 6px;
     display: flex;
@@ -1756,7 +1754,7 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
     width: 100%;
     background: transparent;
     border: none;
-    color: #0000004f !important; /* Paksa warna teks menjadi Hitam Pekat */
+    color: var(--text-dim) !important;
     font-size: 12.5px;
     font-weight: 500;
     padding: 8px 10px;
@@ -1776,15 +1774,15 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
 .chatbot-menu-item i {
     width: 13px;
     font-size: 11px;
-    color: #000000 !important; 
+    color: var(--text-dim) !important; 
 }
 
 
 
 /* Efek Hover pas kursor di atas menu */
 .chatbot-menu-item:hover {
-    background: rgba(0, 0, 0, 0.06) !important; /* Highlight tipis warna gelap saat di-hover */
-    color: #000000 !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: var(--text) !important;
 }
 
 
@@ -1794,7 +1792,12 @@ body.light-theme .github__day[data-level="4"] { background: #1e3a5f; }
     font-size: 11px;
 }
 
-
+body.light-theme .chatbot-menu-dropdown {
+    background: #fff;
+}
+body.light-theme .chatbot-menu-item:hover {
+    background: rgba(0, 0, 0, 0.06) !important;
+}
 
 .chatbot-close {
     background: transparent;
