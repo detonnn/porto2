@@ -11,9 +11,14 @@ export const MUSIC_TRACKS = [
     src: "/frontend/assets/audio/eyes.mp3",
   },
   {
-    title: "i want you back",
-    artist: "jakcson 5",
+    title: "The Night We Met",
+    artist: "Lord Huron ",
     src: "/frontend/assets/audio/want.mp3",
+  },
+  {
+    title: "multo",
+    artist: "cup of joe",
+    src: "/frontend/assets/audio/multo.mp3",
   },
   {
     title: "Love Songs",
