@@ -14,7 +14,7 @@
           />
         </div>
         <div class="chatbot-header-info">
-          <strong>Dexton Asisstant</strong>
+          <strong>Dexton Assistant</strong>
           <span class="chatbot-status" :class="{ typing: typing }">
             <span class="chatbot-status-dot"></span>
             <span>{{ typing ? "mengetik..." : "Online" }}</span>

@@ -161,7 +161,7 @@ function applyTheme(isLight) {
   setIcon(isLight);
 }
 const selectedTheme = localStorage.getItem("selected-theme");
-applyTheme(selectedTheme !== "light"); // default to dark theme if not set
+applyTheme(selectedTheme === "light");
 
 if (themeButton) {
   themeButton.addEventListener("click", () => {

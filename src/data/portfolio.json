@@ -94,7 +94,7 @@
     "subtitle": "commit history of my career",
     "education": [
       { "title": "Middle School", "place": "SMPN 14 Kota Tangerang", "date": "2019-2022" },
-      { "title": "vocational secondary schools", "place": "SMkN 5 kota tangerang", "date": "2022-2025" },
+      { "title": "Vocational Secondary School", "place": "SMKN 5 Kota Tangerang", "date": "2022-2025" },
       { "title": "Informatics Engineering", "place": "Pamulang University", "date": "2026-present" }
     ],
     "work": [
@@ -111,7 +111,7 @@
     "items": [
       {
         "icon": "uil-pen",
-        "title": "Developer enggineer",
+        "title": "Developer Engineer",
         "modalTitle": "Software Quality",
         "services": [
           "I create testcase and idea for test strategies.",
@@ -135,7 +135,7 @@
         "modalTitle": "Backend Developer",
         "services": [
           "Make a system.",
-          "adding features and maintennace.",
+          "adding features and maintenance.",
           "make API between client side."
         ]
       },
@@ -159,7 +159,7 @@
       { "image": "frontend/assets/img/1.jpg", "title": "Print Media Design & Packaging Workflow", "description": "Six months of internship experience in the printing and online shop packing industry, handling the preparation of design files prior to printing.", "url": "https://www.instagram.com/azkaprint.official/" },
       { "image": "frontend/assets/img/3.jpg", "title": "Esports Video Editing & Social Content", "description": "video editor for Evos Street, crafting engaging short-form and long-form content optimized for YouTube and TikTok audience retention.", "url": "https://youtu.be/WwLDZrngERA" },
       { "image": "frontend/assets/img/2.jpg", "title": "Technical & Digital Asset Support", "description": "Four months of internship experience at the Department of Youth and Sports (DISPORA), managing digital technical operations, IT support, and media asset distribution for institutional events", "url": "https://dispora.tangerangkota.go.id/" },
-      { "image": "frontend/assets/img/4.jpg", "title": "Infrastructure & Telegram Ops Bot (9Router)", "description": "Built a custom Node.js & PM2 remote control bot for Telegram to monitor web uptime, handle Vercel deployments, track GitHub repos, and execute git commands on-the-fly..", "url": "https://github.com/detonnn/Bot-telegram" }
+      { "image": "frontend/assets/img/4.jpg", "title": "Infrastructure & Telegram Ops Bot (9Router)", "description": "Built a custom Node.js & PM2 remote control bot for Telegram to monitor web uptime, handle Vercel deployments, track GitHub repos, and execute git commands on-the-fly.", "url": "https://github.com/detonnn/Bot-telegram" }
     ]
   },
   "projectCta": {

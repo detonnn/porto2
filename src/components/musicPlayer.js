@@ -12,7 +12,7 @@ export const MUSIC_TRACKS = [
   },
   {
     title: "The Night We Met",
-    artist: "Lord Huron ",
+    artist: "Lord Huron",
     src: "/frontend/assets/audio/want.mp3",
   },
   {
