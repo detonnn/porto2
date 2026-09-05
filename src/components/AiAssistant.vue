@@ -246,15 +246,14 @@ const ANSWERS = {
     'Kamu mau nanya favorit yang mana dulu? Ada makanan favorit, game favorit, musik favorit, sama content creator favorit. Ketik aja misal "musik favorit" atau "creator favorit" — atau ketik "semuanya" kalau mau rangkuman lengkap.',
   ansMusicFav:
     "Musik favorit: Sheila on 7 – Tunggu Aku di Jakarta, Reality Club – A Sorrowful Reunion, Lord Huron – The Night We Met, Cup of Joe – Multo, Kaash Paige – Love Songs. Ketik aja “putar musik” kalau mau dengerin langsung!",
-  ansTestimonial:
-    "Siap! Ke Reviews ya — aku scroll-in ke kata-kata klien.",
-  ansAge:
-    "Umur 19 tahun, domisili Tangerang — kuliah di Universitas Pamulang.",
+  ansTestimonial: "Siap! Ke Reviews ya — aku scroll-in ke kata-kata klien.",
+  ansAge: "Umur 19 tahun, domisili Tangerang — kuliah di Universitas Pamulang.",
   ansServices:
     "Siap! Aku arahin kamu ke Services ya — klik link ini atau scroll ke section Services di bawah.",
   ansPortfolio:
     "Siap! Ke Portfolio ya — aku scroll-in ke bagian karya-karya di bawah.",
-  ansAbout: "Siap! Ke About ya — aku bawa kamu ke section profil Dexton di bawah.",
+  ansAbout:
+    "Siap! Ke About ya — aku bawa kamu ke section profil Dexton di bawah.",
   ansContact: "Siap! Ke Contact ya — aku arahin ke form kontak di bawah.",
   ansSkills: "Skill lengkap ada di section Skills — aku scroll-in ke sana ya.",
   ansQualification:
@@ -423,7 +422,21 @@ const KEYWORD_MAP = [
     answer: "ansAge",
   },
   {
-    keys: ["halo", "hai", "hello", "pagi", "siang", "malam", "hey"],
+    keys: [
+      "halo",
+      "hai",
+      "hello",
+      "pagi",
+      "siang",
+      "malam",
+      "hey",
+      "hi",
+      "selamat pagi",
+      "selamat siang",
+      "selamat malam",
+      "hallo",
+      "selamat sore",
+    ],
     answer: "ansGreeting",
   },
   {

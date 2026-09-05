@@ -3,7 +3,7 @@
    (menu, accordion, tabs, modal, swiper, scroll) + dynamic terminal FX
 =====================================================================*/
 
-/*==================== MENU SHOW / HIDDEN ====================*/
+
 const navMenu = document.getElementById('nav-menu'),
       navToggle = document.getElementById('nav-toggle'),
       navClose = document.getElementById('nav-close')
@@ -25,7 +25,7 @@ document.addEventListener('click', (e) => {
   navMenu.classList.remove('show-menu')
 })
 
-/*==================== REMOVE MENU ON LINK CLICK ====================*/
+
 const navLink = document.querySelectorAll('.nav__link')
 function linkAction() {
   const navMenu = document.getElementById('nav-menu')
@@ -34,7 +34,7 @@ function linkAction() {
 }
 navLink.forEach(n => n.addEventListener('click', linkAction))
 
-/*==================== ACCORDION SKILLS ====================*/
+
 const skillsContent = document.getElementsByClassName('skills__content'),
       skillsHeader = document.querySelectorAll('.skills__header')
 
@@ -51,7 +51,7 @@ function toggleSkills() {
 }
 skillsHeader.forEach((el) => el.addEventListener('click', toggleSkills))
 
-/*==================== QUALIFICATION TABS ====================*/
+
 const tabs = document.querySelectorAll('[data-target]'),
       tabContents = document.querySelectorAll('[data-content]')
 
@@ -68,7 +68,7 @@ tabs.forEach(tab => {
   })
 })
 
-/*==================== SERVICES MODAL ====================*/
+
 const modalViews = document.querySelectorAll('.services__modal'),
       modalBtns = document.querySelectorAll('.services__button'),
       modalCloses = document.querySelectorAll('.services__modal-close')
@@ -91,7 +91,7 @@ modalViews.forEach((modalView) => {
   })
 })
 
-/*==================== PORTFOLIO SWIPER ====================*/
+
 if (typeof Swiper !== 'undefined') {
 let portofolio__container = new Swiper(".portofolio__container", {
   cssMode: true,
@@ -103,7 +103,7 @@ let portofolio__container = new Swiper(".portofolio__container", {
   pagination: { el: ".swiper-pagination", clickable: true },
 })
 
-/*==================== TESTIMONIAL SWIPER ====================*/
+
 let testimonial__container = new Swiper(".testimonial__container", {
   loop: true,
   grabCursor: true,
@@ -113,7 +113,7 @@ let testimonial__container = new Swiper(".testimonial__container", {
 })
 }
 
-/*==================== SCROLL SECTIONS ACTIVE LINK (rAF-throttled) ====================*/
+
 const sections = document.querySelectorAll('section[id]')
 let ticking = false
 function scrollActive() {
@@ -128,14 +128,14 @@ function scrollActive() {
 function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(()=>{ scrollActive(); scrollHeader(); ticking=false }) } }
 window.addEventListener('scroll', onScroll, {passive:true})
 
-/*==================== CHANGE BACKGROUND HEADER ====================*/
+
 function scrollHeader() {
   const nav = document.getElementById('header')
   if (!nav) return
   nav.classList.toggle('scroll-header', window.scrollY >= 12)
 }
 
-/*==================== DARK / LIGHT THEME (default = dark terminal) ====================*/
+
 const themeButton = document.getElementById('theme-button')
 const lightTheme = 'light-theme'
 
@@ -167,7 +167,7 @@ if (themeButton) {
     DYNAMIC TERMINAL FX
  =====================================================================*/
 
-/*==================== LIVE CLOCK ====================*/
+
 const pad = (n) => (n < 10 ? '0' + n : '' + n)
 function tickClock() {
   const el = document.getElementById('nav-clock')
@@ -178,7 +178,7 @@ function tickClock() {
 tickClock()
 setInterval(tickClock, 1000)
 
-/*==================== HERO TYPING ====================*/
+
 function typeInto(el, text, speed, done) {
   let i = 0
   ;(function step() {
@@ -252,7 +252,7 @@ function rotateRoles(el, roles) {
   }, 600)
 })()
 
-/*==================== SCROLL REVEAL (IntersectionObserver) ====================*/
+
 function initReveal(){
   const selectors=['.term-window','.about__img','.section__title','.section__subtitle','.skills__content','.qualification__data','.services__content','.portofolio__container','.portofolio__content','.contact__information','.contact__form','.project__bg','.footer__bg']
   const els=document.querySelectorAll(selectors.join(','))
@@ -266,7 +266,8 @@ function initReveal(){
 }
 ;(function setupReveal(){ if(initReveal()) return; let t=0; const id=setInterval(()=>{ if(initReveal()|| ++t>20) clearInterval(id) },300) })()
 
-/*==================== SMOOTH SCROLL (Lenis) ====================*/
+
+
 ;(function(){
   const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (prefersReduced) return // respect user's motion setting, let native scroll handle it
