@@ -38,6 +38,22 @@ export default async function handler(req, res) {
   const { message } = req.body || {};
   if (!message || typeof message !== 'string' || !message.trim()) return res.status(400).json({ error: 'Pesan kosong' });
   const safe = message.slice(0, 300);
+  // visitor intent -> jawab live count dari Redis (ponytail: fetch langsung, tanpa lib tambahan)
+  const lv = ' ' + safe.toLowerCase() + ' ';
+  const isVisitor = ['visitor', 'pengunjung', 'dikunjungi', 'dilihat', 'berapa orang', 'visit'].some((k) => lv.includes(k));
+  if (isVisitor) {
+    try {
+      const url = process.env.UPSTASH_REDIS_REST_URL;
+      const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+      if (url && token) {
+        const r = await fetch(`${url}/get/porto2:visitor_count`, { headers: { Authorization: `Bearer ${token}` } });
+        const j = await r.json();
+        const c = j.result ? parseInt(j.result, 10) : 0;
+        return res.status(200).json({ reply: `Portfolio ini sudah dikunjungi ${c.toLocaleString('id-ID')} orang — kamu salah satunya!` });
+      }
+    } catch {}
+    return res.status(200).json({ reply: 'Visitor count lagi offline, tapi portfolio ini tetap jalan kok!' });
+  }
   const reply = localAnswer(safe);
   return res.status(200).json({ reply });
 }

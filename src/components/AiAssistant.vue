@@ -160,6 +160,8 @@ const MUSIC_STOP_KEYWORDS = [
   'matiin musik', 'matiin lagu', 'berhentiin lagu',
 ];
 
+const VISITOR_KEYWORDS = ['visitor', 'pengunjung', 'dikunjungi', 'dilihat', 'berapa orang', 'visit', 'view', 'traffic'];
+
 const KEYWORD_MAP = [
   { keys: ['makasih', 'terima kasih', 'thanks', 'thank you'], answer: 'ansThanks' },
   { keys: ['kamu siapa', 'siapa kamu', 'who are you', 'kamu bot', 'are you a bot'], answer: 'ansBotId' },
@@ -368,6 +370,23 @@ export default {
       }
       return bestScore > 0 ? best : null;
     },
+    isVisitorAsk(text) {
+      const l = ' ' + text.toLowerCase() + ' ';
+      return VISITOR_KEYWORDS.some((k) => l.includes(k));
+    },
+    async replyVisitor() {
+      this.showTyping(async () => {
+        try {
+          const r = await fetch('/api/visitors');
+          const j = await r.json();
+          const n = Number(j.count);
+          const c = Number.isFinite(n) ? n.toLocaleString('id-ID') : 'banyak';
+          this.addMessage(`Portfolio ini sudah dikunjungi ${c} orang — kamu salah satunya!`, 'bot');
+        } catch {
+          this.addMessage('Visitor count lagi offline, tapi portfolio ini tetap rame kok!', 'bot');
+        }
+      });
+    },
     handleUserInput(displayText, forcedAnswerKey) {
       if (!displayText || !displayText.trim()) return;
       this.historyView = false;
@@ -376,6 +395,10 @@ export default {
       this.inputText = '';
 
       if (!forcedAnswerKey) {
+        if (this.isVisitorAsk(displayText)) {
+          this.replyVisitor();
+          return;
+        }
         const musicIntent = this.detectMusicIntent(displayText);
         if (musicIntent === 'stop') {
           pauseMusic();
