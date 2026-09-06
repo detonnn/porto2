@@ -218,13 +218,14 @@ const ANSWERS = {
   ans2: "Keahlian: Graphic Design 95% (Illustrator/Photoshop), UI/UX 90% (Figma), Motion & Video Editing 80% (CapCut), Frontend 75% (React, Tailwind, Vite, Vanilla JS, Canvas/Web Audio), Layout & Print 85%.",
   ans3: "Proyek: Brand Identity Garuda Private Server, Custom Vector Logo & Typography, Internship Azka Print (packaging workflow), Brand fashion Attics (katalog), Packaging Keripik Tempe & Social Media Kit sneaker lokal.",
   ans4: "Gampang! Scroll ke section kontak di bawah, isi form, atau langsung klik salah satu link ini",
-  greeting: "Halo! Tanyakan sesuatu seputar portfolio ini",
+  greeting:
+    "Halo Saya Assistantnya Dexton! Tanyakan sesuatu seputar portfolio ini",
   ansGreeting:
     "Halo juga! Mau tanya apa? Bisa profil, skill, proyek, hobi/favorit, game, creator favorit, atau kontak.",
   ansThanks: "Sama-sama! Ada lagi yang mau ditanyain?",
   ansBotId:
     "Aku asisten virtual di portfolio ini, siap bantu jawab pertanyaan seputar pemiliknya dan karyanya!",
-  ansLocation: "Berbasis di Tangerang, Indonesia",
+  ansLocation: "di Tangerang, Ciledug , Banten",
   ansEducation:
     "Lulusan SMKN 5 Kota Tangerang jurusan Desain Komunikasi Visual, sekarang mahasiswa aktif di Universitas Pamulang.",
   ansExperience:
@@ -313,21 +314,21 @@ const VISITOR_KEYWORDS = [
   "dikunjungi",
   "dilihat",
   "berapa orang",
-  "visit",
+  "angka",
   "view",
   "traffic",
 ];
 
 const KEYWORD_MAP = [
   {
-    keys: ["makasih", "terima kasih", "thanks", "thank you"],
+    keys: ["makasih", "terima kasih", "thanks", "thank you", "thx", "tq"],
     answer: "ansThanks",
   },
   {
     keys: [
       "kamu siapa",
       "siapa kamu",
-      "who are you",
+      "siapa ini",
       "kamu bot",
       "are you a bot",
     ],
@@ -354,15 +355,15 @@ const KEYWORD_MAP = [
       "makanan suka",
       "ayam geprek",
       "nasi goreng",
-      "sabana",
+      "geprek",
     ],
     answer: "ansFood",
   },
   {
     keys: [
       "game favorit",
-      "game kesukaan",
-      "game suka",
+      "game favorite",
+      "game fav",
       "red dead",
       "rdr2",
       "clair obscur",
@@ -405,7 +406,18 @@ const KEYWORD_MAP = [
     answer: "ansHobby",
   },
   {
-    keys: ["semuanya", "semua favorit", "all favorit", "rangkuman favorit"],
+    keys: [
+      "semuanya",
+      "semua favorit",
+      "all favorit",
+      "rangkuman favorit",
+      "info",
+      "informasi",
+      "detail",
+      "selengkapnya",
+      "favorit lengkap",
+      "favorit semua",
+    ],
     answer: "ansFav",
   },
   {
@@ -425,6 +437,12 @@ const KEYWORD_MAP = [
   {
     keys: [
       "halo",
+      "oy",
+      "bre",
+      "dul",
+      "bro",
+      "bos",
+      "woe",
       "hai",
       "hello",
       "pagi",
@@ -432,6 +450,7 @@ const KEYWORD_MAP = [
       "malam",
       "hey",
       "hi",
+      "hallo",
       "selamat pagi",
       "selamat siang",
       "selamat malam",
@@ -442,13 +461,17 @@ const KEYWORD_MAP = [
   },
   {
     keys: [
-      "dimana ibnu",
-      "lokasi ibnu",
-      "alamat ibnu",
+      "dimana",
+      "dmna",
+      "lok",
+      "lokasi",
+      "alamat",
+      "sherlock",
       "ibnu dimana",
       "ibnu tinggal",
       "domisili",
       "tangerang",
+      "ciledug",
       "where does ibnu",
       "where is ibnu",
     ],
@@ -456,18 +479,18 @@ const KEYWORD_MAP = [
   },
   {
     keys: [
-      "sekolah ibnu",
-      "smk ibnu",
-      "pendidikan ibnu",
-      "lulusan ibnu",
-      "kuliah ibnu",
+      "sekolah",
+      "smk",
+      "pendidikan",
+      "lulusan",
+      "kuliah ",
       "universitas pamulang",
       "smkn 5",
     ],
     answer: "ansEducation",
   },
   {
-    keys: ["pengalaman ibnu", "pengalaman kamu", "ibnu experience"],
+    keys: ["pengalaman", "pengalaman kamu", "experience"],
     answer: "ansExperience",
   },
   {

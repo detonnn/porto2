@@ -458,7 +458,7 @@ body.light-theme .header {
   background: rgba(238, 241, 245, 0.85);
 }
 .scroll-header {
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
 }
 
 .nav {

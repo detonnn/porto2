@@ -92,15 +92,18 @@ modalViews.forEach((modalView) => {
 });
 
 if (typeof Swiper !== "undefined") {
-  let portofolio__container = new Swiper(".portofolio__container", {
-    cssMode: true,
-    loop: true,
-    navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
-    },
-    pagination: { el: ".swiper-pagination", clickable: true },
-  });
+  // ponytail: portfolio sekarang custom swipe-deck (tanpa .swiper-wrapper) — skip Swiper biar gak crash scrollLeft
+  if (document.querySelector(".portofolio__container .swiper-wrapper")) {
+    new Swiper(".portofolio__container", {
+      cssMode: true,
+      loop: true,
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      pagination: { el: ".swiper-pagination", clickable: true },
+    });
+  }
 
   let testimonial__container = new Swiper(".testimonial__container", {
     loop: true,
@@ -115,11 +118,11 @@ if (typeof Swiper !== "undefined") {
   });
 }
 
-const sections = document.querySelectorAll("section[id]");
 let ticking = false;
 function scrollActive() {
   const y = window.pageYOffset;
-  sections.forEach((s) => {
+  // query fresh tiap frame — cache basi kalau Vue/HMR ganti node section (portfolio pernah kena ini)
+  document.querySelectorAll("section[id]").forEach((s) => {
     const h = s.offsetHeight,
       top = s.offsetTop - 72,
       id = s.getAttribute("id");
