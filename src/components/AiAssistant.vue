@@ -684,10 +684,22 @@ export default {
       send: new Audio("/frontend/assets/audio/send.mp3"),
       recive: new Audio("/frontend/assets/audio/recive.mp3"),
     };
-    Object.values(this.audioElements).forEach((a) => {
-      a.volume = 0.5;
-      a.load();
-    });
+      // Unlock audio on first user interaction (click/touch/keydown)
+      const unlockAll = () => {
+        Object.values(this.audioElements).forEach((a) => {
+          a.play().then(() => {
+            a.pause();
+            a.currentTime = 0;
+          }).catch(() => {});
+        });
+        ["click", "touchstart", "keydown"].forEach((evt) =>
+          window.removeEventListener(evt, unlockAll, { capture: true })
+        );
+      };
+      ["click", "touchstart", "keydown"].forEach((evt) =>
+        window.addEventListener(evt, unlockAll, { capture: true, once: true })
+      );
+
 
     const unlockAll = () => {
       Object.values(this.audioElements).forEach((a) => {
@@ -765,11 +777,11 @@ export default {
     showIdleMessage() {
       if (!this.isOpen || this.typing || this.hasSentIdle) return;
       const idleMessages = [
-        "Masih di situ kan? Ada yang mau ditanyain lagi gak nih? 😄",
-        "Bengong ya? Tanya aja bebas — profil, skill, hobi, atau musik favorit! ☕",
-        "Kalo bingung mau nanya apa, coba klik quick replies di bawah ya 🎧",
-        "Santai aja, butuh info kontak atau mau liat karya Dexton yang lain? 👀",
-        "Ada yang kurang jelas tentang portfolio ini? Tanyain aja bre! 🔥",
+        "Masih di situ kan? Ada yang mau ditanyain lagi gak nih?",
+        "Bengong ya? Tanya aja bebas — profil, skill, hobi, atau tiktok?!",
+        "Kalo bingung mau nanya apa, coba klik quick replies di bawah ya?",
+        "Santai aja, butuh info kontak atau mau liat karya Dexton yang lain?",
+        "Ada yang kurang jelas tentang portfolio ini? Tanyain aja bre!",
       ];
       let idx;
       do {
