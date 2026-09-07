@@ -681,25 +681,13 @@ export default {
 
     // Pre-initialize audio elements to unlock them globally
     this.audioElements = {
-      send: new Audio("/frontend/assets/audio/send.mp3"),
-      recive: new Audio("/frontend/assets/audio/recive.mp3"),
+      send: new Audio("/frontend/assets/audio/send.MP3"),
+      recive: new Audio("/frontend/assets/audio/recive.MP3"),
     };
-      // Unlock audio on first user interaction (click/touch/keydown)
-      const unlockAll = () => {
-        Object.values(this.audioElements).forEach((a) => {
-          a.play().then(() => {
-            a.pause();
-            a.currentTime = 0;
-          }).catch(() => {});
-        });
-        ["click", "touchstart", "keydown"].forEach((evt) =>
-          window.removeEventListener(evt, unlockAll, { capture: true })
-        );
-      };
-      ["click", "touchstart", "keydown"].forEach((evt) =>
-        window.addEventListener(evt, unlockAll, { capture: true, once: true })
-      );
-
+    Object.values(this.audioElements).forEach((a) => {
+      a.volume = 0.5;
+      a.load();
+    });
 
     const unlockAll = () => {
       Object.values(this.audioElements).forEach((a) => {
@@ -822,10 +810,10 @@ export default {
       this.scrollDown();
     },
     playAudio(fileName) {
-      const key = fileName.replace(".mp3", "").toLowerCase();
+      const key = fileName.split(".")[0].toLowerCase();
       const audio =
         this.audioElements[key] ||
-        new Audio(`/frontend/assets/audio/${fileName}`);
+        new Audio(`/frontend/assets/audio/${key}.MP3`);
       audio.currentTime = 0;
       audio.play().catch(() => {});
     },

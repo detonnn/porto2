@@ -17,7 +17,8 @@ function unlockAudioContext() {
 );
 
 function playAudio(fileName, volume = 0.5) {
-  const audio = new Audio(`/frontend/assets/audio/${fileName}`);
+  const nameWithoutExt = fileName.split('.')[0];
+  const audio = new Audio(`/frontend/assets/audio/${nameWithoutExt}.MP3`);
   audio.volume = volume;
   audio.play().catch(() => {});
 }
