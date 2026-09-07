@@ -757,10 +757,9 @@ export default {
     resetIdleTimer() {
       this.clearIdleTimer();
       if (!this.isOpen || !this.chatInitialized || this.hasSentIdle) return;
-      // Idle 30 detik & HANYA SEKALI per sesi diam (tidak ngespam berkali-kali)
       this.idleTimer = setTimeout(() => {
         this.showIdleMessage();
-      }, 30000);
+      }, 7000);
     },
     showIdleMessage() {
       if (!this.isOpen || this.typing || this.hasSentIdle) return;
@@ -1111,7 +1110,7 @@ export default {
 }
 .chatbot-msg-row.focused .chatbot-msg {
   border-color: var(--green);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 22px var(--shadow-color);
 }
 .chatbot-msg-row.dimmed {
   opacity: 0.35;
@@ -1127,7 +1126,7 @@ export default {
   border-radius: 20px;
   background: var(--bg-elev-2);
   border: 1px solid var(--border);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 20px var(--shadow-color);
   z-index: 5;
   animation: chatbotMsgIn 0.25s ease both;
 }

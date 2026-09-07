@@ -32,10 +32,10 @@
                         </div>
                     </div>
 
-                    <div class="about__buttons">
-                        <a download="" :href="about.cv" class="button button--flex">
-                            wget resume.pdf<i class="uil uil-download-alt button__icon"></i>
-                        </a>
+                        <div class="about__buttons">
+                        <shiny-button download="" :href="about.cv">
+                            wget resume.pdf <i class="uil uil-download-alt"></i>
+                        </shiny-button>
                     </div>
                 </div>
             </div>
@@ -47,10 +47,11 @@
 <script>
 import data from '../../data/portfolio.json'
 import InteractiveTravelCard from '../../components/InteractiveTravelCard.vue'
+import ShinyButton from '../../components/ShinyButton.vue'
 
 export default {
     name: 'About',
-    components: { InteractiveTravelCard },
+    components: { InteractiveTravelCard, ShinyButton },
     data() {
         return { about: data.about }
     }

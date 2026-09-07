@@ -262,7 +262,7 @@ export default {
   overflow: hidden;
   will-change: transform, opacity;
   user-select: none;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 18px 50px var(--shadow-color);
 }
 
 .swipe-card--top {

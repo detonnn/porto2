@@ -16,6 +16,8 @@
       />
     </slot>
 
+    <div class="tilt-card__shimmer"></div>
+
     <div class="tilt-card__spotlight" :style="{ opacity: isHovered ? 1 : 0 }">
       <div
         class="tilt-card__spotlight-glow"
@@ -126,6 +128,42 @@ export default {
   object-fit: cover;
   display: block;
   border-radius: inherit;
+  filter: grayscale(1) contrast(1.05);
+  transition: filter 0.4s ease;
+}
+
+.tilt-card:hover .tilt-card__img {
+  filter: grayscale(0) contrast(1);
+}
+
+.tilt-card__shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: cardShine 5s infinite;
+}
+
+@keyframes cardShine {
+  0% {
+    left: -100%;
+  }
+  20% {
+    left: 200%;
+  }
+  100% {
+    left: 200%;
+  }
 }
 
 .tilt-card__spotlight {
