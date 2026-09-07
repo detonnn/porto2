@@ -3,29 +3,28 @@
         <h2 class="section__title">{{ testimonials.title }}</h2>
         <span class="section__subtitle">{{ testimonials.subtitle }}</span>
 
-        <p style="text-align:center;color:var(--text-faint);font-size:var(--smaller-font-size);margin-bottom:.6rem">swipe to the right <i class="uil uil-arrow-right"></i></p>
-        <div class="testimonial__container container swiper">
-            <div class="swiper-wrapper">
-                <div class="testimonial__content swiper-slide" v-for="(item, i) in testimonials.items" :key="i">
-                    <div class="testimonial__data">
-                        <div class="testimonial__header">
-                            <img :src="item.image" class="testimonial__img" alt="">
-
-                            <div>
-                                <h3 class="testimonial__name">{{ item.name }}</h3>
-                                <span class="testimonial__client">{{ item.role }}</span>
+        <div class="tcol__wrap">
+            <div v-for="(col, ci) in columns" :key="ci" class="tcol" :class="{ 'tcol--md': ci === 1, 'tcol--lg': ci === 2 }">
+                <div class="tcol__track" :style="{ animationDuration: durations[ci] + 's' }">
+                    <div v-for="loop in 2" :key="loop" class="tcol__group">
+                        <div class="testimonial__content" v-for="(item, i) in col" :key="i">
+                            <div class="testimonial__data">
+                                <div class="testimonial__header">
+                                    <img :src="item.image" class="testimonial__img" alt="" loading="lazy">
+                                    <div>
+                                        <h3 class="testimonial__name">{{ item.name }}</h3>
+                                        <span class="testimonial__client">{{ item.role }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <i class="uil uil-star testimonial__icon-star" v-for="n in item.rating" :key="n"></i>
+                                </div>
                             </div>
-                        </div>
-
-                        <div>
-                            <i class="uil uil-star testimonial__icon-star" v-for="n in item.rating" :key="n"></i>
+                            <p class="testimonial__description">{{ item.text }}</p>
                         </div>
                     </div>
-
-                    <p class="testimonial__description">{{ item.text }}</p>
                 </div>
             </div>
-            <div class="swiper-pagination swiper-pagination-testimonial"></div>
         </div>
     </section>
 </template>
@@ -36,17 +35,36 @@ import data from '../../data/portfolio.json'
 export default {
     name: 'Testimonial',
     data() {
-        return { testimonials: data.testimonials }
+        return { testimonials: data.testimonials, durations: [15, 19, 17] }
     },
-    mounted() {
-        this.$nextTick(() => {
-            const els = this.$el.querySelectorAll('.section__title,.section__subtitle,.testimonial__content,.testimonial__container')
-            els.forEach((el, i) => { el.classList.add('reveal'); el.style.transitionDelay = (Math.min(i, 6) * 80) + 'ms' })
-            if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('is-visible')); return }
-            const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('is-visible', e.isIntersecting)), { threshold: 0.12 })
-            els.forEach(el => io.observe(el))
-            els.forEach(el => { const r = el.getBoundingClientRect(); if (r.top < innerHeight * 0.92 && r.bottom > 0) el.classList.add('is-visible') })
-        })
+    computed: {
+        columns() {
+            const items = this.testimonials.items || []
+            const per = Math.ceil(items.length / 3)
+            return [0, 1, 2].map(i => items.slice(i * per, i * per + per))
+        }
     }
 }
 </script>
+
+<style scoped>
+.tcol__wrap {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    max-height: 740px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
+}
+.tcol { width: 100%; max-width: 320px; overflow: hidden; }
+.tcol--md, .tcol--lg { display: none; }
+@media screen and (min-width: 768px) { .tcol--md { display: block; } }
+@media screen and (min-width: 1024px) { .tcol--lg { display: block; } }
+.tcol__track { display: flex; flex-direction: column; gap: 1.25rem; animation: tcol-scroll linear infinite; }
+.tcol__group { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 1.25rem; }
+@keyframes tcol-scroll { to { transform: translateY(-50%); } }
+@media (prefers-reduced-motion: reduce) { .tcol__track { animation: none; } }
+/* ponytail: cards reuse global .testimonial__* vars so light/dark follows body.light-theme automatically */
+.testimonial__content { margin-bottom: 0; }
+</style>

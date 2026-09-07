@@ -5,13 +5,14 @@
 
         <div class="about__container container grid">
         <div class="about__pic">
-            <img :src="about.image" alt="" class="about__img">
-            <div class="about__tech">
-                <i class="uil uil-react"></i>
-                <i class="uil uil-java-script"></i>
-                <i class="uil uil-vuejs"></i>
-                <i class="uil uil-brackets-curly"></i>
-            </div>
+            <interactive-travel-card
+              title="Ibnu"
+              subtitle="Full Stack Developer"
+              :imageUrl="about.image"
+              actionText="Download CV"
+              :href="about.cv"
+              :onActionClick="handleDownload"
+            />
         </div>
 
             <div class="about__data term-window">
@@ -48,11 +49,18 @@
 
 <script>
 import data from '../../data/portfolio.json'
+import InteractiveTravelCard from '../../components/InteractiveTravelCard.vue'
 
 export default {
     name: 'About',
+    components: { InteractiveTravelCard },
     data() {
         return { about: data.about }
+    },
+    methods: {
+      handleDownload() {
+        window.open(this.about.cv, '_blank');
+      }
     }
 };
 </script>

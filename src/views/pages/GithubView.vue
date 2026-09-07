@@ -15,13 +15,8 @@
                         <span class="cmd">gh contributions --year last</span>
                     </p>
 
-                    <!-- loading -->
-                    <p v-if="loading" class="github__loading">
-                        fetching contribution graph<span class="cursor"></span>
-                    </p>
-
                     <!-- live custom heatmap -->
-                    <div v-else-if="weeks.length" class="github__data">
+                    <div v-if="weeks.length" class="github__data">
                         <p class="github__total">
                             <span class="github__count">{{ total.toLocaleString() }}</span> contributions in the last year
                         </p>

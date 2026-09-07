@@ -172,10 +172,15 @@
     "title": "cat reviews.log",
     "subtitle": "what my clients are saying",
     "items": [
-      { "image": "frontend/assets/img/client.jpg", "name": "Andi Simorangkir, S.T", "role": "Client", "rating": 5, "text": "I get a good impression, I carry out my project with all the possible quality and attention and support 24 hours a day." },
-      { "image": "frontend/assets/img/client4.jpg", "name": "Riko Gamer78", "role": "Client", "rating": 1, "text": "He doesn't know how to play Roblox properly." },
-      { "image": "frontend/assets/img/client2.jpg", "name": "Preddy Budiman, S.H", "role": "Client", "rating": 5, "text": "Super fast response and clean code. Delivered exactly what was promised ahead of schedule." },
-      { "image": "frontend/assets/img/client3.jpg", "name": "Doni Budiman, S.H", "role": "Client", "rating": 4, "text": "Great UI/UX work, really improved our conversion. Minor revisions but handled quickly." }
+      { "image": "frontend/assets/img/new1.jpg", "name": "Andi Simorangkir, S.T", "role": "Client", "rating": 5, "text": "I get a good impression, I carry out my project with all the possible quality and attention and support 24 hours a day." },
+      { "image": "frontend/assets/img/new2.jpg", "name": "Preddy Budiman, S.H", "role": "Client", "rating": 5, "text": "Super fast response and clean code. Delivered exactly what was promised ahead of schedule." },
+      { "image": "frontend/assets/img/new3.jpg", "name": "Doni Budiman, S.H", "role": "Client", "rating": 4, "text": "Great UI/UX work, really improved our conversion. Minor revisions but handled quickly." },
+      { "image": "frontend/assets/img/new4.jpg", "name": "Sinta Maharani", "role": "Product Owner", "rating": 5, "text": "Streamlined our ordering flow end-to-end. The new interface cut manual work in half." },
+      { "image": "frontend/assets/img/new5.jpg", "name": "Bagas Pratama", "role": "Startup Founder", "rating": 5, "text": "Smooth implementation, clear communication, and support that actually replies fast." },
+      { "image": "frontend/assets/img/new6.jpg", "name": "Rina Kartika", "role": "Marketing Lead", "rating": 4, "text": "Landing page revamp boosted our leads. Small revisions were handled the same day." },
+      { "image": "frontend/assets/img/new7.jpg", "name": "Yoga Saputra", "role": "Operations Manager", "rating": 5, "text": "Reliable delivery and clean handoff docs. Our team onboarded with zero friction." },
+      { "image": "frontend/assets/img/new8.jpg", "name": "Dewi Anggraini", "role": "UI/UX Client", "rating": 5, "text": "Design system is consistent and easy to extend. Exactly what we asked for." },
+      { "image": "frontend/assets/img/new9.jpg", "name": "Fajar Nugroho", "role": "E-commerce Owner", "rating": 4, "text": "Store performance improved noticeably after the rebuild. Recommended." }
     ]
   },
   "contact": {
