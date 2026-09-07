@@ -132,6 +132,13 @@ function scrollActive() {
   });
 }
 function onScroll() {
+    // Play send sound when sending a message
+    // This is a placeholder, the actual message sending logic should be identified and updated
+    // Example: if (isUserMessage) { playAudio('send.mp3'); }
+
+    // Play receive sound when receiving a message
+    // This is a placeholder, the actual message receiving logic should be identified and updated
+    // Example: if (isAssistantMessage) { playAudio('recive.mp3'); }
   if (!ticking) {
     ticking = true;
     requestAnimationFrame(() => {

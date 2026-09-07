@@ -90,53 +90,53 @@
           @click="onBotMsgClick($event, i)"
         >
           <div class="chatbot-msg" :class="m.sender">
-          {{ m.text }}
-          <span
-            v-if="m.sender === 'bot' && m.reaction"
-            class="chatbot-react-badge"
-            >{{ reactionEmoji(m.reaction) }}</span
-          >
-          <div
-            v-if="m.sender === 'bot' && activeReact === i"
-            class="chatbot-react-bar"
-          >
-            <button
-              v-for="r in reactions"
-              :key="r.key"
-              class="chatbot-react-btn"
-              :class="{ selected: m.reaction === r.key }"
-              type="button"
-              :title="r.key"
-              @click.stop="setReaction(i, r.key)"
+            {{ m.text }}
+            <span
+              v-if="m.sender === 'bot' && m.reaction"
+              class="chatbot-react-badge"
+              >{{ reactionEmoji(m.reaction) }}</span
             >
-              {{ r.emoji }}
-            </button>
-          </div>
-          <div v-if="m.links && m.links.length" class="chatbot-link-row">
-            <a
-              v-for="(l, j) in m.links"
-              :key="j"
-              :href="l.url"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="chatbot-link-btn"
+            <div
+              v-if="m.sender === 'bot' && activeReact === i"
+              class="chatbot-react-bar"
             >
-              <i :class="l.iconClass"></i> {{ l.label }}
-            </a>
-          </div>
-          <div
-            v-if="m.playlist && m.playlist.length"
-            class="chatbot-playlist-row"
-          >
-            <button
-              v-for="opt in m.playlist"
-              :key="opt.index"
-              class="chatbot-playlist-btn"
-              @click="selectTrack(opt.index)"
+              <button
+                v-for="r in reactions"
+                :key="r.key"
+                class="chatbot-react-btn"
+                :class="{ selected: m.reaction === r.key }"
+                type="button"
+                :title="r.key"
+                @click.stop="setReaction(i, r.key)"
+              >
+                {{ r.emoji }}
+              </button>
+            </div>
+            <div v-if="m.links && m.links.length" class="chatbot-link-row">
+              <a
+                v-for="(l, j) in m.links"
+                :key="j"
+                :href="l.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="chatbot-link-btn"
+              >
+                <i :class="l.iconClass"></i> {{ l.label }}
+              </a>
+            </div>
+            <div
+              v-if="m.playlist && m.playlist.length"
+              class="chatbot-playlist-row"
             >
-              <i class="uil uil-play"></i> <span>{{ opt.label }}</span>
-            </button>
-          </div>
+              <button
+                v-for="opt in m.playlist"
+                :key="opt.index"
+                class="chatbot-playlist-btn"
+                @click="selectTrack(opt.index)"
+              >
+                <i class="uil uil-play"></i> <span>{{ opt.label }}</span>
+              </button>
+            </div>
           </div>
         </div>
         <div v-if="historyView" class="chatbot-msg bot chatbot-history-list">
@@ -243,7 +243,6 @@ const REACTIONS = [
 
 const QUICK_REPLIES = [
   { key: "q1", label: "Profil singkat?", answer: "ans1" },
-  { key: "q2", label: "Keahlian & Skill?", answer: "ans2" },
   {
     key: "q3",
     label: "Mau Dengerin Musik?",
@@ -659,6 +658,10 @@ export default {
       quickReplies: QUICK_REPLIES,
       reactions: REACTIONS,
       activeReact: null,
+      idleTimer: null,
+      hasSentIdle: false,
+      lastIdleIdx: -1,
+      audioElements: {},
     };
   },
   computed: {
@@ -675,6 +678,34 @@ export default {
   mounted() {
     this.stopListenEnded = onTrackEnded(this.handleTrackEnded);
     document.addEventListener("click", this.onDocClick);
+
+    // Pre-initialize audio elements to unlock them globally
+    this.audioElements = {
+      send: new Audio("/frontend/assets/audio/send.mp3"),
+      recive: new Audio("/frontend/assets/audio/recive.mp3"),
+    };
+    Object.values(this.audioElements).forEach((a) => {
+      a.volume = 0.5;
+      a.load();
+    });
+
+    const unlockAll = () => {
+      Object.values(this.audioElements).forEach((a) => {
+        a.play()
+          .then(() => {
+            a.pause();
+            a.currentTime = 0;
+          })
+          .catch(() => {});
+      });
+      ["click", "touchstart", "keydown"].forEach((evt) =>
+        window.removeEventListener(evt, unlockAll, { capture: true }),
+      );
+    };
+    ["click", "touchstart", "keydown"].forEach((evt) =>
+      window.addEventListener(evt, unlockAll, { capture: true, once: true }),
+    );
+
     this.$nextTick(() => {
       const b = this.$refs.body;
       if (b) {
@@ -706,6 +737,7 @@ export default {
     openChat() {
       this.isOpen = true;
       if (!this.chatInitialized) this.startFreshChat();
+      this.resetIdleTimer();
       this.$nextTick(() => {
         const inp = this.$el.querySelector(".chatbot-input");
         if (inp) setTimeout(() => inp.focus(), 350);
@@ -713,16 +745,50 @@ export default {
     },
     closeChat() {
       this.isOpen = false;
-      this.closeMenu();
-    },
-    closeMenu() {
       this.menuOpen = false;
+      this.clearIdleTimer();
+    },
+    clearIdleTimer() {
+      if (this.idleTimer) {
+        clearTimeout(this.idleTimer);
+        this.idleTimer = null;
+      }
+    },
+    resetIdleTimer() {
+      this.clearIdleTimer();
+      if (!this.isOpen || !this.chatInitialized || this.hasSentIdle) return;
+      // Idle 30 detik & HANYA SEKALI per sesi diam (tidak ngespam berkali-kali)
+      this.idleTimer = setTimeout(() => {
+        this.showIdleMessage();
+      }, 30000);
+    },
+    showIdleMessage() {
+      if (!this.isOpen || this.typing || this.hasSentIdle) return;
+      const idleMessages = [
+        "Masih di situ kan? Ada yang mau ditanyain lagi gak nih? 😄",
+        "Bengong ya? Tanya aja bebas — profil, skill, hobi, atau musik favorit! ☕",
+        "Kalo bingung mau nanya apa, coba klik quick replies di bawah ya 🎧",
+        "Santai aja, butuh info kontak atau mau liat karya Dexton yang lain? 👀",
+        "Ada yang kurang jelas tentang portfolio ini? Tanyain aja bre! 🔥",
+      ];
+      let idx;
+      do {
+        idx = Math.floor(Math.random() * idleMessages.length);
+      } while (idx === this.lastIdleIdx && idleMessages.length > 1);
+      this.lastIdleIdx = idx;
+      this.hasSentIdle = true; // Tandai sudah kirim idle, stop spamming!
+
+      this.showTyping(() => {
+        this.addMessage(idleMessages[idx], "bot");
+      });
     },
     startFreshChat() {
       this.messages = [];
       this.activeReact = null;
       this.historyView = false;
       this.chatInitialized = true;
+      this.hasSentIdle = false;
+      this.resetIdleTimer();
       this.showTyping(() => this.addMessage(ANSWERS.greeting, "bot"));
     },
     endChat() {
@@ -737,7 +803,19 @@ export default {
         playlist: playlist || null,
         reaction: null,
       });
+      // Sound effect hanya untuk pesan bot yang sudah selesai (bukan saat typing)
+      if (sender === "bot") {
+        this.playAudio("recive.mp3");
+      }
       this.scrollDown();
+    },
+    playAudio(fileName) {
+      const key = fileName.replace(".mp3", "").toLowerCase();
+      const audio =
+        this.audioElements[key] ||
+        new Audio(`/frontend/assets/audio/${fileName}`);
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
     },
     toggleReactBar(i) {
       this.activeReact = this.activeReact === i ? null : i;
@@ -770,7 +848,7 @@ export default {
       setTimeout(() => {
         this.typing = false;
         cb();
-      }, 900 + Math.random() * 900);
+      }, 1500 + Math.random() * 1200);
     },
     loadHistory() {
       try {
@@ -910,7 +988,7 @@ export default {
     async replyVisitor() {
       this.typing = true;
       this.scrollDown();
-      await new Promise((r) => setTimeout(r, 900 + Math.random() * 900));
+      await new Promise((r) => setTimeout(r, 1500 + Math.random() * 1200));
       try {
         const r = await fetch("/api/visitors");
         if (!r.ok) throw new Error("visitors API " + r.status);
@@ -932,9 +1010,12 @@ export default {
     },
     handleUserInput(displayText, forcedAnswerKey) {
       if (!displayText || !displayText.trim()) return;
+      this.hasSentIdle = false;
+      this.resetIdleTimer();
       this.historyView = false;
       this.activeReact = null;
       this.addMessage(displayText, "user");
+      this.playAudio("send.mp3");
       this.saveHistoryEntry(displayText);
       this.inputText = "";
 
@@ -1006,22 +1087,35 @@ export default {
 </script>
 
 <style scoped>
-.chatbot-msg.bot { position: relative; }
+.chatbot-msg.bot {
+  position: relative;
+}
 /* ponytail: scale di row (bukan bubble) biar gak tabrakan sama entrance animation bubble */
 .chatbot-msg-row {
   display: flex;
   width: 100%;
   position: relative;
-  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.25s ease;
 }
-.chatbot-msg-row.bot { justify-content: flex-start; transform-origin: left center; }
-.chatbot-msg-row.user { justify-content: flex-end; transform-origin: right center; }
-.chatbot-msg-row.focused { transform: scale(1.07); }
+.chatbot-msg-row.bot {
+  justify-content: flex-start;
+  transform-origin: left center;
+}
+.chatbot-msg-row.user {
+  justify-content: flex-end;
+  transform-origin: right center;
+}
+.chatbot-msg-row.focused {
+  transform: scale(1.07);
+}
 .chatbot-msg-row.focused .chatbot-msg {
   border-color: var(--green);
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
 }
-.chatbot-msg-row.dimmed { opacity: 0.35; }
+.chatbot-msg-row.dimmed {
+  opacity: 0.35;
+}
 .chatbot-react-bar {
   position: absolute;
   bottom: 100%;
@@ -1048,8 +1142,14 @@ export default {
   transition: transform 0.15s ease;
   filter: grayscale(0.4);
 }
-.chatbot-react-btn:hover { transform: scale(1.35); filter: none; }
-.chatbot-react-btn.selected { filter: none; transform: scale(1.2); }
+.chatbot-react-btn:hover {
+  transform: scale(1.35);
+  filter: none;
+}
+.chatbot-react-btn.selected {
+  filter: none;
+  transform: scale(1.2);
+}
 .chatbot-react-badge {
   position: absolute;
   right: -6px;
