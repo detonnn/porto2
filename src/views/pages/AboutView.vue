@@ -9,9 +9,6 @@
               title="Ibnu"
               subtitle="Full Stack Developer"
               :imageUrl="about.image"
-              actionText="Download CV"
-              :href="about.cv"
-              :onActionClick="handleDownload"
             />
         </div>
 
@@ -56,11 +53,6 @@ export default {
     components: { InteractiveTravelCard },
     data() {
         return { about: data.about }
-    },
-    methods: {
-      handleDownload() {
-        window.open(this.about.cv, '_blank');
-      }
     }
 };
 </script>
