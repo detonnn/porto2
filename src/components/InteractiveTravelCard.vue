@@ -7,11 +7,13 @@
     @mouseleave="handleMouseLeave"
     :style="cardStyle"
   >
-    <img
-      :src="imageUrl"
-      :alt="`${title}, ${subtitle}`"
-      class="tilt-card__img"
-    />
+    <slot>
+      <img
+        :src="imageUrl"
+        :alt="`${title}, ${subtitle}`"
+        class="tilt-card__img"
+      />
+    </slot>
   </div>
 </template>
 
@@ -19,7 +21,7 @@
 export default {
   name: "InteractiveTravelCard",
   props: {
-    imageUrl: { type: String, required: true },
+    imageUrl: { type: String, required: false },
     title: { type: String, default: "" },
     subtitle: { type: String, default: "" },
     className: { type: String, default: "" },
@@ -81,11 +83,7 @@ export default {
 
 <style scoped>
 .tilt-card {
-  width: 20rem;
-  height: 26rem;
   border-radius: 1rem;
-  border: 1px solid var(--accent-glow);
-  box-shadow: 0 0 18px var(--accent-glow);
   overflow: hidden;
   will-change: transform;
 }

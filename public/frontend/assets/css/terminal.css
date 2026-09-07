@@ -1404,19 +1404,11 @@ body.light-theme .github__day[data-level="4"] {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1.6rem 1.2rem 1.2rem;
-  transition: 0.3s;
 }
 /* NOTE: no transform on the card itself — the modal is a fixed-position child,
    and a transform here would make the card its containing block (breaks the modal). */
-.services__content:hover {
-  border-color: var(--green);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
-}
 .services__content > div:first-child {
   transition: transform 0.3s;
-}
-.services__content:hover > div:first-child {
-  transform: translateY(-5px);
 }
 .services__icon {
   display: block;

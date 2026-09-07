@@ -4,40 +4,48 @@
         <span class="section__subtitle">{{ services.subtitle }}</span>
 
         <div class="services__container container grid">
-            <div class="services__content" v-for="(item, i) in services.items" :key="i">
+            <InteractiveTravelCard 
+                v-for="(item, i) in services.items" :key="i"
+                :title="item.title"
+                class="services__content" 
+                style="width: 100%; height: auto; border-radius: .25rem; border: none; box-shadow: none;"
+            >
                 <div>
                     <i class="uil services__icon" :class="item.icon"></i>
-                    <h3 class="services__title">{{ item.title }}</h3>
-                </div>
+                    <h3 class="services__title" style="margin-bottom: var(--mb-1);">{{ item.title }}</h3>
+                    <span class="button button--flex button--small button--link services__button">
+                        View More
+                        <i class="uil uil-arrow-right button__icon"></i>
+                    </span>
 
-                <span class="button button--flex button--small button--link services__button">
-                    View More
-                    <i class="uil uil-arrow-right button__icon"></i>
-                </span>
+                    <div class="services__modal">
+                        <div class="services__modal-content">
+                            <h4 class="services__modal-title">{{ item.modalTitle }}</h4>
+                            <i class="uil uil-times services__modal-close"></i>
 
-                <div class="services__modal">
-                    <div class="services__modal-content">
-                        <h4 class="services__modal-title">{{ item.modalTitle }}</h4>
-                        <i class="uil uil-times services__modal-close"></i>
-
-                        <ul class="services__modal-services grid">
-                            <li class="services__modal-service" v-for="(point, pi) in item.services" :key="pi">
-                                <i class="uil uil-check-circle services__modal-icon"></i>
-                                <p>{{ point }}</p>
-                            </li>
-                        </ul>
+                            <ul class="services__modal-services grid">
+                                <li class="services__modal-service" v-for="(point, pi) in item.services" :key="pi">
+                                    <i class="uil uil-check-circle services__modal-icon"></i>
+                                    <p>{{ point }}</p>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </InteractiveTravelCard>
         </div>
     </section>
 </template>
 
 <script>
 import data from '../../data/portfolio.json'
+import InteractiveTravelCard from '../../components/InteractiveTravelCard.vue'
 
 export default {
     name: 'Services',
+    components: {
+        InteractiveTravelCard
+    },
     data() {
         return { services: data.services }
     }

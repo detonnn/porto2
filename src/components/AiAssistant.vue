@@ -79,10 +79,39 @@
         <div
           v-for="(m, i) in messages"
           :key="i"
-          class="chatbot-msg"
-          :class="m.sender"
+          class="chatbot-msg-row"
+          :class="[
+            m.sender,
+            {
+              focused: activeReact === i,
+              dimmed: activeReact !== null && activeReact !== i,
+            },
+          ]"
+          @click="onBotMsgClick($event, i)"
         >
+          <div class="chatbot-msg" :class="m.sender">
           {{ m.text }}
+          <span
+            v-if="m.sender === 'bot' && m.reaction"
+            class="chatbot-react-badge"
+            >{{ reactionEmoji(m.reaction) }}</span
+          >
+          <div
+            v-if="m.sender === 'bot' && activeReact === i"
+            class="chatbot-react-bar"
+          >
+            <button
+              v-for="r in reactions"
+              :key="r.key"
+              class="chatbot-react-btn"
+              :class="{ selected: m.reaction === r.key }"
+              type="button"
+              :title="r.key"
+              @click.stop="setReaction(i, r.key)"
+            >
+              {{ r.emoji }}
+            </button>
+          </div>
           <div v-if="m.links && m.links.length" class="chatbot-link-row">
             <a
               v-for="(l, j) in m.links"
@@ -107,6 +136,7 @@
             >
               <i class="uil uil-play"></i> <span>{{ opt.label }}</span>
             </button>
+          </div>
           </div>
         </div>
         <div v-if="historyView" class="chatbot-msg bot chatbot-history-list">
@@ -202,12 +232,21 @@ const CONTACT_LINKS = {
   },
 };
 
+const REACTIONS = [
+  { key: "love", emoji: "❤️" },
+  { key: "like", emoji: "👍" },
+  { key: "dislike", emoji: "👎" },
+  { key: "laugh", emoji: "😂" },
+  { key: "wow", emoji: "❗" },
+  { key: "hmm", emoji: "❓" },
+];
+
 const QUICK_REPLIES = [
   { key: "q1", label: "Profil singkat?", answer: "ans1" },
   { key: "q2", label: "Keahlian & Skill?", answer: "ans2" },
   {
     key: "q3",
-    label: "Mau Sambil Dengerin Musik?",
+    label: "Mau Dengerin Musik?",
     answer: "ansMusicPlaylistIntro",
   },
   { key: "q4", label: "Cara Kontak?", answer: "ans4" },
@@ -618,6 +657,8 @@ export default {
       historyView: false,
       historyList: [],
       quickReplies: QUICK_REPLIES,
+      reactions: REACTIONS,
+      activeReact: null,
     };
   },
   computed: {
@@ -655,6 +696,8 @@ export default {
     onDocClick(e) {
       const menuWrap = this.$refs.menuWrap;
       if (menuWrap && !menuWrap.contains(e.target)) this.menuOpen = false;
+      if (e.target.closest && !e.target.closest(".chatbot-msg"))
+        this.activeReact = null;
       if (this.isOpen && !this.$el.contains(e.target)) this.closeChat();
     },
     toggle() {
@@ -677,6 +720,7 @@ export default {
     },
     startFreshChat() {
       this.messages = [];
+      this.activeReact = null;
       this.historyView = false;
       this.chatInitialized = true;
       this.showTyping(() => this.addMessage(ANSWERS.greeting, "bot"));
@@ -691,8 +735,28 @@ export default {
         sender,
         links: links || null,
         playlist: playlist || null,
+        reaction: null,
       });
       this.scrollDown();
+    },
+    toggleReactBar(i) {
+      this.activeReact = this.activeReact === i ? null : i;
+    },
+    onBotMsgClick(e, i) {
+      if ((this.messages[i] || {}).sender !== "bot") return;
+      if (e.target.closest && e.target.closest("a,button")) return;
+      this.toggleReactBar(i);
+    },
+    setReaction(i, key) {
+      const m = this.messages[i];
+      if (!m) return;
+      // ponytail: klik emoji yang sama = batalin reaksi
+      m.reaction = m.reaction === key ? null : key;
+      this.activeReact = null;
+    },
+    reactionEmoji(key) {
+      const r = REACTIONS.find((x) => x.key === key);
+      return r ? r.emoji : "";
     },
     scrollDown() {
       this.$nextTick(() => {
@@ -869,6 +933,7 @@ export default {
     handleUserInput(displayText, forcedAnswerKey) {
       if (!displayText || !displayText.trim()) return;
       this.historyView = false;
+      this.activeReact = null;
       this.addMessage(displayText, "user");
       this.saveHistoryEntry(displayText);
       this.inputText = "";
@@ -939,3 +1004,61 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.chatbot-msg.bot { position: relative; }
+/* ponytail: scale di row (bukan bubble) biar gak tabrakan sama entrance animation bubble */
+.chatbot-msg-row {
+  display: flex;
+  width: 100%;
+  position: relative;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+.chatbot-msg-row.bot { justify-content: flex-start; transform-origin: left center; }
+.chatbot-msg-row.user { justify-content: flex-end; transform-origin: right center; }
+.chatbot-msg-row.focused { transform: scale(1.07); }
+.chatbot-msg-row.focused .chatbot-msg {
+  border-color: var(--green);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+.chatbot-msg-row.dimmed { opacity: 0.35; }
+.chatbot-react-bar {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  z-index: 5;
+  animation: chatbotMsgIn 0.25s ease both;
+}
+.chatbot-react-btn {
+  background: transparent;
+  border: none;
+  font-size: 17px;
+  line-height: 1;
+  padding: 4px 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  filter: grayscale(0.4);
+}
+.chatbot-react-btn:hover { transform: scale(1.35); filter: none; }
+.chatbot-react-btn.selected { filter: none; transform: scale(1.2); }
+.chatbot-react-badge {
+  position: absolute;
+  right: -6px;
+  bottom: -12px;
+  font-size: 14px;
+  line-height: 1;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2px 5px;
+}
+</style>

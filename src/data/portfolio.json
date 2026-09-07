@@ -14,10 +14,19 @@
     ],
     "description": "High level experience in web design & development, building, testing and shipping high quality software end-to-end.",
     "socials": [
-      { "icon": "uil-instagram", "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh" },
+      {
+        "icon": "uil-instagram",
+        "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh"
+      },
       { "icon": "uil-github-alt", "url": "https://github.com/detonnn" },
-      { "icon": "uil-music", "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc" },
-      { "icon": "uil-whatsapp", "url": "https://api.whatsapp.com/send?phone=6285281144792" }
+      {
+        "icon": "uil-music",
+        "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc"
+      },
+      {
+        "icon": "uil-whatsapp",
+        "url": "https://api.whatsapp.com/send?phone=6285281144792"
+      }
     ]
   },
   "about": {
@@ -49,15 +58,15 @@
           { "name": "Vue.js", "level": 69 }
         ]
       },
-      { 
+      {
         "icon": "uil-server-network",
         "title": "Backend developer",
         "subtitle": "More than 1 years",
         "items": [
-            { "name": "PHP", "level": 40 },
-            { "name": "Node.js", "level": 70 },
-            { "name": "Python", "level": 40 },
-            { "name": "Java", "level": 20 }
+          { "name": "PHP", "level": 40 },
+          { "name": "Node.js", "level": 70 },
+          { "name": "Python", "level": 40 },
+          { "name": "Java", "level": 20 }
         ]
       },
       {
@@ -69,7 +78,7 @@
           { "name": "Visual Studio Code (VS Code)", "level": 80 },
           { "name": "Postman", "level": 30 },
           { "name": "Docker", "level": 40 },
-          { "name": "Github", "level": 70 } 
+          { "name": "Github", "level": 70 }
         ]
       },
       {
@@ -93,16 +102,44 @@
     "title": "git log --journey",
     "subtitle": "commit history of my career",
     "education": [
-      { "title": "Middle School", "place": "SMPN 14 Kota Tangerang", "date": "2019-2022" },
-      { "title": "Vocational Secondary School", "place": "SMKN 5 Kota Tangerang", "date": "2022-2025" },
-      { "title": "Informatics Engineering", "place": "Pamulang University", "date": "2026-present" }
+      {
+        "title": "Middle School",
+        "place": "SMPN 14 Kota Tangerang",
+        "date": "2019-2022"
+      },
+      {
+        "title": "Vocational Secondary School",
+        "place": "SMKN 5 Kota Tangerang",
+        "date": "2022-2025"
+      },
+      {
+        "title": "Informatics Engineering",
+        "place": "Pamulang University",
+        "date": "2026-present"
+      }
     ],
     "work": [
-      { "title": "Internship-Administrasi & Operasional", "place": "Azka Group", "date": "Januari 2025-juni 2025" },
-      { "title": "Internship-digital assets support", "place": "dispora", "date": "2025-2026" },
+      {
+        "title": "Internship-Administrasi & Operasional",
+        "place": "Azka Group",
+        "date": "Januari 2025-juni 2025"
+      },
+      {
+        "title": "Internship-digital assets support",
+        "place": "dispora",
+        "date": "2025-2026"
+      },
       { "title": "Game Developer", "place": "Freelancer", "date": "2025-2026" },
-      { "title": "Freelancer Editing(EVOS)","place": "Freelancer", "date": "2025-present" },
-      { "title": "UI UX Design", "place": "Pamulang University", "date": "2026-present" }
+      {
+        "title": "Freelancer Editing(EVOS)",
+        "place": "Freelancer",
+        "date": "2025-present"
+      },
+      {
+        "title": "UI UX Design",
+        "place": "Pamulang University",
+        "date": "2026-present"
+      }
     ]
   },
   "services": {
@@ -156,10 +193,30 @@
     "title": "ls ./projects",
     "subtitle": "recent deployments & live builds",
     "items": [
-      { "image": "frontend/assets/img/1.jpg", "title": "Print Media Design & Packaging Workflow", "description": "Six months of internship experience in the printing and online shop packing industry, handling the preparation of design files prior to printing.", "url": "https://www.instagram.com/azkaprint.official/" },
-      { "image": "frontend/assets/img/3.jpg", "title": "Esports Video Editing & Social Content", "description": "video editor for Evos Street, crafting engaging short-form and long-form content optimized for YouTube and TikTok audience retention.", "url": "https://youtu.be/WwLDZrngERA" },
-      { "image": "frontend/assets/img/2.jpg", "title": "Technical & Digital Asset Support", "description": "Four months of internship experience at the Department of Youth and Sports (DISPORA), managing digital technical operations, IT support, and media asset distribution for institutional events", "url": "https://dispora.tangerangkota.go.id/" },
-      { "image": "frontend/assets/img/4.jpg", "title": "Infrastructure & Telegram Ops Bot (9Router)", "description": "Built a custom Node.js & PM2 remote control bot for Telegram to monitor web uptime, handle Vercel deployments, track GitHub repos, and execute git commands on-the-fly.", "url": "https://github.com/detonnn/Bot-telegram" }
+      {
+        "image": "frontend/assets/img/1.jpg",
+        "title": "Print Media Design & Packaging Workflow",
+        "description": "Six months of internship experience in the printing and online shop packing industry, handling the preparation of design files prior to printing.",
+        "url": "https://www.instagram.com/azkaprint.official/"
+      },
+      {
+        "image": "frontend/assets/img/3.jpg",
+        "title": "Esports Video Editing & Social Content",
+        "description": "video editor for Evos Street, crafting engaging short-form and long-form content optimized for YouTube and TikTok audience retention.",
+        "url": "https://youtu.be/WwLDZrngERA"
+      },
+      {
+        "image": "frontend/assets/img/2.jpg",
+        "title": "Technical & Digital Asset Support",
+        "description": "Four months of internship experience at the Department of Youth and Sports (DISPORA), managing digital technical operations, IT support, and media asset distribution for institutional events",
+        "url": "https://dispora.tangerangkota.go.id/"
+      },
+      {
+        "image": "frontend/assets/img/4.jpg",
+        "title": "Infrastructure & Telegram Ops Bot (9Router)",
+        "description": "Built a custom Node.js & PM2 remote control bot for Telegram to monitor web uptime, handle Vercel deployments, track GitHub repos, and execute git commands on-the-fly.",
+        "url": "https://github.com/detonnn/Bot-telegram"
+      }
     ]
   },
   "projectCta": {
@@ -172,24 +229,87 @@
     "title": "cat reviews.log",
     "subtitle": "what my clients are saying",
     "items": [
-      { "image": "frontend/assets/img/new1.jpg", "name": "Andi Simorangkir, S.T", "role": "Client", "rating": 5, "text": "I get a good impression, I carry out my project with all the possible quality and attention and support 24 hours a day." },
-      { "image": "frontend/assets/img/new2.jpg", "name": "Preddy Budiman, S.H", "role": "Client", "rating": 5, "text": "Super fast response and clean code. Delivered exactly what was promised ahead of schedule." },
-      { "image": "frontend/assets/img/new3.jpg", "name": "Doni Budiman, S.H", "role": "Client", "rating": 4, "text": "Great UI/UX work, really improved our conversion. Minor revisions but handled quickly." },
-      { "image": "frontend/assets/img/new4.jpg", "name": "Sinta Maharani", "role": "Product Owner", "rating": 5, "text": "Streamlined our ordering flow end-to-end. The new interface cut manual work in half." },
-      { "image": "frontend/assets/img/new5.jpg", "name": "Bagas Pratama", "role": "Startup Founder", "rating": 5, "text": "Smooth implementation, clear communication, and support that actually replies fast." },
-      { "image": "frontend/assets/img/new6.jpg", "name": "Rina Kartika", "role": "Marketing Lead", "rating": 4, "text": "Landing page revamp boosted our leads. Small revisions were handled the same day." },
-      { "image": "frontend/assets/img/new7.jpg", "name": "Yoga Saputra", "role": "Operations Manager", "rating": 5, "text": "Reliable delivery and clean handoff docs. Our team onboarded with zero friction." },
-      { "image": "frontend/assets/img/new8.jpg", "name": "Dewi Anggraini", "role": "UI/UX Client", "rating": 5, "text": "Design system is consistent and easy to extend. Exactly what we asked for." },
-      { "image": "frontend/assets/img/new9.jpg", "name": "Fajar Nugroho", "role": "E-commerce Owner", "rating": 4, "text": "Store performance improved noticeably after the rebuild. Recommended." }
+      {
+        "image": "frontend/assets/img/new1.jpg",
+        "name": "Mahardika Situpang",
+        "role": "Client",
+        "rating": 5,
+        "text": "I get a good impression, I carry out my project with all the possible quality and attention and support 24 hours a day."
+      },
+      {
+        "image": "frontend/assets/img/new2.jpg",
+        "name": "Muhammad Rizki",
+        "role": "Client",
+        "rating": 3,
+        "text": "Super fast response and clean code. Delivered exactly what was promised ahead of schedule."
+      },
+      {
+        "image": "frontend/assets/img/new3.jpg",
+        "name": "Budiono Siregar",
+        "role": "Client",
+        "rating": 4,
+        "text": "Great UI/UX work, really improved our conversion. Minor revisions but handled quickly."
+      },
+      {
+        "image": "frontend/assets/img/new4.jpg",
+        "name": "Sinta Maharani",
+        "role": "Product Owner",
+        "rating": 5,
+        "text": "Streamlined our ordering flow end-to-end. The new interface cut manual work in half."
+      },
+      {
+        "image": "frontend/assets/img/new5.jpg",
+        "name": "Bagas Pratama",
+        "role": "Startup Founder",
+        "rating": 5,
+        "text": "Smooth implementation, clear communication, and support that actually replies fast."
+      },
+      {
+        "image": "frontend/assets/img/new6.jpg",
+        "name": "Rina Kartika",
+        "role": "Marketing Lead",
+        "rating": 4,
+        "text": "Landing page revamp boosted our leads. Small revisions were handled the same day."
+      },
+      {
+        "image": "frontend/assets/img/new7.jpg",
+        "name": "Yoga Saputra",
+        "role": "Operations Manager",
+        "rating": 5,
+        "text": "Reliable delivery and clean handoff docs. Our team onboarded with zero friction."
+      },
+      {
+        "image": "frontend/assets/img/new8.jpg",
+        "name": "Dewi Anggraini",
+        "role": "UI/UX Client",
+        "rating": 5,
+        "text": "Design system is consistent and easy to extend. Exactly what we asked for."
+      },
+      {
+        "image": "frontend/assets/img/new9.jpg",
+        "name": "Fajar Nugroho",
+        "role": "E-commerce Owner",
+        "rating": 4,
+        "text": "Store performance improved noticeably after the rebuild. Recommended."
+      }
     ]
   },
   "contact": {
     "title": "ssh ibnu@contact",
     "subtitle": "open a connection — let's talk",
     "items": [
-   { "icon": "uil-phone", "title": "Call me", "value": "+6285281144792" },
-       { "icon": "uil-envelope", "title": "Email", "value": "ibnudexton@gmail.com" },
-      { "icon": "uil-map-marker", "title": "Location", "value": "Ciledug - Kota Tangerang", "href": "https://www.google.com/maps/place/Kec.+Ciledug,+Kota+Tangerang,+Banten/@-6.240094,106.704859,15z/data=!3m1!4b1!4m6!3m5!1s0x2e69fa14971f8dfb:0x16790a55b650b013!8m2!3d-6.2417271!4d106.7023326!16s%2Fm%2F047t451?entry=ttu&g_ep=EgoyMDI2MDgyNi4wIKXMDSoASAFQAw%3D%3D" }
+      { "icon": "uil-phone", "title": "Call me", "value": "+6285281144792" },
+      {
+        "icon": "uil-envelope",
+        "title": "Email",
+        "value": "ibnudexton@gmail.com"
+      },
+      {
+        "icon": "uil-map-marker",
+        "title": "Location",
+        "value": "Ciledug - Kota Tangerang",
+        "href": "https://www.google.com/maps/place/Kec.+Ciledug,+Kota+Tangerang,+Banten/@-6.240094,106.704859,15z/data=!3m1!4b1!4m6!3m5!1s0x2e69fa14971f8dfb:0x16790a55b650b013!8m2!3d-6.2417271!4d106.7023326!16s%2Fm%2F047t451?entry=ttu&g_ep=EgoyMDI2MDgyNi4wIKXMDSoASAFQAw%3D%3D"
+      }
     ]
   },
   "footer": {
@@ -203,9 +323,15 @@
     ],
     "socials": [
       { "icon": "uil-whatsapp", "url": "https://wa.me/6285281144792" },
-      { "icon": "uil-instagram", "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh" },
+      {
+        "icon": "uil-instagram",
+        "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh"
+      },
       { "icon": "uil-github-alt", "url": "https://github.com/detonnn" },
-      { "icon": "uil-music", "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc" }
+      {
+        "icon": "uil-music",
+        "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc"
+      }
     ]
   }
 }

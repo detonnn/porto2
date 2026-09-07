@@ -4,8 +4,8 @@
         <span class="section__subtitle">{{ testimonials.subtitle }}</span>
 
         <div class="tcol__wrap">
-            <div v-for="(col, ci) in columns" :key="ci" class="tcol" :class="{ 'tcol--md': ci === 1, 'tcol--lg': ci === 2 }">
-                <div class="tcol__track" :style="{ animationDuration: durations[ci] + 's' }">
+            <div v-for="(col, ci) in columns" :key="ci" class="tcol">
+                <div class="tcol__track" :style="{ animationDuration: (col.length * 4) + 's' }">
                     <div v-for="loop in 2" :key="loop" class="tcol__group">
                         <div class="testimonial__content" v-for="(item, i) in col" :key="i">
                             <div class="testimonial__data">
@@ -35,13 +35,18 @@ import data from '../../data/portfolio.json'
 export default {
     name: 'Testimonial',
     data() {
-        return { testimonials: data.testimonials, durations: [15, 19, 17] }
+        return { testimonials: data.testimonials, colCount: window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3 }
     },
+    mounted() {
+        this.onResize = () => { this.colCount = window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3 }
+        window.addEventListener('resize', this.onResize)
+    },
+    beforeUnmount() { window.removeEventListener('resize', this.onResize) },
     computed: {
         columns() {
             const items = this.testimonials.items || []
-            const per = Math.ceil(items.length / 3)
-            return [0, 1, 2].map(i => items.slice(i * per, i * per + per))
+            const per = Math.ceil(items.length / this.colCount)
+            return Array.from({ length: this.colCount }, (_, i) => items.slice(i * per, i * per + per))
         }
     }
 }
@@ -58,9 +63,6 @@ export default {
     mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
 }
 .tcol { width: 100%; max-width: 320px; overflow: hidden; }
-.tcol--md, .tcol--lg { display: none; }
-@media screen and (min-width: 768px) { .tcol--md { display: block; } }
-@media screen and (min-width: 1024px) { .tcol--lg { display: block; } }
 .tcol__track { display: flex; flex-direction: column; gap: 1.25rem; animation: tcol-scroll linear infinite; }
 .tcol__group { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 1.25rem; }
 @keyframes tcol-scroll { to { transform: translateY(-50%); } }
