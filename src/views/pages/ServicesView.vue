@@ -8,7 +8,7 @@
                 v-for="(item, i) in services.items" :key="i"
                 :title="item.title"
                 class="services__content" 
-                style="width: 100%; height: auto; border-radius: .25rem; border: none; box-shadow: none;"
+                style="width: 100%; height: auto;"
             >
                 <div>
                     <i class="uil services__icon" :class="item.icon"></i>
@@ -18,19 +18,21 @@
                         <i class="uil uil-arrow-right button__icon"></i>
                     </span>
 
-                    <div class="services__modal">
-                        <div class="services__modal-content">
-                            <h4 class="services__modal-title">{{ item.modalTitle }}</h4>
-                            <i class="uil uil-times services__modal-close"></i>
+                    <Teleport to="body">
+                        <div class="services__modal">
+                            <div class="services__modal-content">
+                                <h4 class="services__modal-title">{{ item.modalTitle }}</h4>
+                                <i class="uil uil-times services__modal-close"></i>
 
-                            <ul class="services__modal-services grid">
-                                <li class="services__modal-service" v-for="(point, pi) in item.services" :key="pi">
-                                    <i class="uil uil-check-circle services__modal-icon"></i>
-                                    <p>{{ point }}</p>
-                                </li>
-                            </ul>
+                                <ul class="services__modal-services grid">
+                                    <li class="services__modal-service" v-for="(point, pi) in item.services" :key="pi">
+                                        <i class="uil uil-check-circle services__modal-icon"></i>
+                                        <p>{{ point }}</p>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
+                    </Teleport>
                 </div>
             </InteractiveTravelCard>
         </div>

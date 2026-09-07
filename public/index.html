@@ -131,8 +131,7 @@
     <script>
       (function () {
         var t0 = Date.now(),
-          min = 3600,
-          hold = 400;
+          min = 4500;
         function hide() {
           var el = document.getElementById("app-loader");
           if (!el || el.dataset.done) return;
@@ -147,11 +146,6 @@
         }
         window.addEventListener("load", function () {
           setTimeout(hide, Math.max(0, min - (Date.now() - t0)));
-        });
-        // Sinkron: tutup pas animasi selesai, jangan nunggu timer
-        var path = document.querySelector("#app-loader .hello-path");
-        if (path) path.addEventListener("animationend", function () {
-          setTimeout(hide, hold);
         });
         setTimeout(hide, min + 2500);
       })();

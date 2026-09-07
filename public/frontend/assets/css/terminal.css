@@ -889,12 +889,19 @@ body.light-theme .header {
 .about__pic {
   position: relative;
   justify-self: center;
-  display: inline-block;
+  display: flex;
   padding: 6px;
   background: var(--bg-window);
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  width: 100%;
+  max-width: 320px;
+  height: 100%;
+}
+.about__pic .tilt-card {
+  width: 100%;
+  height: 100%;
 }
 .about__img {
   width: 100%;
@@ -1019,7 +1026,7 @@ body.light-theme .header {
 @media screen and (min-width: 768px) {
   .about__container {
     grid-template-columns: 1fr 1.4fr;
-    align-items: center;
+    align-items: stretch;
   }
 }
 
