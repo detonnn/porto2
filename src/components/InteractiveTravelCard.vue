@@ -50,7 +50,7 @@ export default {
   props: {
     imageUrl: { type: String, required: false },
     revealImageUrl: { type: String, required: false, default: "" },
-    gridSize: { type: Number, default: 6 },
+    gridSize: { type: Number, default: 15 },
     pixelColor: { type: String, default: "#ffffff" },
     stepDuration: { type: Number, default: 0.3 },
     title: { type: String, default: "" },
@@ -132,7 +132,7 @@ export default {
           if (gen !== this.revealGeneration) return;
           this.isRevealed = activate;
           this.pixelsVisible = false;
-        }, this.stepDuration * 1000)
+        }, this.stepDuration * 1000),
       );
     },
     handleMouseEnter() {
@@ -200,7 +200,8 @@ export default {
 }
 
 .tilt-card:hover {
-  box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--accent-glow);
+  box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.35),
+    0 0 0 1px var(--accent-glow);
 }
 
 .tilt-card__img {
@@ -257,7 +258,7 @@ export default {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.25),
+    var(--shine-color, rgba(255, 255, 255, 0.35)),
     transparent
   );
   transform: skewX(-20deg);

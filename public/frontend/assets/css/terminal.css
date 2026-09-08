@@ -39,6 +39,7 @@
   --accent-glow: rgba(126, 200, 227, 0.35);
   --shadow-color: rgba(255, 255, 255, 0.1);
   --shadow-glow: rgba(126, 200, 227, 0.1);
+  --shine-color: rgba(255, 255, 255, 0.35);
 
   /* window dots */
   --dot-red: #ff5f56;
@@ -109,6 +110,7 @@ body.light-theme {
   --accent-glow: rgba(58, 154, 217, 0.25);
   --shadow-color: rgba(30, 40, 60, 0.18);
   --shadow-glow: rgba(58, 154, 217, 0.15);
+  --shine-color: rgba(30, 40, 60, 0.16);
 }
 
 * {

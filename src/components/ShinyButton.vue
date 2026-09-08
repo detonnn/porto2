@@ -63,7 +63,7 @@ export default {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.25),
+    var(--shine-color, rgba(255, 255, 255, 0.35)),
     transparent
   );
   transform: skewX(-20deg);
