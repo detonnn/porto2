@@ -113,6 +113,34 @@ body.light-theme {
   --shine-color: rgba(30, 40, 60, 0.16);
 }
 
+/*=====================================================================
+   THEME SWITCH — diagonal view-transition wipe
+=====================================================================*/
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* Widget assistant dipisah dari snapshot root biar gak ketutup/ikut ke-wipe */
+.chatbot-widget.open {
+  view-transition-name: chatbot-widget;
+}
+::view-transition-group(chatbot-widget) {
+  z-index: 9999;
+}
+::view-transition-old(chatbot-widget),
+::view-transition-new(chatbot-widget) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;

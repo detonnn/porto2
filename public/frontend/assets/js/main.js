@@ -132,13 +132,13 @@ function scrollActive() {
   });
 }
 function onScroll() {
-    // Play send sound when sending a message
-    // This is a placeholder, the actual message sending logic should be identified and updated
-    // Example: if (isUserMessage) { playAudio('send.mp3'); }
+  // Play send sound when sending a message
+  // This is a placeholder, the actual message sending logic should be identified and updated
+  // Example: if (isUserMessage) { playAudio('send.mp3'); }
 
-    // Play receive sound when receiving a message
-    // This is a placeholder, the actual message receiving logic should be identified and updated
-    // Example: if (isAssistantMessage) { playAudio('recive.mp3'); }
+  // Play receive sound when receiving a message
+  // This is a placeholder, the actual message receiving logic should be identified and updated
+  // Example: if (isAssistantMessage) { playAudio('recive.mp3'); }
   if (!ticking) {
     ticking = true;
     requestAnimationFrame(() => {
@@ -173,12 +173,41 @@ function applyTheme(isLight) {
 const selectedTheme = localStorage.getItem("selected-theme");
 applyTheme(selectedTheme === "light");
 
-if (themeButton) {
-  themeButton.addEventListener("click", () => {
-    const isLight = !document.body.classList.contains(lightTheme);
+async function toggleThemeWithWipe() {
+  const isLight = !document.body.classList.contains(lightTheme);
+
+  // Browser gak support View Transition API -> langsung toggle biasa, gak usah animasi
+  if (!document.startViewTransition) {
+    applyTheme(isLight);
+    localStorage.setItem("selected-theme", isLight ? "light" : "dark");
+    return;
+  }
+
+  const transition = document.startViewTransition(() => {
     applyTheme(isLight);
     localStorage.setItem("selected-theme", isLight ? "light" : "dark");
   });
+
+  await transition.ready;
+
+  // Diagonal wipe 45°: garis miring nyapu dari kiri-atas duluan baru ke kanan-bawah
+  document.documentElement.animate(
+    {
+      clipPath: [
+        "polygon(-200% -20%, -20% -20%, -100% 120%, -200% 120%)",
+        "polygon(-200% -20%, 200% -20%, 120% 120%, -200% 120%)",
+      ],
+    },
+    {
+      duration: 1000,
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+      pseudoElement: "::view-transition-new(root)",
+    },
+  );
+}
+
+if (themeButton) {
+  themeButton.addEventListener("click", toggleThemeWithWipe);
 }
 
 (function () {

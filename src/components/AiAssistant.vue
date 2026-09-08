@@ -729,6 +729,8 @@ export default {
       if (menuWrap && !menuWrap.contains(e.target)) this.menuOpen = false;
       if (e.target.closest && !e.target.closest(".chatbot-msg"))
         this.activeReact = null;
+      // Klik tombol ganti tema jangan nutup widget assistant
+      if (e.target.closest && e.target.closest("#theme-button")) return;
       if (this.isOpen && !this.$el.contains(e.target)) this.closeChat();
     },
     toggle() {
