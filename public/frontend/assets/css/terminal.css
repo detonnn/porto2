@@ -4,10 +4,8 @@
    Class & id hooks used by main.js are preserved.
 =====================================================================*/
 
-
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Fira+Code:wght@400;500;600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 
 :root {
   --header-height: 3.5rem;
@@ -112,7 +110,6 @@ body.light-theme {
   --shadow-color: rgba(30, 40, 60, 0.18);
   --shadow-glow: rgba(58, 154, 217, 0.15);
 }
-
 
 * {
   box-sizing: border-box;
@@ -222,9 +219,66 @@ textarea {
   font-family: var(--body-font);
 }
 
-
+/* Content sections should only be as tall as their content.  Keeping every
+   section at 100vh creates a large blank area under short sections such as
+   Services and Qualification.  The hero is the sole full-screen section. */
 .section {
-  padding: 5rem 0 2rem;
+  padding-top: clamp(4.5rem, 8vw, 6rem);
+  padding-bottom: clamp(4.5rem, 8vw, 6rem);
+  scroll-margin-top: var(--header-height);
+}
+
+/* The landing/hero section intentionally fills the visible screen. */
+.home.section {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+}
+
+/* desktop extras */
+@media screen and (min-width: 968px) {
+  .section {
+    padding-top: 5.5rem;
+    padding-bottom: 5.5rem;
+  }
+
+  /* hero card felt cramped next to all the leftover width — give it more room */
+  .home__container.container {
+    max-width: 850px;
+  }
+  .home__hero-row .hero-term {
+    flex: 1;
+    width: 100%;
+  }
+
+  /* hero card internals: prompt line full-width on top,
+     then text left / mascot right, balanced */
+  .home .hero-term__body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0 1.5rem;
+  }
+  .home .hero-line {
+    flex: 1 1 100%;
+  }
+  .home .hero-output {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-right: 300px;
+  }
+  .home .home__cat {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 0;
+    line-height: 0;
+  }
+  .home .home__cat img {
+    width: 280px;
+    display: block;
+  }
 }
 
 .section__title,
@@ -256,6 +310,7 @@ textarea {
 }
 
 .container {
+  width: auto;
   max-width: 1024px;
   margin-left: 1.25rem;
   margin-right: 1.25rem;
@@ -270,7 +325,6 @@ textarea {
   position: relative;
   z-index: 1;
 }
-
 
 .button {
   display: inline-flex;
@@ -340,7 +394,6 @@ textarea {
 .button__icon {
   font-size: 1rem;
 }
-
 
 .term-window {
   background: var(--bg-window);
@@ -447,7 +500,6 @@ textarea {
   opacity: 1;
   transform: none;
 }
-
 
 .header {
   position: fixed;
@@ -640,9 +692,8 @@ body.light-theme .header {
   }
 }
 
-
 .home {
-  padding-top: 6.5rem;
+  padding-top: calc(4rem + var(--header-height));
 }
 .home__container {
   row-gap: 2rem;
@@ -1040,7 +1091,6 @@ body.light-theme .hero-term {
   }
 }
 
-
 .skills_container {
   grid-template-columns: 1fr;
 }
@@ -1160,7 +1210,6 @@ body.light-theme .hero-term {
     margin: 0 auto;
   }
 }
-
 
 .github__container {
   max-width: 1024px;
@@ -1314,7 +1363,6 @@ body.light-theme .github__day[data-level="4"] {
   margin-top: 1.2rem;
 }
 
-
 .qualification__tabs {
   display: flex;
   justify-content: flex-start;
@@ -1409,7 +1457,6 @@ body.light-theme .github__day[data-level="4"] {
   background: var(--border);
   transform: translate(5px, -4px);
 }
-
 
 .services__container {
   grid-template-columns: 1fr;
@@ -1524,9 +1571,18 @@ body.light-theme .github__day[data-level="4"] {
 @media screen and (min-width: 968px) {
   .services__container {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.75rem;
+  }
+  .services__container.container {
+    max-width: 1280px;
+  }
+  .services__content {
+    padding: 2.2rem 1.75rem 1.75rem;
+  }
+  .services__icon {
+    font-size: 2.2rem;
   }
 }
-
 
 .portofolio__container {
   overflow: visible;
@@ -1557,9 +1613,6 @@ body.light-theme .github__day[data-level="4"] {
   font-size: var(--h3-font-size);
   color: var(--text);
   margin-bottom: 0.5rem;
-}
-.portofolio__title::before {
-  content: "📦 ";
 }
 .portofolio__description {
   font-size: var(--small-font-size);
@@ -1613,7 +1666,6 @@ body.light-theme .github__day[data-level="4"] {
   }
 }
 
-
 .project {
   padding-bottom: 0;
 }
@@ -1659,7 +1711,6 @@ body.light-theme .github__day[data-level="4"] {
     align-items: center;
   }
 }
-
 
 .testimonial__content {
   background: var(--bg-window);
@@ -1715,7 +1766,6 @@ body.light-theme .github__day[data-level="4"] {
   content: ' "';
   color: var(--green);
 }
-
 
 .contact__container {
   grid-template-columns: 1fr;
@@ -1813,7 +1863,6 @@ body.light-theme .contact__form {
     align-items: flex-start;
   }
 }
-
 
 .footer {
   padding-top: 2rem;
@@ -1927,7 +1976,6 @@ body.light-theme .contact__form {
     grid-template-columns: 1.5fr 1fr 1fr;
   }
 }
-
 
 .footer__bottom {
   margin-top: 1.6rem;
@@ -2061,7 +2109,6 @@ body.light-theme .contact__form {
   }
 }
 
-
 ::-webkit-scrollbar {
   width: 9px;
   background: var(--bg);
@@ -2074,14 +2121,11 @@ body.light-theme .contact__form {
   background: var(--green-dim);
 }
 
-
 @media screen and (min-width: 768px) {
   .container {
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
-  }
-  .section {
-    padding: 6.5rem 0 2rem;
   }
 }
 @media screen and (max-width: 350px) {
@@ -2096,7 +2140,6 @@ body.light-theme .contact__form {
     gap: 1rem 0.5rem;
   }
 }
-
 
 .now-playing {
   position: fixed;
@@ -2195,7 +2238,6 @@ body.light-theme .contact__form {
     display: none;
   }
 }
-
 
 .chatbot-widget {
   position: fixed;

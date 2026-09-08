@@ -9,6 +9,7 @@
               title="Ibnu"
               subtitle="Full Stack Developer"
               :imageUrl="about.image"
+              :revealImageUrl="about.revealImage"
             />
         </div>
 

@@ -33,7 +33,8 @@
     "title": "whoami",
     "subtitle": "cat about.md",
     "windowTitle": "about.md",
-    "image": "frontend/assets/img/Ibnu Dexton.jpg",
+    "image": "frontend/assets/img/anime.jpg",
+    "revealImage": "frontend/assets/img/Ibnu Dexton.jpg",
     "description": "Software Engineer with extensive knowledge and years of experience, working across web technologies, and UI/UX, delivering quality work end-to-end.",
     "stats": [
       { "value": "02+", "label": "years\nuptime" },
