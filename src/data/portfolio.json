@@ -18,7 +18,10 @@
         "icon": "uil-instagram",
         "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh"
       },
-      { "icon": "uil-github-alt", "url": "https://github.com/detonnn" },
+      {
+        "icon": "uil-github-alt",
+        "url": "https://github.com/detonnn"
+      },
       {
         "icon": "uil-music",
         "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc"
@@ -37,9 +40,18 @@
     "revealImage": "frontend/assets/img/Ibnu Dexton.jpg",
     "description": "Software Engineer with extensive knowledge and years of experience, working across web technologies, and UI/UX, delivering quality work end-to-end.",
     "stats": [
-      { "value": "02+", "label": "years\nuptime" },
-      { "value": "10+", "label": "projects\nshipped" },
-      { "value": "04+", "label": "tahun pengalaman" }
+      {
+        "value": "02+",
+        "label": "years\nuptime"
+      },
+      {
+        "value": "10+",
+        "label": "projects\nshipped"
+      },
+      {
+        "value": "04+",
+        "label": "tahun pengalaman"
+      }
     ],
     "cv": "frontend/assets/pdf/MUHAMMAD IBNU DEXTON ALFATHIR.pdf"
   },
@@ -52,11 +64,26 @@
         "title": "Frontend developer",
         "subtitle": "More than 2 years",
         "items": [
-          { "name": "Tailwind", "level": 70 },
-          { "name": "React", "level": 90 },
-          { "name": "Next Js", "level": 67 },
-          { "name": "css", "level": 87 },
-          { "name": "Vue.js", "level": 69 }
+          {
+            "name": "Tailwind",
+            "level": 70
+          },
+          {
+            "name": "React",
+            "level": 90
+          },
+          {
+            "name": "Next Js",
+            "level": 67
+          },
+          {
+            "name": "css",
+            "level": 87
+          },
+          {
+            "name": "Vue.js",
+            "level": 69
+          }
         ]
       },
       {
@@ -64,10 +91,22 @@
         "title": "Backend developer",
         "subtitle": "More than 1 years",
         "items": [
-          { "name": "PHP", "level": 40 },
-          { "name": "Node.js", "level": 70 },
-          { "name": "Python", "level": 40 },
-          { "name": "Java", "level": 20 }
+          {
+            "name": "PHP",
+            "level": 40
+          },
+          {
+            "name": "Node.js",
+            "level": 70
+          },
+          {
+            "name": "Python",
+            "level": 40
+          },
+          {
+            "name": "Java",
+            "level": 20
+          }
         ]
       },
       {
@@ -75,11 +114,26 @@
         "title": "Dev tools & Version Control",
         "subtitle": "More than 5 months",
         "items": [
-          { "name": "C++", "level": 25 },
-          { "name": "Visual Studio Code (VS Code)", "level": 80 },
-          { "name": "Postman", "level": 30 },
-          { "name": "Docker", "level": 40 },
-          { "name": "Github", "level": 70 }
+          {
+            "name": "C++",
+            "level": 25
+          },
+          {
+            "name": "Visual Studio Code (VS Code)",
+            "level": 80
+          },
+          {
+            "name": "Postman",
+            "level": 30
+          },
+          {
+            "name": "Docker",
+            "level": 40
+          },
+          {
+            "name": "Github",
+            "level": 70
+          }
         ]
       },
       {
@@ -87,10 +141,22 @@
         "title": "Designer",
         "subtitle": "More than 3 years",
         "items": [
-          { "name": "Figma", "level": 90 },
-          { "name": "Adobe Illustrator", "level": 80 },
-          { "name": "Photoshop", "level": 90 },
-          { "name": "Corel Draw", "level": 50 }
+          {
+            "name": "Figma",
+            "level": 90
+          },
+          {
+            "name": "Adobe Illustrator",
+            "level": 80
+          },
+          {
+            "name": "Photoshop",
+            "level": 90
+          },
+          {
+            "name": "Corel Draw",
+            "level": 50
+          }
         ]
       }
     ]
@@ -130,7 +196,11 @@
         "place": "dispora",
         "date": "2025-2026"
       },
-      { "title": "Game Developer", "place": "Freelancer", "date": "2025-2026" },
+      {
+        "title": "Game Developer",
+        "place": "Freelancer",
+        "date": "2025-2026"
+      },
       {
         "title": "Freelancer Editing(EVOS)",
         "place": "Freelancer",
@@ -299,7 +369,11 @@
     "title": "ssh ibnu@contact",
     "subtitle": "open a connection — let's talk",
     "items": [
-      { "icon": "uil-phone", "title": "Call me", "value": "+6285281144792" },
+      {
+        "icon": "uil-phone",
+        "title": "Call me",
+        "value": "+6285281144792"
+      },
       {
         "icon": "uil-envelope",
         "title": "Email",
@@ -316,20 +390,66 @@
   "footer": {
     "title": "dxtnn",
     "subtitle": "Fullstack Developer · UI/UX Designer · Developer Engineer",
+    "tagline": "Bikin website & tools yang rapi, cepat, dan nggak asal jadi.",
     "copyright": "Ibnu Dexton. All right reserved",
-    "links": [
-      { "label": "Services", "href": "#services" },
-      { "label": "Portofolio", "href": "#portfolio" },
-      { "label": "Contactme", "href": "#contact" }
+    "linkGroups": [
+      {
+        "label": "Navigate",
+        "links": [
+          {
+            "label": "home",
+            "href": "#home"
+          },
+          {
+            "label": "whoami",
+            "href": "#about"
+          },
+          {
+            "label": "stack",
+            "href": "#skills"
+          },
+          {
+            "label": "activity",
+            "href": "#github"
+          }
+        ]
+      },
+      {
+        "label": "Explore",
+        "links": [
+          {
+            "label": "services",
+            "href": "#services"
+          },
+          {
+            "label": "projects",
+            "href": "#portfolio"
+          },
+          {
+            "label": "contact",
+            "href": "#contact"
+          }
+        ]
+      }
     ],
     "socials": [
-      { "icon": "uil-whatsapp", "url": "https://wa.me/6285281144792" },
       {
+        "label": "WhatsApp",
+        "icon": "uil-whatsapp",
+        "url": "https://wa.me/6285281144792"
+      },
+      {
+        "label": "Instagram",
         "icon": "uil-instagram",
         "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh"
       },
-      { "icon": "uil-github-alt", "url": "https://github.com/detonnn" },
       {
+        "label": "GitHub",
+        "icon": "uil-github-alt",
+        "url": "https://github.com/detonnn"
+      },
+      {
+        "label": "TikTok",
         "icon": "uil-music",
         "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc"
       }

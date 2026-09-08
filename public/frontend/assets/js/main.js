@@ -330,7 +330,6 @@ function initReveal() {
     ".contact__information",
     ".contact__form",
     ".project__bg",
-    ".footer__bg",
   ];
   const els = document.querySelectorAll(selectors.join(","));
   if (!els.length) return false;
