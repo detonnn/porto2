@@ -754,6 +754,9 @@ export default {
         this.idleTimer = null;
       }
     },
+    closeMenu() {
+      this.menuOpen = false;
+    },
     resetIdleTimer() {
       this.clearIdleTimer();
       if (!this.isOpen || !this.chatInitialized || this.hasSentIdle) return;
