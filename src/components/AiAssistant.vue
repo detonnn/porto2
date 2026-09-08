@@ -75,7 +75,7 @@
 
       <div class="chatbot-scrim" @click="closeMenu"></div>
 
-      <div class="chatbot-body" ref="body">
+      <div class="chatbot-body" ref="body" @scroll.passive="onBodyScroll">
         <div
           v-for="(m, i) in messages"
           :key="i"
@@ -157,33 +157,55 @@
         </div>
       </div>
 
-      <div class="chatbot-quick-replies" v-if="showQuick">
-        <button
-          v-for="q in quickReplies"
-          :key="q.key"
-          class="chatbot-quick-btn"
-          @click="handleUserInput(q.label, q.answer)"
-        >
-          {{ q.label }}
-        </button>
-      </div>
-
-      <div class="chatbot-input-row">
-        <input
-          type="text"
-          class="chatbot-input"
-          v-model="inputText"
-          placeholder="Tulis pesan..."
-          autocomplete="off"
-          @keydown.enter="handleUserInput(inputText)"
-        />
-        <button
-          class="chatbot-send-btn"
-          aria-label="Send"
-          @click="handleUserInput(inputText)"
-        >
-          <i class="uil uil-message"></i>
-        </button>
+      <div class="chatbot-input-bar-wrap">
+        <div class="chatbot-input-bar" @click="focusInput">
+          <div
+            class="chatbot-quick-collapse"
+            :class="{ collapsed: !showQuickInside }"
+          >
+            <div class="chatbot-quick-collapse-inner">
+              <div v-if="showQuick" class="chatbot-quick-inside">
+                <button
+                  v-for="q in quickReplies"
+                  :key="q.key"
+                  class="chatbot-quick-btn"
+                  type="button"
+                  @click.stop="handleUserInput(q.label, q.answer)"
+                >
+                  {{ q.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="chatbot-textarea-wrap">
+            <textarea
+              ref="input"
+              class="chatbot-input"
+              v-model="inputText"
+              placeholder="Tulis pesan..."
+              autocomplete="off"
+              rows="1"
+              @keydown.enter.exact.prevent="handleUserInput(inputText)"
+              @input="autoGrow"
+            />
+          </div>
+          <div class="chatbot-actions-row">
+            <div class="chatbot-actions-left">
+              <span class="chatbot-hint"
+                >Enter kirim · Shift+Enter baris baru</span
+              >
+            </div>
+            <button
+              class="chatbot-send-btn"
+              :class="{ active: inputText.trim().length > 0 }"
+              aria-label="Send"
+              type="button"
+              @click="handleUserInput(inputText)"
+            >
+              <i class="uil uil-arrow-up"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -662,11 +684,15 @@ export default {
       hasSentIdle: false,
       lastIdleIdx: -1,
       audioElements: {},
+      isNearBottom: true,
     };
   },
   computed: {
     showQuick() {
       return !this.historyView && this.chatInitialized;
+    },
+    showQuickInside() {
+      return this.showQuick && this.isNearBottom;
     },
     musicPlaying() {
       return musicState.isPlaying;
@@ -738,6 +764,7 @@ export default {
     },
     openChat() {
       this.isOpen = true;
+      this.isNearBottom = true;
       if (!this.chatInitialized) this.startFreshChat();
       this.resetIdleTimer();
       this.$nextTick(() => {
@@ -840,7 +867,25 @@ export default {
       const r = REACTIONS.find((x) => x.key === key);
       return r ? r.emoji : "";
     },
+    focusInput() {
+      const el = this.$refs.input;
+      if (el) el.focus();
+    },
+    autoGrow() {
+      const el = this.$refs.input;
+      if (!el) return;
+      el.style.height = "0";
+      el.style.height = Math.min(el.scrollHeight, 120) + "px";
+    },
+    onBodyScroll() {
+      const body = this.$refs.body;
+      if (!body) return;
+      // ponytail: threshold 40px — toleransi rounding + typing indicator
+      this.isNearBottom =
+        body.scrollHeight - body.scrollTop - body.clientHeight < 40;
+    },
     scrollDown() {
+      this.isNearBottom = true;
       this.$nextTick(() => {
         const body = this.$refs.body;
         if (body) body.scrollTop = body.scrollHeight;
@@ -1022,6 +1067,10 @@ export default {
       this.playAudio("send.mp3");
       this.saveHistoryEntry(displayText);
       this.inputText = "";
+      this.$nextTick(() => {
+        const el = this.$refs.input;
+        if (el) el.style.height = "auto";
+      });
 
       if (!forcedAnswerKey) {
         if (this.isVisitorAsk(displayText)) {

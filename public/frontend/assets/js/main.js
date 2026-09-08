@@ -230,17 +230,6 @@ if (themeButton) {
     DYNAMIC TERMINAL FX
  =====================================================================*/
 
-const pad = (n) => (n < 10 ? "0" + n : "" + n);
-function tickClock() {
-  const el = document.getElementById("nav-clock");
-  if (!el) return;
-  const d = new Date();
-  el.textContent =
-    pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
-}
-tickClock();
-setInterval(tickClock, 1000);
-
 function typeInto(el, text, speed, done) {
   let i = 0;
   (function step() {
