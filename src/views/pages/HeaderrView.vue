@@ -48,7 +48,7 @@
                 <!-- live status chip -->
                 <span class="nav__status">
                     <span class="dot"></span>
-                    <span id="nav-clock">--:--:--</span>
+                    <Clock />
                 </span>
                 <!-- theme change button -->
                 <i class="uil uil-sun change-theme" id="theme-button"></i>
@@ -71,10 +71,14 @@
 </template>
 
 <script>
+import Clock from '../../components/ui/Clock.vue';
 import { musicState, toggleMusic } from '../../components/musicPlayer';
 
 export default {
     name: 'Header',
+    components: {
+        Clock,
+    },
     computed: {
         musicPlaying() {
             return musicState.isPlaying;
