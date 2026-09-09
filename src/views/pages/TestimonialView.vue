@@ -5,7 +5,7 @@
 
         <div class="tcol__wrap">
             <div v-for="(col, ci) in columns" :key="ci" class="tcol">
-                <div class="tcol__track" :style="{ animationDuration: (col.length * 4) + 's' }">
+                <div class="tcol__track" :style="{ animationDuration: (Math.max(col.length, 3) * 4) + 's' }">
                     <div v-for="loop in 2" :key="loop" class="tcol__group">
                         <div class="testimonial__content" v-for="(item, i) in col" :key="i">
                             <div class="testimonial__data">
@@ -63,10 +63,11 @@ export default {
     mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
 }
 .tcol { width: 100%; max-width: 320px; overflow: hidden; }
-.tcol__track { display: flex; flex-direction: column; gap: 1.25rem; animation: tcol-scroll linear infinite; }
+.tcol__track { display: flex; flex-direction: column; gap: 1.25rem; animation: tcol-scroll linear infinite; -webkit-animation: tcol-scroll linear infinite; will-change: transform; }
 .tcol__group { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 1.25rem; }
 @keyframes tcol-scroll { to { transform: translateY(-50%); } }
-@media (prefers-reduced-motion: reduce) { .tcol__track { animation: none; } }
+@-webkit-keyframes tcol-scroll { to { -webkit-transform: translateY(-50%); transform: translateY(-50%); } }
+@media (prefers-reduced-motion: reduce) { .tcol__track { animation-duration: 80s !important; -webkit-animation-duration: 80s !important; } }
 /* ponytail: cards reuse global .testimonial__* vars so light/dark follows body.light-theme automatically */
 .testimonial__content { margin-bottom: 0; }
 </style>

@@ -323,10 +323,6 @@ textarea {
   font-weight: 700;
   letter-spacing: -0.5px;
 }
-.section__title::before {
-  content: "// ";
-  color: var(--green);
-}
 .section__subtitle {
   display: block;
   font-size: var(--small-font-size);
@@ -2076,17 +2072,10 @@ body.light-theme .contact__form {
   border-radius: 6px;
   transition: 0.25s;
 }
-.footer__top::before {
-  content: "// ";
-  color: var(--green);
-}
 .footer__top:hover {
   background: var(--green);
   color: #04101a;
   box-shadow: 0 0 18px var(--accent-glow);
-}
-.footer__top:hover::before {
-  color: #04101a;
 }
 .footer__top i {
   font-size: 1rem;
