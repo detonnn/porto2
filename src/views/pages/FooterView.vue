@@ -13,7 +13,6 @@
 
                         <div class="footer__container container">
                             <div class="footer__col footer__col--brand">
-                                <span class="footer__mark">~/{{ footer.title }}</span>
                                 <span class="footer__subtitle">{{ footer.subtitle }}</span>
                                 <p class="footer__tagline">{{ footer.tagline }}</p>
 
