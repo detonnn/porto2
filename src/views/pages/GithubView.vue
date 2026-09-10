@@ -394,8 +394,8 @@ export default {
             })
             this._cellLevels = cellLevels
 
-            const isDouble = this.gameLevel >= 4
-            const players = isDouble ? [
+            let isDouble = this.gameLevel >= 4
+            let players = isDouble ? [
                 { x: width / 2 - 40, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship },
                 { x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship }
             ] : [
@@ -504,11 +504,17 @@ export default {
 
             const resetBoard = (isLevelUp = false) => {
                 if (isLevelUp) {
+                    const prevLevel = this.gameLevel
                     this.gameLevel += 1
                     if (this.gameLevel > 4) this.gameLevel = 4
                     try { localStorage.setItem('gh_gameLevel', String(this.gameLevel)) } catch(e){}
                     this.gameAchievement = `Level ${this.gameLevel} — Achievement Unlocked!`
                     setTimeout(() => { this.gameAchievement = '' }, 2200)
+                    // Lv4: spawn pesawat kedua langsung tanpa refresh
+                    if (prevLevel < 4 && this.gameLevel >= 4 && players.length === 1) {
+                        isDouble = true
+                        players.push({ x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship })
+                    }
                 }
                 this.weeks.forEach((week) => {
                     week.forEach((date) => {
@@ -730,9 +736,15 @@ export default {
 .gh-tooltip--right { transform: translate(-100%, calc(-100% - 8px)); }
 
 .gh-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .9rem; flex-wrap: wrap; }
-.gh-legend { display: flex; align-items: center; gap: 4px; font-size: var(--smaller-font-size); color: var(--text-dim); }
+.gh-legend { display: flex; align-items: center; gap: 4px; font-size: var(--smaller-font-size); color: var(--text-dim); flex-wrap: wrap; }
 
-.gh-gamewrap { display: flex; align-items: center; gap: 8px; margin-left: 14px; padding-left: 14px; border-left: 1px solid var(--border); }
+.gh-gamewrap { display: flex; align-items: center; gap: 8px; margin-left: 14px; padding-left: 14px; border-left: 1px solid var(--border); flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .gh-footer { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+  .gh-legend { width: 100%; }
+  .gh-gamewrap { margin-left: 0; padding-left: 0; border-left: none; width: 100%; }
+  .gh-stats { width: 100%; }
+}
 .gh-gamewrap__label { font-size: 11px; color: var(--text-dim); }
 .gh-switch {
     position: relative; width: 34px; height: 18px; border-radius: 999px;
