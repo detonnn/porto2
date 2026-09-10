@@ -36,7 +36,10 @@
                         </div>
 
                         <div class="footer__bottom container">
-                            <p class="footer__copy">&#169; {{ footer.copyright }}</p>
+                            <div class="footer__bottom-left">
+                                <p class="footer__copy">&#169; {{ footer.copyright }}</p>
+                                <visitor-counter />
+                            </div>
                             <a href="#home" class="footer__top">
                                 cd ~/top <i class="uil uil-arrow-up"></i>
                             </a>
@@ -50,9 +53,11 @@
 
 <script>
 import data from '../../data/portfolio.json'
+import VisitorCounter from '../../components/VisitorCounter.vue'
 
 export default {
     name: 'Footer',
+    components: { VisitorCounter },
     data() {
         return { footer: data.footer }
     },
@@ -67,3 +72,12 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.footer__bottom-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+</style>

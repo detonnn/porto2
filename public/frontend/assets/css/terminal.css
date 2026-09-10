@@ -14,31 +14,31 @@
   --body-font: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular,
     Menlo, monospace;
 
-  /* DARK terminal (default) */
-  --bg: #0a0e16;
-  --bg-elev: #0e1320;
-  --bg-elev-2: #131a29;
-  --bg-window: #0c111c;
-  --titlebar: #161d2d;
-  --border: #1e2840;
-  --border-soft: #18203200;
+  /* DARK terminal (default) — pure black */
+  --bg: #000000;
+  --bg-elev: #080808;
+  --bg-elev-2: #111111;
+  --bg-window: #000000;
+  --titlebar: #0a0a0a;
+  --border: #2e2e2e;
+  --border-soft: #00000000;
 
   --text: #c7d2e0;
   --text-dim: #6b7a92;
   --text-faint: #45526a;
 
-  --green: #7ec8e3;
-  --green-dim: #5ab0e6;
-  --cyan: #43d9e0;
+  --green: #ffffff;
+  --green-dim: #c2c2c2;
+  --cyan: #ffffff;
   --amber: #ffb454;
   --magenta: #c792ea;
   --red: #ff6b6b;
-  --blue: #5aa9ff;
+  --blue: #ffffff;
 
   --accent: var(--green);
-  --accent-glow: rgba(126, 200, 227, 0.35);
-  --shadow-color: rgba(255, 255, 255, 0.1);
-  --shadow-glow: rgba(126, 200, 227, 0.1);
+  --accent-glow: rgba(255, 255, 255, 0.18);
+  --shadow-color: rgba(255, 255, 255, 0.07);
+  --shadow-glow: rgba(255, 255, 255, 0.08);
   --shine-color: rgba(255, 255, 255, 0.35);
 
   /* window dots */
@@ -98,18 +98,18 @@ body.light-theme {
   --text-dim: #5a6678;
   --text-faint: #9aa6b8;
 
-  --green: #3a9ad9;
-  --green-dim: #2c7fb8;
-  --cyan: #0e8fa6;
+  --green: #1f2a3a;
+  --green-dim: #5a6678;
+  --cyan: #1f2a3a;
   --amber: #b6760a;
   --magenta: #8a4fd0;
   --red: #d6453f;
-  --blue: #2563eb;
+  --blue: #1f2a3a;
 
   --accent: var(--green);
-  --accent-glow: rgba(58, 154, 217, 0.25);
+  --accent-glow: rgba(31, 42, 58, 0.18);
   --shadow-color: rgba(30, 40, 60, 0.18);
-  --shadow-glow: rgba(58, 154, 217, 0.15);
+  --shadow-glow: rgba(31, 42, 58, 0.12);
   --shine-color: rgba(30, 40, 60, 0.16);
 }
 
@@ -373,11 +373,11 @@ textarea {
 }
 .button:hover {
   background-color: var(--green);
-  color: #04101a;
+  color: var(--bg);
   box-shadow: 0 0 18px var(--accent-glow);
 }
 .button:hover::before {
-  color: #04101a;
+  color: var(--bg);
 }
 .button--white {
   color: var(--cyan);
@@ -388,11 +388,11 @@ textarea {
 }
 .button--white:hover {
   background-color: var(--cyan);
-  color: #04101a;
-  box-shadow: 0 0 18px rgba(67, 217, 224, 0.4);
+  color: var(--bg);
+  box-shadow: 0 0 18px var(--accent-glow);
 }
 .button--white:hover::before {
-  color: #04101a;
+  color: var(--bg);
 }
 .button--flex {
   display: inline-flex;
@@ -531,7 +531,7 @@ textarea {
   top: 0;
   left: 0;
   width: 100%;
-  background: rgba(10, 14, 22, 0.82);
+  background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   z-index: var(--z-fixed);
@@ -1388,12 +1388,12 @@ body.light-theme .github__day[data-level="4"] {
   font-size: 1.1rem;
 }
 .qualification__active.qualification__button {
-  color: #04101a;
+  color: var(--bg);
   background: var(--green);
   border-color: var(--green);
 }
 .qualification__active.qualification__button::before {
-  color: #04101a;
+  color: var(--bg);
 }
 
 .qualification__sections {
@@ -1494,7 +1494,7 @@ body.light-theme .github__day[data-level="4"] {
 .services__modal {
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 12, 0.7);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -2074,7 +2074,7 @@ body.light-theme .contact__form {
 }
 .footer__top:hover {
   background: var(--green);
-  color: #04101a;
+  color: var(--bg);
   box-shadow: 0 0 18px var(--accent-glow);
 }
 .footer__top i {
