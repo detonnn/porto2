@@ -79,7 +79,10 @@
                                     <button class="gh-switch" :class="{ 'gh-switch--on': gameActive }" @click="toggleGame" type="button">
                                         <span class="gh-switch__knob"></span>
                                     </button>
+                                    <span v-if="gameActive || gameLevel > 0" class="gh-level">Lv.{{ gameLevel }}</span>
+                                    <button v-if="gameLevel > 0" class="gh-reset" @click="resetGameLevel" type="button" title="Reset level ke 0">Reset</button>
                                 </div>
+                                <div v-if="gameAchievement" class="gh-achievement">{{ gameAchievement }}</div>
                             </div>
 
                             <a :href="'https://github.com/' + username" target="_blank" class="gh-stats">
@@ -154,6 +157,8 @@ export default {
             total: 0,
             isLight: false,
             gameActive: false,
+            gameLevel: (() => { try { const v = localStorage.getItem('gh_gameLevel'); const n = parseInt(v||'0',10); return Number.isFinite(n) ? Math.min(4, Math.max(0,n)) : 0 } catch(e){ return 0 } })(),
+            gameAchievement: '',
             cellSize: 12,
             cellGap: 3,
             tooltip: { visible: false, text: '', align: 'center', x: 0, y: 0 },
@@ -333,9 +338,32 @@ export default {
         toggleGame() {
             this.gameActive = !this.gameActive
             if (this.gameActive) {
+                this.gameAchievement = ''
                 this.$nextTick(this.startGame)
             } else {
                 this.stopGame()
+                this.gameAchievement = ''
+            }
+        },
+        resetGameLevel() {
+            this.gameLevel = 0
+            this.gameAchievement = ''
+            try { localStorage.removeItem('gh_gameLevel') } catch(e){}
+            // kalau lagi main, reset papan ke level 0 langsung
+            if (this.gameActive && this._cellLevels) {
+                this.weeks.forEach((week) => {
+                    week.forEach((date) => {
+                        if (!date) return
+                        const originalLevel = (this.byDate[date] && this.byDate[date].level) || 0
+                        this._cellLevels.set(date, originalLevel)
+                        const rect = document.getElementById('gh-cell-' + date)
+                        if (rect) {
+                            rect.setAttribute('fill', this.colors['level' + originalLevel])
+                            rect.style.opacity = '1'
+                            rect.style.pointerEvents = 'auto'
+                        }
+                    })
+                })
             }
         },
         // ── retro space-shooter mode: shoot the contribution cells ──────────
@@ -348,32 +376,108 @@ export default {
             canvas.width = width
             canvas.height = height
 
-            const cellLevels = new Map()
-            this.weeks.forEach((week) => {
-                week.forEach((date) => {
-                    if (!date) return
-                    const initial = (this.byDate[date] && this.byDate[date].level) || 0
-                    cellLevels.set(date, initial)
-                    // level-0 cells stay visible (their fill is already near-transparent)
-                    // so the board still reads as a grid instead of empty black space —
-                    // they're just not targets: no collision check hits a level-0 cell.
-                })
-            })
-            this._cellLevels = cellLevels
-
             const step = this.step
             const cellSize = this.cellSize
             const colors = this.colors
             const space = this.spaceTheme
 
-            const player = { x: width / 2 - 15, y: height - 25, width: 30, height: 20, speed: 2, direction: 1 }
+            const cellLevels = new Map()
+            this.weeks.forEach((week) => {
+                week.forEach((date) => {
+                    if (!date) return
+                    const original = (this.byDate[date] && this.byDate[date].level) || 0
+                    const initial = Math.min(4, original + this.gameLevel)
+                    cellLevels.set(date, initial)
+                    const rect = document.getElementById('gh-cell-' + date)
+                    if (rect) rect.setAttribute('fill', colors['level' + initial])
+                })
+            })
+            this._cellLevels = cellLevels
+
+            const isDouble = this.gameLevel >= 4
+            const players = isDouble ? [
+                { x: width / 2 - 40, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship },
+                { x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship }
+            ] : [
+                { x: width / 2 - 15, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship }
+            ]
+            // keep single var for compat where needed (first player)
+            const player = players[0]
             let bullets = []
             let lastShot = 0
             const cooldown = 550
 
             const shoot = () => {
-                bullets.push({ x: player.x + player.width / 2 - 1.5, y: player.y - 4, vy: -6, width: 3, height: 8, color: '#fbbf24' })
+                const lvl = this.gameLevel
+                const count = lvl >= 2 ? 3 : lvl >= 1 ? 2 : 1
+                players.forEach(p => {
+                    const cx = p.x + p.width / 2 - 1.5
+                    if (count === 1) {
+                        bullets.push({ x: cx, y: p.y - 4, vy: -6, width: 3, height: 8, color: '#fbbf24' })
+                    } else if (count === 2) {
+                        bullets.push({ x: cx - 6, y: p.y - 4, vy: -6, width: 3, height: 8, color: '#fbbf24' })
+                        bullets.push({ x: cx + 6, y: p.y - 4, vy: -6, width: 3, height: 8, color: '#fbbf24' })
+                    } else {
+                        bullets.push({ x: cx - 8, y: p.y - 4, vy: -6, width: 3, height: 8, color: '#fbbf24' })
+                        bullets.push({ x: cx, y: p.y - 4, vy: -6, width: 3, height: 8, color: '#fbbf24' })
+                        bullets.push({ x: cx + 8, y: p.y - 4, vy: -6, width: 3, height: 8, color: '#fbbf24' })
+                    }
+                })
             }
+
+            // ── manual: hover/swipe ngikut kursor, diem di dalam widget tetap manual, keluar baru auto ──
+            this._isManual = false
+            this._manualTimer = null
+            const clampX = (x, w) => Math.max(-w / 2, Math.min(width - w / 2, x))
+            const handlePointerMove = (clientX) => {
+                const rect = canvas.getBoundingClientRect()
+                const scaleX = width / rect.width
+                const baseX = (clientX - rect.left) * scaleX
+                if (isDouble) {
+                    // dua pesawat jaga jarak 50px, ngikut kursor tapi beda offset biar gerakannya ga sama persis
+                    players[0].x = clampX(baseX - 25 - players[0].width / 2, players[0].width)
+                    players[1].x = clampX(baseX + 25 - players[1].width / 2, players[1].width)
+                } else {
+                    players[0].x = clampX(baseX - players[0].width / 2, players[0].width)
+                }
+                this._isManual = true
+                clearTimeout(this._manualTimer)
+            }
+            this._onMouseEnter = () => {
+                this._isManual = true
+                clearTimeout(this._manualTimer)
+            }
+            this._onMouseMove = (e) => handlePointerMove(e.clientX)
+            this._onTouchMove = (e) => {
+                if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX)
+                e.preventDefault()
+            }
+            this._onMouseLeave = () => {
+                clearTimeout(this._manualTimer)
+                this._manualTimer = setTimeout(() => { this._isManual = false }, 300)
+            }
+            this._onTouchEnd = () => {
+                clearTimeout(this._manualTimer)
+                this._manualTimer = setTimeout(() => { this._isManual = false }, 300)
+            }
+            canvas.addEventListener('mouseenter', this._onMouseEnter)
+            canvas.addEventListener('mousemove', this._onMouseMove)
+            canvas.addEventListener('mouseleave', this._onMouseLeave)
+            canvas.addEventListener('touchmove', this._onTouchMove, { passive: false })
+            canvas.addEventListener('touchstart', (e) => {
+                this._isManual = true
+                clearTimeout(this._manualTimer)
+                this._onTouchMove(e)
+            }, { passive: false })
+            canvas.addEventListener('touchend', this._onTouchEnd)
+            canvas.addEventListener('touchcancel', this._onTouchEnd)
+            canvas.style.touchAction = 'none'
+            const scrollBox = this.$refs.scrollBox
+            if (scrollBox) {
+                scrollBox.addEventListener('touchmove', this._onTouchMove, { passive: false })
+                scrollBox.addEventListener('touchend', this._onTouchEnd)
+            }
+            this._gameCanvas = canvas
 
             const isLightStar = this.isLight
             const stars = Array.from({ length: 140 }).map(() => ({
@@ -398,15 +502,23 @@ export default {
                 }
             }
 
-            const resetBoard = () => {
+            const resetBoard = (isLevelUp = false) => {
+                if (isLevelUp) {
+                    this.gameLevel += 1
+                    if (this.gameLevel > 4) this.gameLevel = 4
+                    try { localStorage.setItem('gh_gameLevel', String(this.gameLevel)) } catch(e){}
+                    this.gameAchievement = `Level ${this.gameLevel} — Achievement Unlocked!`
+                    setTimeout(() => { this.gameAchievement = '' }, 2200)
+                }
                 this.weeks.forEach((week) => {
                     week.forEach((date) => {
                         if (!date) return
                         const originalLevel = (this.byDate[date] && this.byDate[date].level) || 0
-                        cellLevels.set(date, originalLevel)
+                        const useLevel = isLevelUp ? Math.min(4, originalLevel + this.gameLevel) : originalLevel
+                        cellLevels.set(date, useLevel)
                         const rect = document.getElementById('gh-cell-' + date)
                         if (rect) {
-                            rect.setAttribute('fill', colors['level' + originalLevel])
+                            rect.setAttribute('fill', colors['level' + useLevel])
                             rect.style.opacity = '1'
                             rect.style.pointerEvents = 'auto'
                         }
@@ -426,26 +538,38 @@ export default {
                     })
                 })
 
-                let minX = 0, maxX = width - player.width
-                if (minWi !== -1) {
-                    // bullet at player.x + width/2 -1.5, cell center at cellX + cellSize/2
-                    // -> player.x = cellX + cellSize/2 - width/2 +1.5 to center bullet on cell
-                    minX = minWi * step + cellSize / 2 - player.width / 2 + 1.5
-                    maxX = maxWi * step + cellSize / 2 - player.width / 2 + 1.5
-                    minX = Math.max(-player.width / 2, minX)
-                    maxX = Math.min(width - player.width / 2, maxX)
-                    maxX = Math.max(minX, maxX)
+                // manual: bebas ke mana aja, auto: cuma di area aktif — untuk double, tiap pesawat beda speed/direction
+                const getBounds = (p) => {
+                    if (this._isManual) {
+                        return { minX: -p.width / 2, maxX: width - p.width / 2 }
+                    }
+                    let minX = 0, maxX = width - p.width
+                    if (minWi !== -1) {
+                        minX = minWi * step + cellSize / 2 - p.width / 2 + 1.5
+                        maxX = maxWi * step + cellSize / 2 - p.width / 2 + 1.5
+                        minX = Math.max(-p.width / 2, minX)
+                        maxX = Math.min(width - p.width / 2, maxX)
+                        maxX = Math.max(minX, maxX)
+                    }
+                    return { minX, maxX }
                 }
-                player.x = Math.max(minX, Math.min(maxX, player.x))
-                player.x += player.speed * player.direction
-                if (player.x >= maxX) { player.x = maxX; player.direction = -1 }
-                else if (player.x <= minX) { player.x = minX; player.direction = 1 }
+                players.forEach(p => {
+                    const { minX, maxX } = getBounds(p)
+                    if (!this._isManual) {
+                        p.x += p.speed * p.direction
+                        if (p.x >= maxX) { p.x = maxX; p.direction = -1 }
+                        else if (p.x <= minX) { p.x = minX; p.direction = 1 }
+                    }
+                    p.x = Math.max(minX, Math.min(maxX, p.x))
+                })
 
-                // keep the ship in view — the calendar is wider than the
-                // viewport (auto-scrolled to recent months), so follow it
+                // keep the ship in view — untuk double, follow tengah-tengah dua pesawat
                 const box = this.$refs.scrollBox
                 if (box) {
-                    const target = player.x + player.width / 2 - box.clientWidth / 2
+                    const followX = isDouble
+                        ? (players[0].x + players[0].width / 2 + players[1].x + players[1].width / 2) / 2
+                        : players[0].x + players[0].width / 2
+                    const target = followX - box.clientWidth / 2
                     box.scrollLeft = Math.max(0, Math.min(target, box.scrollWidth - box.clientWidth))
                 }
 
@@ -454,7 +578,7 @@ export default {
 
                 let anyActive = false
                 cellLevels.forEach((lvl) => { if (lvl > 0) anyActive = true })
-                if (!anyActive) resetBoard()
+                if (!anyActive) resetBoard(true)
 
                 stars.forEach((s) => { s.y += s.speed; if (s.y > height) { s.y = 0; s.x = Math.random() * width } })
                 bullets = bullets.filter((b) => { b.y += b.vy; return b.y > 0 })
@@ -496,17 +620,19 @@ export default {
                 particles.forEach((p) => { ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fillRect(p.x, p.y, p.size, p.size) })
                 ctx.globalAlpha = 1
 
-                ctx.fillStyle = space.ship
-                ctx.shadowColor = space.ship
-                ctx.shadowBlur = 6
-                ctx.beginPath()
-                ctx.moveTo(player.x + player.width / 2, player.y)
-                ctx.lineTo(player.x + player.width, player.y + player.height)
-                ctx.lineTo(player.x + player.width * 0.7, player.y + player.height * 0.75)
-                ctx.lineTo(player.x + player.width * 0.3, player.y + player.height * 0.75)
-                ctx.lineTo(player.x, player.y + player.height)
-                ctx.closePath()
-                ctx.fill()
+                players.forEach(p => {
+                    ctx.fillStyle = p.color
+                    ctx.shadowColor = p.color
+                    ctx.shadowBlur = 6
+                    ctx.beginPath()
+                    ctx.moveTo(p.x + p.width / 2, p.y)
+                    ctx.lineTo(p.x + p.width, p.y + p.height)
+                    ctx.lineTo(p.x + p.width * 0.7, p.y + p.height * 0.75)
+                    ctx.lineTo(p.x + p.width * 0.3, p.y + p.height * 0.75)
+                    ctx.lineTo(p.x, p.y + p.height)
+                    ctx.closePath()
+                    ctx.fill()
+                })
                 ctx.shadowBlur = 0
             }
 
@@ -520,6 +646,34 @@ export default {
         stopGame() {
             if (this._rafId) cancelAnimationFrame(this._rafId)
             this._rafId = null
+            // cleanup manual control
+            if (this._manualTimer) clearTimeout(this._manualTimer)
+            this._isManual = false
+            this._manualTimer = null
+            const canvas = this._gameCanvas
+            if (canvas) {
+                if (this._onMouseEnter) canvas.removeEventListener('mouseenter', this._onMouseEnter)
+                if (this._onMouseMove) canvas.removeEventListener('mousemove', this._onMouseMove)
+                if (this._onMouseLeave) canvas.removeEventListener('mouseleave', this._onMouseLeave)
+                if (this._onTouchMove) {
+                    canvas.removeEventListener('touchmove', this._onTouchMove)
+                    canvas.removeEventListener('touchstart', this._onTouchMove)
+                    canvas.removeEventListener('touchend', this._onTouchEnd)
+                    canvas.removeEventListener('touchcancel', this._onTouchEnd)
+                }
+                canvas.style.touchAction = ''
+            }
+            const box = this.$refs.scrollBox
+            if (box) {
+                if (this._onTouchMove) box.removeEventListener('touchmove', this._onTouchMove)
+                if (this._onTouchEnd) box.removeEventListener('touchend', this._onTouchEnd)
+            }
+            this._gameCanvas = null
+            this._onMouseEnter = null
+            this._onMouseMove = null
+            this._onMouseLeave = null
+            this._onTouchMove = null
+            this._onTouchEnd = null
             // restore original colors/opacity on every cell
             this.weeks.forEach((week) => {
                 week.forEach((date) => {
@@ -600,6 +754,11 @@ export default {
 .gh-total { font-weight: 700; color: var(--green); }
 .gh-gh { font-weight: 600; color: var(--text); text-decoration: underline; }
 
+.gh-level { font-size: 11px; font-weight: 700; color: var(--green); background: var(--bg-elev); border: 1px solid var(--border); padding: 2px 6px; border-radius: 6px; }
+.gh-reset { font-size: 11px; color: var(--text-dim); background: transparent; border: 1px solid var(--border); padding: 2px 7px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+.gh-reset:hover { color: var(--text); border-color: var(--text-dim); }
+.gh-achievement { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--green); color: var(--bg); font-size: 13px; font-weight: 800; padding: 8px 14px; border-radius: 8px; box-shadow: 0 4px 16px var(--shadow-color); z-index: 5; animation: gh-ach-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes gh-ach-pop { 0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 .gh-kitty { position: absolute; right: 12px; bottom: 0; width: 210px; height: auto; pointer-events: none; image-rendering: pixelated; opacity: .95; }
 @media (max-width: 768px) { .gh-kitty { right: -6px; } }
 @media (max-width: 480px) { .gh-kitty { right: -10px; } }
