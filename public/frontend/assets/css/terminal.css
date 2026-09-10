@@ -1874,6 +1874,12 @@ body.light-theme .contact__form {
   position: relative;
   height: 720px;
   clip-path: polygon(0% 0, 100% 0%, 100% 100%, 0 100%);
+  /* creates a containing block for the position:fixed .footer__pin below,
+     so it stays trapped inside this box instead of pinning to the real
+     browser viewport — without this, iOS Safari (and some Android
+     browsers) let the fixed child escape and render stuck at the top of
+     the screen while the user is still scrolled up near Home/About */
+  transform: translateZ(0);
 }
 .footer__pin {
   position: fixed;
