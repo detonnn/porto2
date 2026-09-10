@@ -541,6 +541,13 @@ textarea {
   opacity: 1;
   transform: none;
 }
+/* wcat: pakai opacity aja biar ga tabrakan sama catWalk (yang pakai translateY(-50%) + left) */
+.footer__cat.reveal {
+  transform: translateY(-50%);
+}
+.footer__cat.reveal.is-visible {
+  transform: translateY(-50%);
+}
 
 .header {
   position: fixed;

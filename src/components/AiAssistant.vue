@@ -99,6 +99,7 @@
             <div
               v-if="m.sender === 'bot' && activeReact === i"
               class="chatbot-react-bar"
+              :class="{ 'chatbot-react-bar--below': activeReactBelow }"
             >
               <button
                 v-for="r in reactions"
@@ -680,6 +681,7 @@ export default {
       quickReplies: QUICK_REPLIES,
       reactions: REACTIONS,
       activeReact: null,
+      activeReactBelow: false,
       idleTimer: null,
       hasSentIdle: false,
       lastIdleIdx: -1,
@@ -854,6 +856,22 @@ export default {
     onBotMsgClick(e, i) {
       if ((this.messages[i] || {}).sender !== "bot") return;
       if (e.target.closest && e.target.closest("a,button")) return;
+      // jika bar mau dibuka, cek apakah pesan dekat header ( < 70px dari top body )
+      // kalau iya, flip bar ke bawah biar ga ketutup header
+      const willOpen = this.activeReact !== i
+      if (willOpen) {
+        this.$nextTick(() => {
+          const body = this.$refs.body
+          const msgEl = e.currentTarget
+          if (body && msgEl) {
+            const bodyRect = body.getBoundingClientRect()
+            const msgRect = msgEl.getBoundingClientRect()
+            this.activeReactBelow = (msgRect.top - bodyRect.top) < 70
+          } else {
+            this.activeReactBelow = false
+          }
+        })
+      }
       this.toggleReactBar(i);
     },
     setReaction(i, key) {
@@ -1169,11 +1187,15 @@ export default {
 .chatbot-msg-row.dimmed {
   opacity: 0.35;
 }
+.chatbot-msg-row.dimmed .chatbot-react-bar {
+  opacity: 1;
+}
 .chatbot-react-bar {
   position: absolute;
   bottom: 100%;
   left: 0;
   margin-bottom: 8px;
+  opacity: 1;
   display: flex;
   gap: 2px;
   padding: 6px 10px;
@@ -1181,8 +1203,22 @@ export default {
   background: #000000;
   border: 1px solid var(--border);
   box-shadow: none;
-  z-index: 5;
+  z-index: 12;
   animation: chatbotMsgIn 0.25s ease both;
+}
+.chatbot-react-bar--below {
+  bottom: auto;
+  top: 100%;
+  margin-bottom: 0;
+  margin-top: 8px;
+}
+.chatbot-header {
+  position: relative;
+  z-index: 1;
+}
+.chatbot-body {
+  position: relative;
+  z-index: 2;
 }
 .chatbot-react-btn {
   background: transparent;
