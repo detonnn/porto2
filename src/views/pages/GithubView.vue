@@ -427,8 +427,13 @@ export default {
 
                 let minX = 0, maxX = width - player.width
                 if (minWi !== -1) {
-                    minX = minWi * step
-                    maxX = Math.max(minX, Math.min(width - player.width, (maxWi + 1) * step - player.width))
+                    // bullet at player.x + width/2 -1.5, cell center at cellX + cellSize/2
+                    // -> player.x = cellX + cellSize/2 - width/2 +1.5 to center bullet on cell
+                    minX = minWi * step + cellSize / 2 - player.width / 2 + 1.5
+                    maxX = maxWi * step + cellSize / 2 - player.width / 2 + 1.5
+                    minX = Math.max(-player.width / 2, minX)
+                    maxX = Math.min(width - player.width / 2, maxX)
+                    maxX = Math.max(minX, maxX)
                 }
                 player.x = Math.max(minX, Math.min(maxX, player.x))
                 player.x += player.speed * player.direction

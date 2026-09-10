@@ -190,7 +190,7 @@ async function toggleThemeWithWipe() {
 
   await transition.ready;
 
-  // Diagonal wipe 45°: garis miring nyapu dari kiri-atas duluan baru ke kanan-bawah
+  // Smooth diagonal wipe — 720ms balanced (ga kenceng, ga slowmo)
   document.documentElement.animate(
     {
       clipPath: [
@@ -199,7 +199,7 @@ async function toggleThemeWithWipe() {
       ],
     },
     {
-      duration: 1000,
+      duration: 720,
       easing: "cubic-bezier(0.4, 0, 0.2, 1)",
       pseudoElement: "::view-transition-new(root)",
     },
