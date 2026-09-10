@@ -1164,7 +1164,7 @@ export default {
 }
 .chatbot-msg-row.focused .chatbot-msg {
   border-color: var(--green);
-  box-shadow: 0 8px 22px var(--shadow-color);
+  box-shadow: none;
 }
 .chatbot-msg-row.dimmed {
   opacity: 0.35;
@@ -1178,9 +1178,9 @@ export default {
   gap: 2px;
   padding: 6px 10px;
   border-radius: 20px;
-  background: var(--bg-elev-2);
+  background: #000000;
   border: 1px solid var(--border);
-  box-shadow: 0 8px 20px var(--shadow-color);
+  box-shadow: none;
   z-index: 5;
   animation: chatbotMsgIn 0.25s ease both;
 }
@@ -1209,9 +1209,14 @@ export default {
   bottom: -12px;
   font-size: 14px;
   line-height: 1;
-  background: var(--bg-elev-2);
+  background: #000000;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 2px 5px;
+}
+
+body.light-theme .chatbot-react-bar,
+body.light-theme .chatbot-react-badge {
+  background: var(--bg-elev-2);
 }
 </style>

@@ -2355,15 +2355,10 @@ body.light-theme .contact__form {
   height: 58px;
   border-radius: 50%;
   border: 1px solid var(--border);
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.12),
-    rgba(255, 255, 255, 0.02)
-  );
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 10px 40px var(--shadow-color),
-    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  background: #000000;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
   color: var(--green);
   display: flex;
   align-items: center;
@@ -2441,12 +2436,11 @@ body.light-theme .contact__form {
   height: 460px;
   max-height: calc(100vh - 120px);
   margin-bottom: 16px;
-  background: var(--bg-elev-2);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #000000;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid var(--border);
-  box-shadow: 0 10px 40px var(--shadow-color),
-    inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  box-shadow: none;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -2485,7 +2479,7 @@ body.light-theme .contact__form {
   gap: 10px;
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
-  background: var(--bg-elev-2);
+  background: #000000;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   flex-shrink: 0;
@@ -2536,7 +2530,7 @@ body.light-theme .contact__form {
   height: 7px;
   border-radius: 50%;
   background: #4ade80;
-  box-shadow: 0 0 6px #4ade80;
+  box-shadow: none;
   animation: chatbotStatusBlink 2s ease-in-out infinite;
 }
 
@@ -2641,9 +2635,9 @@ body.light-theme .contact__form {
   right: 16px;
   left: auto;
   min-width: 180px;
-  background: var(--bg-elev-2);
+  background: #000000;
   border: 1px solid var(--border);
-  box-shadow: 0 10px 25px var(--shadow-color);
+  box-shadow: none;
   border-radius: 12px;
   padding: 6px;
   display: flex;
@@ -2787,7 +2781,7 @@ body.light-theme .chatbot-menu-item:hover {
 
 .chatbot-msg.bot {
   align-self: flex-start;
-  background: var(--bg-elev-2);
+  background: #000000;
   border: 1px solid var(--border);
   color: var(--text);
   border-bottom-left-radius: 4px;
@@ -2807,7 +2801,7 @@ body.light-theme .chatbot-menu-item:hover {
   align-items: center;
   gap: 4px;
   padding: 11px 14px;
-  background: var(--bg-elev-2);
+  background: #000000;
   border: 1px solid var(--border);
   border-radius: 14px;
   border-bottom-left-radius: 4px;
@@ -2947,9 +2941,9 @@ body.light-theme .chatbot-menu-item:hover {
 
 .chatbot-input-bar {
   border-radius: 16px;
-  background: var(--bg-elev-2);
+  background: #000000;
   border: 1px solid var(--border);
-  box-shadow: 0 4px 14px var(--shadow-color);
+  box-shadow: none;
   cursor: text;
   overflow: hidden;
 }
@@ -3040,6 +3034,16 @@ body.light-theme .chatbot-header {
 
 body.light-theme .chatbot-input-bar {
   background: #fff;
+}
+
+body.light-theme .chatbot-msg.bot,
+body.light-theme .chatbot-typing,
+body.light-theme .chatbot-menu-dropdown {
+  background: var(--bg-elev-2);
+}
+
+body.light-theme .chatbot-toggle-btn {
+  background: var(--bg-elev-2);
 }
 
 .chatbot-input {
