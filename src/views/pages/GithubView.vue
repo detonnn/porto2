@@ -177,12 +177,12 @@ export default {
         },
         spaceTheme() {
             return this.isLight
-                ? { bg: '#e9edf3', star: '#5a6678', ship: '#0369a1' }
+                ? { bg: '#ffffff', star: '#000000', ship: '#0369a1' }
                 : { bg: '#000000', star: '#ffffff', ship: '#38bdf8' }
         },
         gameBgStyle() {
             return this.isLight
-                ? { backgroundColor: '#e9edf3', borderColor: '#c4cdda' }
+                ? { backgroundColor: '#ffffff', borderColor: '#c4cdda' }
                 : { backgroundColor: '#000000', borderColor: '#262626' }
         },
         svgWidth() {
@@ -375,12 +375,13 @@ export default {
                 bullets.push({ x: player.x + player.width / 2 - 1.5, y: player.y - 4, vy: -6, width: 3, height: 8, color: '#fbbf24' })
             }
 
+            const isLightStar = this.isLight
             const stars = Array.from({ length: 140 }).map(() => ({
                 x: Math.random() * width,
                 y: Math.random() * height,
                 speed: Math.random() * 0.4 + 0.1,
-                size: Math.random() * 1.2 + 0.5,
-                alpha: Math.random() * 0.5 + 0.1,
+                size: isLightStar ? Math.random() * 1.8 + 1.2 : Math.random() * 1.2 + 0.5,
+                alpha: isLightStar ? Math.random() * 0.3 + 0.7 : Math.random() * 0.5 + 0.1,
             }))
 
             let particles = []
