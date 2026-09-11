@@ -10,7 +10,11 @@
         @click="toggleMute"
       >
         <transition name="mute-icon" mode="out-in">
-          <i :key="String(isMuted)" class="uil" :class="isMuted ? 'uil-volume-mute' : 'uil-bell'"></i>
+          <i
+            :key="String(isMuted)"
+            class="uil"
+            :class="isMuted ? 'uil-volume-mute' : 'uil-bell'"
+          ></i>
         </transition>
       </button>
     </transition>
@@ -88,7 +92,7 @@ const RANDOM_NAMES = [
   "Agus Plastik",
   "Yanto Karbu",
   "Supri Sendal",
-  "Tono Kipas",
+  "dani onepiece",
   "Wawan Helm",
 ];
 
@@ -136,7 +140,6 @@ const DEXTON_MESSAGES = [
   "makasih udah mampir",
   "lagi benerin performance web ini",
   "coba scroll terus, banyak easter egg",
-  "lagi nyari ide sambil ngopi",
   "Tanya ai aja jangan tanya gw ",
   "bukan  cowo bingung",
   "lagi ngulik animasi baru nih",
@@ -229,7 +232,7 @@ function makeNotification() {
     return {
       id,
       type: "dexton",
-      name: "Dxtnn|DEV",
+      name: "Dxtnn",
       message: msg,
       color: randomOf(AVATAR_COLORS),
       initial: "D",
@@ -295,6 +298,31 @@ export default {
         }
       }, 200);
     }
+    // unlock audio HP: priming iphone.MP3 on first gesture biar next play ga ke-block autoplay
+    this._primed = false;
+    this._unlockAudio = () => {
+      if (this._primed) return;
+      this._primed = true;
+      try {
+        const a = new Audio(NOTIF_SOUND);
+        a.volume = 0;
+        a.play()
+          .then(() => {
+            a.pause();
+            a.currentTime = 0;
+          })
+          .catch(() => {});
+      } catch (e) {}
+      ["click", "touchstart", "keydown"].forEach((ev) =>
+        window.removeEventListener(ev, this._unlockAudio, { capture: true }),
+      );
+    };
+    ["click", "touchstart", "keydown"].forEach((ev) =>
+      window.addEventListener(ev, this._unlockAudio, {
+        capture: true,
+        once: true,
+      }),
+    );
     this._onDocClick = (e) => {
       if (!this.isExpanded || !this.current) return;
       if (!e.target.closest || !e.target.closest(".live-notif")) this.dismiss();
@@ -306,9 +334,14 @@ export default {
     clearTimeout(this.hideTimer);
     if (this._onDocClick)
       document.removeEventListener("click", this._onDocClick);
+    if (this._unlockAudio)
+      ["click", "touchstart", "keydown"].forEach((ev) =>
+        window.removeEventListener(ev, this._unlockAudio, { capture: true }),
+      );
   },
   methods: {
     scheduleNext(delay) {
+      clearTimeout(this.spawnTimer);
       let wait;
       if (delay != null) wait = delay;
       else {
@@ -323,10 +356,12 @@ export default {
       this.spawnTimer = setTimeout(this.spawn, wait);
     },
     spawn() {
+      clearTimeout(this.hideTimer);
+      clearTimeout(this.spawnTimer);
       this.isExpanded = false;
       this.current = makeNotification();
       this.playSound();
-      // durasi tampil random 4.5-6s — stand agak lama, ga kecepetan
+      // durasi tampil random 4.5-6s — tiap notif timer sendiri, ga ngikutin yang awal
       const visibleMs = 4500 + Math.random() * 1500;
       this.hideTimer = setTimeout(this.dismiss, visibleMs);
     },
@@ -349,6 +384,8 @@ export default {
       } catch (e) {}
     },
     dismiss() {
+      clearTimeout(this.hideTimer);
+      this.hideTimer = null;
       this.isExpanded = false;
       this.current = null;
       this.scheduleNext();
@@ -357,6 +394,7 @@ export default {
       // klik pertama: pause + expand biar baca full chat (auto-hide 7s kalau dicuekin)
       if (!this.isExpanded) {
         clearTimeout(this.hideTimer);
+        clearTimeout(this.spawnTimer);
         this.isExpanded = true;
         this.hideTimer = setTimeout(this.dismiss, 7000);
         return;
@@ -533,7 +571,8 @@ body.light-theme .live-notif__msg {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 0 0 rgba(255, 107, 107, 0);
   }
   50% {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 0 6px rgba(255, 107, 107, 0.18);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25),
+      0 0 0 6px rgba(255, 107, 107, 0.18);
   }
 }
 body.light-theme .notif-mute-btn {

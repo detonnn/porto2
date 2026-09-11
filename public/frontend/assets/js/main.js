@@ -173,7 +173,29 @@ function applyTheme(isLight) {
 const selectedTheme = localStorage.getItem("selected-theme");
 applyTheme(selectedTheme === "light");
 
-async function toggleThemeWithWipe() {
+function isGameActive() {
+  return !!document.querySelector(".gh-game-canvas") || !!document.querySelector(".gh-calendar--game");
+}
+function showThemeBlockedToast() {
+  let el = document.getElementById("theme-block-toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "theme-block-toast";
+    el.style.cssText = "position:fixed;top:calc(var(--header-height) + 10px);left:50%;transform:translateX(-50%);z-index:1001;background:#1a1a1a;color:#fff;border:1px solid #333;padding:10px 16px;border-radius:10px;font-family:var(--body-font);font-size:12px;box-shadow:0 4px 16px rgba(0,0,0,.4);pointer-events:none;opacity:0;transition:opacity .25s ease;max-width:90vw;text-align:center";
+    document.body.appendChild(el);
+  }
+  el.textContent = "Game lagi jalan! Matiin / selesaikan gamenya dulu baru bisa ganti tema.";
+  el.style.opacity = "1";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = "0"; }, 2500);
+}
+
+async function toggleThemeWithWipe(e) {
+  if (isGameActive()) {
+    if (e) e.preventDefault();
+    showThemeBlockedToast();
+    return;
+  }
   const isLight = !document.body.classList.contains(lightTheme);
 
   // Browser gak support View Transition API -> langsung toggle biasa, gak usah animasi
