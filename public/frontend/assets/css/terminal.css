@@ -132,17 +132,10 @@ body.light-theme {
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Widget assistant dipisah dari snapshot root biar gak ketutup/ikut ke-wipe */
+/* ponytail: widget ikut ke-wipe diagonal bareng root — jangan di-isolate lagi biar line switch nyapu widget juga */
+.chatbot-widget,
 .chatbot-widget.open {
-  view-transition-name: chatbot-widget;
-}
-::view-transition-group(chatbot-widget) {
-  z-index: 9999;
-}
-::view-transition-old(chatbot-widget),
-::view-transition-new(chatbot-widget) {
-  animation: none;
-  mix-blend-mode: normal;
+  view-transition-name: none;
 }
 
 /* Fallback smooth untuk browser tanpa ViewTransition — warna nge-blend 0.5s */
@@ -985,7 +978,6 @@ body.light-theme .hero-term {
   border-radius: 10px;
   border: 1px solid var(--border);
   display: block;
-  filter: grayscale(1) contrast(1.05);
   transition: 0.3s;
 }
 .about__tech {

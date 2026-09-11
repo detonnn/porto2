@@ -210,12 +210,11 @@ export default {
   object-fit: cover;
   display: block;
   border-radius: inherit;
-  filter: grayscale(1) contrast(1.05);
   transition: filter 0.4s ease;
 }
 
 .tilt-card:hover .tilt-card__img {
-  filter: grayscale(0) contrast(1);
+  filter: none;
 }
 
 .tilt-card__img--reveal {

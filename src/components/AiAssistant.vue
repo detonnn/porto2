@@ -127,16 +127,36 @@
             </div>
             <div
               v-if="m.playlist && m.playlist.length"
-              class="chatbot-playlist-row"
+              class="chatbot-playlist"
             >
-              <button
+              <div
                 v-for="opt in m.playlist"
                 :key="opt.index"
-                class="chatbot-playlist-btn"
-                @click="selectTrack(opt.index)"
+                class="pl-row"
+                :class="{ 'pl-row--playing': isTrackPlaying(opt.index) }"
+                @click.stop="selectTrack(opt.index)"
               >
-                <i class="uil uil-play"></i> <span>{{ opt.label }}</span>
-              </button>
+                <div class="pl-row__index">
+                  <span class="pl-num">{{ opt.index + 1 }}</span>
+                  <span class="pl-bars"
+                    ><span></span><span></span><span></span
+                  ></span>
+                  <span class="pl-play"></span>
+                </div>
+                <div class="pl-row__main">
+                  <img
+                    class="pl-row__art"
+                    :src="opt.cover"
+                    :alt="opt.title"
+                    loading="lazy"
+                  />
+                  <div class="pl-row__text">
+                    <div class="pl-row__title">{{ opt.title }}</div>
+                    <div class="pl-row__artist">{{ opt.artist }}</div>
+                  </div>
+                </div>
+                <div class="pl-row__duration">{{ opt.duration }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -687,6 +707,11 @@ export default {
       lastIdleIdx: -1,
       audioElements: {},
       isNearBottom: true,
+      spamTimes: [],
+      lastSpamWarnAt: 0,
+      spamQueue: null,
+      spamWarnScheduled: false,
+      typingTimer: null,
     };
   },
   computed: {
@@ -822,7 +847,8 @@ export default {
       this.chatInitialized = true;
       this.hasSentIdle = false;
       this.resetIdleTimer();
-      this.showTyping(() => this.addMessage(ANSWERS.greeting, "bot"));
+      // ponytail: greeting jangan lama — 700ms cukup
+      this.showTyping(() => this.addMessage(ANSWERS.greeting, "bot"), 700);
     },
     endChat() {
       this.chatInitialized = false;
@@ -855,22 +881,26 @@ export default {
     },
     onBotMsgClick(e, i) {
       if ((this.messages[i] || {}).sender !== "bot") return;
-      if (e.target.closest && e.target.closest("a,button")) return;
+      if (
+        e.target.closest &&
+        e.target.closest("a,button,.chatbot-playlist,.pl-row")
+      )
+        return;
       // jika bar mau dibuka, cek apakah pesan dekat header ( < 70px dari top body )
       // kalau iya, flip bar ke bawah biar ga ketutup header
-      const willOpen = this.activeReact !== i
+      const willOpen = this.activeReact !== i;
       if (willOpen) {
         this.$nextTick(() => {
-          const body = this.$refs.body
-          const msgEl = e.currentTarget
+          const body = this.$refs.body;
+          const msgEl = e.currentTarget;
           if (body && msgEl) {
-            const bodyRect = body.getBoundingClientRect()
-            const msgRect = msgEl.getBoundingClientRect()
-            this.activeReactBelow = (msgRect.top - bodyRect.top) < 70
+            const bodyRect = body.getBoundingClientRect();
+            const msgRect = msgEl.getBoundingClientRect();
+            this.activeReactBelow = msgRect.top - bodyRect.top < 70;
           } else {
-            this.activeReactBelow = false
+            this.activeReactBelow = false;
           }
-        })
+        });
       }
       this.toggleReactBar(i);
     },
@@ -909,13 +939,21 @@ export default {
         if (body) body.scrollTop = body.scrollHeight;
       });
     },
-    showTyping(cb) {
+    showTyping(cb, delay) {
+      if (this.typingTimer) clearTimeout(this.typingTimer);
       this.typing = true;
       this.scrollDown();
-      setTimeout(() => {
+      const d = delay != null ? delay : 1500 + Math.random() * 1200;
+      this.typingTimer = setTimeout(() => {
+        this.typingTimer = null;
         this.typing = false;
         cb();
-      }, 1500 + Math.random() * 1200);
+      }, d);
+    },
+    cancelTyping() {
+      if (this.typingTimer) clearTimeout(this.typingTimer);
+      this.typingTimer = null;
+      this.typing = false;
     },
     loadHistory() {
       try {
@@ -983,6 +1021,9 @@ export default {
       if (MUSIC_PLAY_KEYWORDS.some((k) => lower.includes(k))) return "play";
       return null;
     },
+    isTrackPlaying(index) {
+      return this.musicPlaying && musicState.currentIndex === index;
+    },
     // Kalau user minta musik lewat chat -> tampilin playlist, JANGAN langsung muter.
     showPlaylist() {
       if (!hasTracks()) {
@@ -992,6 +1033,10 @@ export default {
       const options = MUSIC_TRACKS.map((t, i) => ({
         index: i,
         label: `${t.title} — ${t.artist}`,
+        title: t.title,
+        artist: t.artist,
+        duration: t.duration,
+        cover: t.cover,
       }));
       this.addMessage(ANSWERS.ansMusicPlaylistIntro, "bot", null, options);
     },
@@ -1075,27 +1120,13 @@ export default {
         this.typing = false;
       }
     },
-    handleUserInput(displayText, forcedAnswerKey) {
-      if (!displayText || !displayText.trim()) return;
-      this.hasSentIdle = false;
-      this.resetIdleTimer();
-      this.historyView = false;
-      this.activeReact = null;
-      this.addMessage(displayText, "user");
-      this.playAudio("send.mp3");
-      this.saveHistoryEntry(displayText);
-      this.inputText = "";
-      this.$nextTick(() => {
-        const el = this.$refs.input;
-        if (el) el.style.height = "auto";
-      });
-
+    // ponytail: helper — cuma balas bot, tanpa add user msg (dipakai buat queue spam)
+    _replyBot(displayText, forcedAnswerKey) {
       if (!forcedAnswerKey) {
         if (this.isVisitorAsk(displayText)) {
           this.replyVisitor();
           return;
         }
-        // "lagu favorit apa?" itu nanya favorit, bukan minta muter musik
         const musicIntent = displayText.toLowerCase().includes("favorit")
           ? null
           : this.detectMusicIntent(displayText);
@@ -1109,9 +1140,7 @@ export default {
           return;
         }
       }
-
       const answerKey = forcedAnswerKey || this.detectAnswer(displayText);
-
       const NAV_MAP = {
         ansServices: "#services",
         ansPortfolio: "#portfolio",
@@ -1145,13 +1174,79 @@ export default {
       } else {
         const links = this.detectContactLinks(displayText);
         this.showTyping(() =>
-          this.addMessage(
-            ANSWERS.fallbackHelp,
-            "bot",
-            links.length ? links : null,
-          ),
+          this.addMessage(ANSWERS.fallbackHelp, "bot", links.length ? links : null),
         );
       }
+    },
+    handleUserInput(displayText, forcedAnswerKey) {
+      if (!displayText || !displayText.trim()) return;
+      const now = Date.now();
+      const isSpamBurst = (() => {
+        this.spamTimes = (this.spamTimes || []).filter((t) => now - t < 4000);
+        this.spamTimes.push(now);
+        return this.spamTimes.length > 3;
+      })();
+      const isSpam = this.typing || isSpamBurst;
+      if (isSpam) {
+        // cancel jawaban pending pertama biar gak double, tapi jangan cancel warning yang lagi jalan
+        if (this.typing && !this.spamWarnScheduled) this.cancelTyping();
+        // simpan cuma yang terakhir — semua spam sebelumnya diabaikan, cuma jawab paling akhir
+        this.spamQueue = { text: displayText, key: forcedAnswerKey };
+        // tampilkan bubble user biar keliatan dia spam (gak silent drop)
+        this.addMessage(displayText, "user");
+        this.playAudio("send.mp3");
+        this.saveHistoryEntry(displayText);
+        this.inputText = "";
+        this.$nextTick(() => {
+          const el = this.$refs.input;
+          if (el) el.style.height = "auto";
+        });
+        if (this.spamWarnScheduled) return;
+        this.spamWarnScheduled = true;
+        this.lastSpamWarnAt = now;
+        const warnMsg = isSpamBurst && !this.typing
+          ? "Woy pelan-pelan, jangan spam quick chat 😅 — kasih jeda bentar ya"
+          : "Santai bre, jangan di-spam — tunggu gue jawab satu-satu ya 🙏";
+        const waitAndProcess = () => {
+          if (this.typing) { setTimeout(waitAndProcess, 350); return; }
+          this.showTyping(() => {
+            this.addMessage(warnMsg, "bot");
+            // setelah warning selesai (typing false lagi), baru jawab queue paling akhir aja
+            const afterWarn = () => {
+              if (this.typing) { setTimeout(afterWarn, 350); return; }
+              const q = this.spamQueue;
+              this.spamQueue = null;
+              this.spamWarnScheduled = false;
+              this.spamTimes = [];
+              if (q) {
+                this.hasSentIdle = false;
+                this.resetIdleTimer();
+                this.historyView = false;
+                this.activeReact = null;
+                // user bubble-nya udah ditambah di atas untuk q yang terakhir,
+                // jadi di sini cuma trigger balasan bot-nya aja
+                this._replyBot(q.text, q.key);
+              }
+            };
+            setTimeout(afterWarn, 350);
+          });
+        };
+        waitAndProcess();
+        return;
+      }
+      this.hasSentIdle = false;
+      this.resetIdleTimer();
+      this.historyView = false;
+      this.activeReact = null;
+      this.addMessage(displayText, "user");
+      this.playAudio("send.mp3");
+      this.saveHistoryEntry(displayText);
+      this.inputText = "";
+      this.$nextTick(() => {
+        const el = this.$refs.input;
+        if (el) el.style.height = "auto";
+      });
+      this._replyBot(displayText, forcedAnswerKey);
     },
   },
 };
@@ -1254,5 +1349,154 @@ export default {
 body.light-theme .chatbot-react-bar,
 body.light-theme .chatbot-react-badge {
   background: var(--bg-elev-2);
+}
+
+/* === Playlist layout — port dari playlist-layout.html === */
+.chatbot-playlist {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 10px;
+  animation: chatbotMsgIn 0.3s ease both;
+  /* biar playlist mentok ke tepi bubble, override padding bubble */
+  margin-left: -4px;
+  margin-right: -4px;
+}
+.pl-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.pl-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+body.light-theme .pl-row:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.pl-row__index {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.pl-row__index .pl-num {
+  display: block;
+}
+.pl-row__index .pl-play {
+  display: none;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent var(--text);
+}
+.pl-row:hover .pl-row__index .pl-num {
+  display: none;
+}
+.pl-row:hover .pl-row__index .pl-play {
+  display: block;
+}
+.pl-row--playing .pl-row__index .pl-num {
+  display: none;
+}
+.pl-row--playing .pl-row__index .pl-bars {
+  display: flex;
+}
+.pl-row--playing:hover .pl-row__index .pl-bars {
+  display: none;
+}
+.pl-row--playing:hover .pl-row__index .pl-play {
+  display: block;
+}
+.pl-bars {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+.pl-bars span {
+  width: 3px;
+  background: #1ed760;
+  animation: pl-bounce 1s ease-in-out infinite;
+}
+.pl-bars span:nth-child(1) {
+  height: 40%;
+  animation-delay: -0.9s;
+}
+.pl-bars span:nth-child(2) {
+  height: 100%;
+  animation-delay: -0.3s;
+}
+.pl-bars span:nth-child(3) {
+  height: 65%;
+  animation-delay: -0.6s;
+}
+@keyframes pl-bounce {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+.pl-row__main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.pl-row__art {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background: #2a2a2a;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.pl-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.pl-row__title {
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.pl-row--playing .pl-row__title {
+  color: #1ed760;
+}
+body.light-theme .pl-row--playing .pl-row__title {
+  color: #1a9c4b;
+}
+.pl-row__artist {
+  color: var(--text-dim);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.pl-row__duration {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-align: right;
+  flex-shrink: 0;
 }
 </style>

@@ -306,11 +306,12 @@ function rotateRoles(el, roles) {
       if (cat) cat.classList.add("is-visible");
 
       typeInto(prefixNode, prefixText, 45, () => {
-        if (titleEl) titleEl.classList.add("is-typed");
-        setTimeout(() => {
-          if (roleEl) rotateRoles(roleEl, roles);
-          typeInto(descEl, descText, 12);
-        }, 650);
+        // ponytail: double rAF biar huruf pertama (H/I) kebaca initial state dulu, baru transisi — jadi smooth kayak lainnya
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          if (titleEl) titleEl.classList.add("is-typed");
+        }));
+        if (roleEl) rotateRoles(roleEl, roles);
+        typeInto(descEl, descText, 12);
       });
     });
   }, 600);

@@ -101,7 +101,8 @@ export default {
             let idx = 0
             for (let w = 0; w < wi; w++) idx += words[w].length
             idx += ci
-            return (idx * 0.028).toFixed(3)
+            // ponytail: base 0.06 biar huruf pertama (I) gak pop instant, ikut wave
+            return (idx * 0.028 + 0.06).toFixed(3)
         }
     }
 };

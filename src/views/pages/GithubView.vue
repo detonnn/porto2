@@ -243,9 +243,26 @@ export default {
         this.stopGame()
     },
     methods: {
-        checkTheme() {
-            this.isLight = document.body.classList.contains('light-theme')
-        },
+         checkTheme() {
+             const wasLight = this.isLight
+             this.isLight = document.body.classList.contains('light-theme')
+             if (wasLight !== this.isLight && this.gameActive) {
+                 this.updateGameTheme()
+             }
+         },
+         updateGameTheme() {
+             const space = this.spaceTheme
+             const canvas = this._gameCanvas
+             if (canvas) {
+                 const ctx = canvas.getContext('2d')
+                 const stars = this._stars
+                 if (stars) {
+                     stars.forEach((s) => {
+                         s.color = space.star
+                     })
+                 }
+             }
+         },
         async fetchContributions() {
             this.loading = true
             this.error = false
@@ -479,14 +496,15 @@ export default {
             }
             this._gameCanvas = canvas
 
-            const isLightStar = this.isLight
-            const stars = Array.from({ length: 140 }).map(() => ({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                speed: Math.random() * 0.4 + 0.1,
-                size: isLightStar ? Math.random() * 1.8 + 1.2 : Math.random() * 1.2 + 0.5,
-                alpha: isLightStar ? Math.random() * 0.3 + 0.7 : Math.random() * 0.5 + 0.1,
-            }))
+             const stars = Array.from({ length: 140 }).map(() => ({
+                 x: Math.random() * width,
+                 y: Math.random() * height,
+                 speed: Math.random() * 0.4 + 0.1,
+                 size: this.isLight ? Math.random() * 1.8 + 1.2 : Math.random() * 1.2 + 0.5,
+                 alpha: this.isLight ? Math.random() * 0.3 + 0.7 : Math.random() * 0.5 + 0.1,
+                 color: space.star,
+             }))
+             this._stars = stars
 
             let particles = []
             const explode = (x, y, color) => {
@@ -613,34 +631,30 @@ export default {
                 })
             }
 
-            const render = () => {
-                // transparent clear — canvas only draws stars/bullets/ship on top;
-                // the SVG contribution grid stays visible underneath (it's a
-                // separate DOM element, canvas must never paint an opaque
-                // background over it or the targets vanish from view)
-                ctx.clearRect(0, 0, width, height)
-                ctx.fillStyle = space.star
-                stars.forEach((s) => { ctx.globalAlpha = s.alpha; ctx.fillRect(s.x, s.y, s.size, s.size) })
-                ctx.globalAlpha = 1
-                bullets.forEach((b) => { ctx.fillStyle = b.color; ctx.fillRect(b.x, b.y, b.width, b.height) })
-                particles.forEach((p) => { ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fillRect(p.x, p.y, p.size, p.size) })
-                ctx.globalAlpha = 1
+             const render = () => {
+                 ctx.clearRect(0, 0, width, height)
+                 ctx.fillStyle = space.star
+                 stars.forEach((s) => { ctx.globalAlpha = s.alpha; ctx.fillRect(s.x, s.y, s.size, s.size) })
+                 ctx.globalAlpha = 1
+                 bullets.forEach((b) => { ctx.fillStyle = b.color; ctx.fillRect(b.x, b.y, b.width, b.height) })
+                 particles.forEach((p) => { ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fillRect(p.x, p.y, p.size, p.size) })
+                 ctx.globalAlpha = 1
 
-                players.forEach(p => {
-                    ctx.fillStyle = p.color
-                    ctx.shadowColor = p.color
-                    ctx.shadowBlur = 6
-                    ctx.beginPath()
-                    ctx.moveTo(p.x + p.width / 2, p.y)
-                    ctx.lineTo(p.x + p.width, p.y + p.height)
-                    ctx.lineTo(p.x + p.width * 0.7, p.y + p.height * 0.75)
-                    ctx.lineTo(p.x + p.width * 0.3, p.y + p.height * 0.75)
-                    ctx.lineTo(p.x, p.y + p.height)
-                    ctx.closePath()
-                    ctx.fill()
-                })
-                ctx.shadowBlur = 0
-            }
+                 players.forEach(p => {
+                     ctx.fillStyle = p.color
+                     ctx.shadowColor = p.color
+                     ctx.shadowBlur = 6
+                     ctx.beginPath()
+                     ctx.moveTo(p.x + p.width / 2, p.y)
+                     ctx.lineTo(p.x + p.width, p.y + p.height)
+                     ctx.lineTo(p.x + p.width * 0.7, p.y + p.height * 0.75)
+                     ctx.lineTo(p.x + p.width * 0.3, p.y + p.height * 0.75)
+                     ctx.lineTo(p.x, p.y + p.height)
+                     ctx.closePath()
+                     ctx.fill()
+                 })
+                 ctx.shadowBlur = 0
+             }
 
             const loop = () => {
                 update()
@@ -649,51 +663,50 @@ export default {
             }
             this._rafId = requestAnimationFrame(loop)
         },
-        stopGame() {
-            if (this._rafId) cancelAnimationFrame(this._rafId)
-            this._rafId = null
-            // cleanup manual control
-            if (this._manualTimer) clearTimeout(this._manualTimer)
-            this._isManual = false
-            this._manualTimer = null
-            const canvas = this._gameCanvas
-            if (canvas) {
-                if (this._onMouseEnter) canvas.removeEventListener('mouseenter', this._onMouseEnter)
-                if (this._onMouseMove) canvas.removeEventListener('mousemove', this._onMouseMove)
-                if (this._onMouseLeave) canvas.removeEventListener('mouseleave', this._onMouseLeave)
-                if (this._onTouchMove) {
-                    canvas.removeEventListener('touchmove', this._onTouchMove)
-                    canvas.removeEventListener('touchstart', this._onTouchMove)
-                    canvas.removeEventListener('touchend', this._onTouchEnd)
-                    canvas.removeEventListener('touchcancel', this._onTouchEnd)
-                }
-                canvas.style.touchAction = ''
-            }
-            const box = this.$refs.scrollBox
-            if (box) {
-                if (this._onTouchMove) box.removeEventListener('touchmove', this._onTouchMove)
-                if (this._onTouchEnd) box.removeEventListener('touchend', this._onTouchEnd)
-            }
-            this._gameCanvas = null
-            this._onMouseEnter = null
-            this._onMouseMove = null
-            this._onMouseLeave = null
-            this._onTouchMove = null
-            this._onTouchEnd = null
-            // restore original colors/opacity on every cell
-            this.weeks.forEach((week) => {
-                week.forEach((date) => {
-                    if (!date) return
-                    const rect = document.getElementById('gh-cell-' + date)
-                    if (rect) {
-                        rect.style.opacity = '1'
-                        rect.style.pointerEvents = 'auto'
-                        const lvl = (this.byDate[date] && this.byDate[date].level) || 0
-                        rect.setAttribute('fill', this.colors['level' + lvl])
-                    }
-                })
-            })
-        },
+         stopGame() {
+             if (this._rafId) cancelAnimationFrame(this._rafId)
+             this._rafId = null
+             if (this._manualTimer) clearTimeout(this._manualTimer)
+             this._isManual = false
+             this._manualTimer = null
+             this._stars = null
+             const canvas = this._gameCanvas
+             if (canvas) {
+                 if (this._onMouseEnter) canvas.removeEventListener('mouseenter', this._onMouseEnter)
+                 if (this._onMouseMove) canvas.removeEventListener('mousemove', this._onMouseMove)
+                 if (this._onMouseLeave) canvas.removeEventListener('mouseleave', this._onMouseLeave)
+                 if (this._onTouchMove) {
+                     canvas.removeEventListener('touchmove', this._onTouchMove)
+                     canvas.removeEventListener('touchstart', this._onTouchMove)
+                     canvas.removeEventListener('touchend', this._onTouchEnd)
+                     canvas.removeEventListener('touchcancel', this._onTouchEnd)
+                 }
+                 canvas.style.touchAction = ''
+             }
+             const box = this.$refs.scrollBox
+             if (box) {
+                 if (this._onTouchMove) box.removeEventListener('touchmove', this._onTouchMove)
+                 if (this._onTouchEnd) box.removeEventListener('touchend', this._onTouchEnd)
+             }
+             this._gameCanvas = null
+             this._onMouseEnter = null
+             this._onMouseMove = null
+             this._onMouseLeave = null
+             this._onTouchMove = null
+             this._onTouchEnd = null
+             this.weeks.forEach((week) => {
+                 week.forEach((date) => {
+                     if (!date) return
+                     const rect = document.getElementById('gh-cell-' + date)
+                     if (rect) {
+                         rect.style.opacity = '1'
+                         rect.style.pointerEvents = 'auto'
+                         const lvl = (this.byDate[date] && this.byDate[date].level) || 0
+                         rect.setAttribute('fill', this.colors['level' + lvl])
+                     }
+                 })
+             })
+         },
     },
 }
 </script>
