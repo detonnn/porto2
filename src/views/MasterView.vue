@@ -40,6 +40,9 @@
         
         <!--==================== AI ASSISTANT ====================-->
         <ai-assistant/>
+
+        <!--==================== LIVE NOTIFICATIONS ====================-->
+        <live-notifications/>
 </template>
 
 
@@ -57,9 +60,10 @@ import Testimonial from './pages/TestimonialView.vue';
 import Contact from './pages/ContactView.vue';
 import Footerr from './pages/FooterView.vue';
 import AiAssistant from '../components/AiAssistant.vue';
+import LiveNotifications from '../components/LiveNotifications.vue';
 
 export default {
-    components: {Headerr, Home, About, Skills, Github, Qualification, Services, Portfolio, Project, Testimonial, Contact, Footerr, AiAssistant},
+    components: {Headerr, Home, About, Skills, Github, Qualification, Services, Portfolio, Project, Testimonial, Contact, Footerr, AiAssistant, LiveNotifications},
     name: 'Master',
 };
 </script>
