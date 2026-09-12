@@ -5,16 +5,16 @@
         v-if="showMute"
         class="notif-mute-btn"
         :class="{ muted: isMuted }"
-        :title="isMuted ? 'Unmute notifikasi' : 'Mute notifikasi'"
-        :aria-label="isMuted ? 'Unmute notifikasi' : 'Mute notifikasi'"
+         :title="isMuted ? 'Aktifkan notifikasi' : 'Do Not Disturb'"
+         :aria-label="isMuted ? 'Aktifkan notifikasi' : 'Do Not Disturb'"
         @click="toggleMute"
       >
         <transition name="mute-icon" mode="out-in">
-          <i
-            :key="String(isMuted)"
-            class="uil"
-            :class="isMuted ? 'uil-volume-mute' : 'uil-bell'"
-          ></i>
+           <i
+             :key="String(isMuted)"
+             class="uil"
+             :class="isMuted ? 'uil-volume-mute' : 'uil-bell'"
+           ></i>
         </transition>
       </button>
     </transition>
@@ -298,31 +298,38 @@ export default {
         }
       }, 200);
     }
-    // unlock audio HP: priming iphone.MP3 on first gesture biar next play ga ke-block autoplay
+    // unlock audio HP: singleton + prime biar next play ga ke-block autoplay
+    // ponytail: reuse satu Audio biar ga bikin new Audio tiap notif (iOS block per-element)
+    this._notifAudio = new Audio(NOTIF_SOUND);
+    this._notifAudio.volume = 0.6;
+    this._notifAudio.preload = "auto";
+    try { this._notifAudio.load(); } catch (e) {}
+    // dummy untuk keep-alive tanpa ganggu _notifAudio yang lagi play
+    this._primeDummy = new Audio(NOTIF_SOUND);
+    this._primeDummy.volume = 0;
+    this._primeDummy.preload = "auto";
+    try { this._primeDummy.load(); } catch(e) {}
     this._primed = false;
     this._unlockAudio = () => {
-      if (this._primed) return;
-      this._primed = true;
       try {
-        const a = new Audio(NOTIF_SOUND);
-        a.volume = 0;
-        a.play()
-          .then(() => {
-            a.pause();
-            a.currentTime = 0;
-          })
-          .catch(() => {});
+        if (!this._primed) {
+          const a = this._notifAudio;
+          a.volume = 0;
+          a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = 0.6; this._primed = true; }).catch(() => { a.volume = 0.6; this._primed = true; });
+        }
+        // keep-alive pakai dummy, jangan sentuh _notifAudio lagi biar gak kepause pas lagi bunyi
+        const d = this._primeDummy;
+        d.currentTime = 0;
+        d.play().then(() => { d.pause(); d.currentTime = 0; }).catch(()=>{});
+        if (window._portoAudioCtx && window._portoAudioCtx.state === "suspended") window._portoAudioCtx.resume();
       } catch (e) {}
-      ["click", "touchstart", "keydown"].forEach((ev) =>
-        window.removeEventListener(ev, this._unlockAudio, { capture: true }),
-      );
     };
-    ["click", "touchstart", "keydown"].forEach((ev) =>
-      window.addEventListener(ev, this._unlockAudio, {
-        capture: true,
-        once: true,
-      }),
+    // ponytail: jangan once:true — transient activation expire setelah idle, perlu re-prime
+    ["click", "touchstart", "keydown", "pointerdown"].forEach((ev) =>
+      window.addEventListener(ev, this._unlockAudio, { capture: true }),
     );
+    // prime immediately if user already interacted (e.g. HMR)
+    if (navigator.userActivation && navigator.userActivation.hasBeenActive) this._unlockAudio();
     this._onDocClick = (e) => {
       if (!this.isExpanded || !this.current) return;
       if (!e.target.closest || !e.target.closest(".live-notif")) this.dismiss();
@@ -335,7 +342,7 @@ export default {
     if (this._onDocClick)
       document.removeEventListener("click", this._onDocClick);
     if (this._unlockAudio)
-      ["click", "touchstart", "keydown"].forEach((ev) =>
+      ["click", "touchstart", "keydown", "pointerdown"].forEach((ev) =>
         window.removeEventListener(ev, this._unlockAudio, { capture: true }),
       );
   },
@@ -355,23 +362,35 @@ export default {
       }
       this.spawnTimer = setTimeout(this.spawn, wait);
     },
-    spawn() {
-      clearTimeout(this.hideTimer);
-      clearTimeout(this.spawnTimer);
-      this.isExpanded = false;
-      this.current = makeNotification();
-      this.playSound();
-      // durasi tampil random 4.5-6s — tiap notif timer sendiri, ga ngikutin yang awal
-      const visibleMs = 4500 + Math.random() * 1500;
-      this.hideTimer = setTimeout(this.dismiss, visibleMs);
-    },
+     spawn() {
+       if (this.isMuted) {
+         this.scheduleNext();
+         return;
+       }
+       clearTimeout(this.hideTimer);
+       clearTimeout(this.spawnTimer);
+       this.isExpanded = false;
+       this.current = makeNotification();
+       this.playSound();
+       // durasi tampil random 4.5-6s — tiap notif timer sendiri, ga ngikutin yang awal
+       const visibleMs = 4500 + Math.random() * 1500;
+       this.hideTimer = setTimeout(this.dismiss, visibleMs);
+     },
     playSound() {
       if (this.isMuted) return;
       try {
-        const audio = new Audio(NOTIF_SOUND);
-        audio.volume = 0.6;
-        audio.play().catch(() => {
-          // autoplay blocked until user interacts with the page; ignore
+        const a = this._notifAudio || new Audio(NOTIF_SOUND);
+        // reuse singleton — iOS hanya allow play untuk element yang sudah di-prime
+        if (!this._notifAudio) { this._notifAudio = a; a.preload = "auto"; }
+        a.volume = 0.6;
+        a.currentTime = 0;
+        const p = a.play();
+        if (p && p.catch) p.catch(() => {
+          // autoplay blocked (transient activation habis) — retry di gesture berikutnya
+          const retry = () => { a.currentTime = 0; a.play().catch(() => {}); };
+          ["click", "touchstart", "pointerdown"].forEach((ev) =>
+            window.addEventListener(ev, retry, { capture: true, once: true }),
+          );
         });
       } catch (e) {
         // ignore

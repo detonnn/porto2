@@ -68,7 +68,6 @@ export default {
     methods: {
         contactHref(info) {
             if (info.href) return info.href
-            if (info.icon.includes('phone') || info.title.toLowerCase().includes('call')) return 'https://wa.me/' + info.value.replace(/[^0-9]/g, '')
             if (info.icon.includes('envelope') || info.title.toLowerCase().includes('email')) return 'mailto:' + info.value
             return '#'
         },

@@ -1,5 +1,4 @@
 {
-  "whatsapp": "+6285281144792",
   "profile": {
     "name": "Ibnu Dexton",
     "fullName": "Muhammad Ibnu Dexton",
@@ -25,10 +24,6 @@
       {
         "icon": "uil-music",
         "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc"
-      },
-      {
-        "icon": "uil-whatsapp",
-        "url": "https://api.whatsapp.com/send?phone=6285281144792"
       }
     ]
   },
@@ -370,9 +365,10 @@
     "subtitle": "open a connection — let's talk",
     "items": [
       {
-        "icon": "uil-phone",
-        "title": "Call me",
-        "value": "+6285281144792"
+        "icon": "uil-github-alt",
+        "title": "GitHub",
+        "value": "github.com/detonnn",
+        "href": "https://github.com/detonnn"
       },
       {
         "icon": "uil-envelope",
@@ -433,11 +429,6 @@
       }
     ],
     "socials": [
-      {
-        "label": "WhatsApp",
-        "icon": "uil-whatsapp",
-        "url": "https://wa.me/6285281144792"
-      },
       {
         "label": "Instagram",
         "icon": "uil-instagram",

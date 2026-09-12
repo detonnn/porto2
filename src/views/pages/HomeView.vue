@@ -1,5 +1,5 @@
 <template>
-    <section class="home section" id="home">
+    <section class="home section" id="home" ref="homeSection">
         <div class="home__container container grid">
             <div class="home__content grid">
                 <div class="home__social">
@@ -57,7 +57,7 @@
                         </div>
                     </div>
 
-                    <a href="#contact" class="button button--flex">
+                    <a href="#contact" ref="targetRef" class="button button--flex">
                         ./contact.sh <i class="uil uil-message button__icon"></i>
                     </a>
                 </div>
@@ -71,6 +71,7 @@
                 </a>
             </div>
         </div>
+        <canvas ref="canvasRef" class="home__arrow-canvas" aria-hidden="true"></canvas>
     </section>
 </template>
 
@@ -103,7 +104,136 @@ export default {
             idx += ci
             // ponytail: base 0.06 biar huruf pertama (I) gak pop instant, ikut wave
             return (idx * 0.028 + 0.06).toFixed(3)
+        },
+        parseRgb(colorString) {
+            if (!colorString) return null
+            const m = colorString.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+            return m ? { r: +m[1], g: +m[2], b: +m[3] } : null
+        },
+    },
+    mounted() {
+        const canvas = this.$refs.canvasRef
+        const target = this.$refs.targetRef
+        const home = this.$refs.homeSection
+        if (!canvas || !target || !home) return
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+
+        let mouse = { x: null, y: null }
+        let isInsideHome = false
+        let rafId = null
+        const stroke = { r: 255, g: 255, b: 255 }
+
+        const resolveColor = () => {
+            // pakai --text / --green biar sinkron sama terminal.css light/dark
+            const probe = document.createElement('div')
+            probe.style.display = 'none'
+            document.body.appendChild(probe)
+            probe.style.color = 'var(--text)'
+            let c = this.parseRgb(getComputedStyle(probe).color)
+            if (c) Object.assign(stroke, c)
+            else {
+                const dark = document.documentElement.classList.contains('dark') || document.body.classList.contains('light-theme') === false
+                // fallback: dark=putih, light=hitam kebiruan
+                Object.assign(stroke, dark ? { r: 230, g: 235, b: 245 } : { r: 31, g: 42, b: 58 })
+            }
+            probe.remove()
         }
+        resolveColor()
+        const mo = new MutationObserver(resolveColor)
+        mo.observe(document.documentElement, { attributes: true })
+        mo.observe(document.body, { attributes: true })
+
+        const resize = () => {
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+        }
+        resize()
+
+        const draw = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            if (!isInsideHome || mouse.x === null || mouse.y === null) return
+            const rect = target.getBoundingClientRect()
+            const cx = rect.left + rect.width / 2
+            const cy = rect.top + rect.height / 2
+            const x0 = mouse.x, y0 = mouse.y
+            const a = Math.atan2(cy - y0, cx - x0)
+            const x1 = cx - Math.cos(a) * (rect.width / 2 + 12)
+            const y1 = cy - Math.sin(a) * (rect.height / 2 + 12)
+            const midX = (x0 + x1) / 2
+            const midY = (y0 + y1) / 2
+            const dist = Math.hypot(x1 - x0, y1 - y0)
+            if (dist < 30) return
+            const offset = Math.min(200, dist * 0.5)
+            const t = Math.max(-1, Math.min(1, (y0 - y1) / 200))
+            const cX = midX
+            const cY = midY + offset * t
+            const opacity = Math.min(1, (dist - Math.max(rect.width, rect.height) / 2) / 500)
+            if (opacity <= 0.02) return
+            ctx.strokeStyle = `rgba(${stroke.r},${stroke.g},${stroke.b},${opacity})`
+            ctx.lineWidth = 2
+            ctx.save()
+            ctx.beginPath()
+            ctx.moveTo(x0, y0)
+            ctx.quadraticCurveTo(cX, cY, x1, y1)
+            ctx.setLineDash([10, 5])
+            ctx.stroke()
+            ctx.restore()
+            const angle = Math.atan2(y1 - cY, x1 - cX)
+            const head = 10 * (ctx.lineWidth / 1.5)
+            ctx.beginPath()
+            ctx.moveTo(x1, y1)
+            ctx.lineTo(x1 - head * Math.cos(angle - Math.PI / 6), y1 - head * Math.sin(angle - Math.PI / 6))
+            ctx.moveTo(x1, y1)
+            ctx.lineTo(x1 - head * Math.cos(angle + Math.PI / 6), y1 - head * Math.sin(angle + Math.PI / 6))
+            ctx.stroke()
+        }
+
+        const loop = () => { draw(); rafId = requestAnimationFrame(loop) }
+        loop()
+
+        const onMove = (e) => {
+            const r = home.getBoundingClientRect()
+            // hanya aktif kalau mouse di dalam #home section (bukan navbar, bukan section lain)
+            isInsideHome = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom
+            if (isInsideHome) { mouse = { x: e.clientX, y: e.clientY } }
+            else { mouse = { x: null, y: null } }
+        }
+        const onLeave = () => { isInsideHome = false; mouse = { x: null, y: null } }
+
+        window.addEventListener('mousemove', onMove)
+        window.addEventListener('resize', resize)
+        home.addEventListener('mouseleave', onLeave)
+        // kalau pointer masuk navbar (fixed header) arrow otomatis hilang karena isInsideHome=false, tapi jaga-jaga:
+        const header = document.getElementById('header')
+        if (header) header.addEventListener('mouseenter', onLeave)
+
+        this._arrowCleanup = () => {
+            cancelAnimationFrame(rafId)
+            window.removeEventListener('mousemove', onMove)
+            window.removeEventListener('resize', resize)
+            home.removeEventListener('mouseleave', onLeave)
+            if (header) header.removeEventListener('mouseenter', onLeave)
+            mo.disconnect()
+        }
+    },
+    beforeUnmount() {
+        if (this._arrowCleanup) this._arrowCleanup()
     }
 };
 </script>
+
+<style scoped>
+.home.section { position: relative; }
+.home__arrow-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 5;
+}
+@media (pointer: coarse) {
+    .home__arrow-canvas { display: none; }
+}
+</style>

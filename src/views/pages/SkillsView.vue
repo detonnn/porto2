@@ -15,7 +15,7 @@
                             <span class="skills__subtitle">{{ group.subtitle }}</span>
                         </div>
 
-                        <i class="uil uil-angle-down skills__arrow"></i>
+                        <i class="uil uil-arrow-right skills__hover-icon"></i>
                     </div>
 
                     <div class="skills__list grid">

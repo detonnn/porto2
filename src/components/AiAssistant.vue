@@ -263,11 +263,6 @@ const CONTACT_LINKS = {
     url: "https://www.tiktok.com/@risemss",
     iconClass: "uil uil-video",
   },
-  whatsapp: {
-    label: "Chat WhatsApp",
-    url: "https://wa.me/6285281144792",
-    iconClass: "uil uil-whatsapp",
-  },
   email: {
     label: "Kirim Email",
     url: "mailto:ibnudexton@gmail.com",
@@ -344,7 +339,9 @@ const ANSWERS = {
     "Aktivitas GitHub ada di section Github Activity — aku arahin ke sana.",
   ansHome: "Balik ke Home ya — aku scroll ke atas.",
   ansContactDetail:
-    "Kontak — Email: ibnudexton@gmail.com, WA: +62 852-8114-4792, IG: @dxtnn_, GitHub: detonnn",
+    "Kontak — Email: ibnudexton@gmail.com, IG: @dxtnn_, GitHub: detonnn",
+  ansWhatsapp:
+    "Dexton nggak mencantumkan WhatsApp di sini ya kak 🙏 tapi kamu bisa hubungin langsung lewat DM Instagram @dxtnn_ atau kirim email ke ibnudexton@gmail.com — bakal dibales secepatnya kok, makasih banyak ya!",
   fallbackHelp:
     'Boleh tanya apa aja — profil, skill & tech stack, proyek, makanan/hobi/game/musik favorit, creator favorit, review klien, atau cara kontak. Coba tanya misalnya: "musik favorit apa?" atau "hobinya apa?"',
   ansMusicNoTracks:
@@ -677,6 +674,24 @@ const KEYWORD_MAP = [
   },
   { keys: ["github", "aktivitas github", "repo"], answer: "ansGithub" },
   { keys: ["home", "beranda", "ke atas"], answer: "ansHome" },
+  {
+    keys: [
+      "whatsapp",
+      "whats app",
+      "nomor wa",
+      "nomer wa",
+      "no wa",
+      "nomor whatsapp",
+      "nomer whatsapp",
+      "no whatsapp",
+      "hubungi wa",
+      "chat wa",
+      "kontak wa",
+      "telepon wa",
+      "hp wa",
+    ],
+    answer: "ansWhatsapp",
+  },
   { keys: ["services", "layanan"], answer: "ansServices" },
   { keys: ["portfolio", "portofolio"], answer: "ansPortfolio" },
   { keys: ["contact", "kontak"], answer: "ansContact" },
@@ -742,22 +757,32 @@ export default {
       a.load();
     });
 
+    // ponytail: unlock pakai dummy biar gak ganggu send/recive yang lagi play di bubble yang sama
+    this._primeAudio = new Audio("/frontend/assets/audio/send.MP3");
+    this._primeAudio.volume = 0;
+    this._primeAudio.preload = "auto";
+    try { this._primeAudio.load(); } catch(e) {}
+    let _realPrimed = false;
     const unlockAll = () => {
-      Object.values(this.audioElements).forEach((a) => {
-        a.play()
-          .then(() => {
-            a.pause();
-            a.currentTime = 0;
-          })
-          .catch(() => {});
-      });
-      ["click", "touchstart", "keydown"].forEach((evt) =>
-        window.removeEventListener(evt, unlockAll, { capture: true }),
-      );
+      // prime real elements cuma sekali (iOS butuh per-element), setelah itu cukup dummy + resume
+      if (!_realPrimed) {
+        let pending = Object.values(this.audioElements).length;
+        Object.values(this.audioElements).forEach((a) => {
+          const prevVol = a.volume;
+          a.volume = 0;
+          a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = prevVol; if (--pending === 0) _realPrimed = true; }).catch(() => { a.volume = prevVol; if (--pending === 0) _realPrimed = true; });
+        });
+        if (pending === 0) _realPrimed = true;
+      }
+      // keep session alive tanpa ganggu real audio
+      try { this._primeAudio.currentTime = 0; this._primeAudio.play().then(() => { this._primeAudio.pause(); this._primeAudio.currentTime = 0; }).catch(()=>{}); } catch(e) {}
+      if (window._portoAudioCtx && window._portoAudioCtx.state === "suspended") window._portoAudioCtx.resume();
     };
-    ["click", "touchstart", "keydown"].forEach((evt) =>
-      window.addEventListener(evt, unlockAll, { capture: true, once: true }),
+    this._unlockAll = unlockAll;
+    ["click", "touchstart", "keydown", "pointerdown"].forEach((evt) =>
+      window.addEventListener(evt, unlockAll, { capture: true }),
     );
+    if (navigator.userActivation && navigator.userActivation.hasBeenActive) unlockAll();
 
     this.$nextTick(() => {
       const b = this.$refs.body;
@@ -775,6 +800,11 @@ export default {
   beforeUnmount() {
     document.removeEventListener("click", this.onDocClick);
     if (this.stopListenEnded) this.stopListenEnded();
+    if (this._unlockAll) {
+      ["click", "touchstart", "keydown", "pointerdown"].forEach((evt) =>
+        window.removeEventListener(evt, this._unlockAll, { capture: true }),
+      );
+    }
   },
   methods: {
     onDocClick(e) {
@@ -870,11 +900,28 @@ export default {
     },
     playAudio(fileName) {
       const key = fileName.split(".")[0].toLowerCase();
-      const audio =
-        this.audioElements[key] ||
-        new Audio(`/frontend/assets/audio/${key}.MP3`);
+      // reuse primed element — new Audio() tiap play ke-block di iOS
+      let audio = this.audioElements[key];
+      if (!audio) {
+        audio = new Audio(`/frontend/assets/audio/${key}.MP3`);
+        audio.preload = "auto";
+        audio.volume = 0.5;
+        this.audioElements[key] = audio;
+        // prime the new element immediately if already interacted
+        if (navigator.userActivation && navigator.userActivation.hasBeenActive) {
+          const v = audio.volume; audio.volume = 0;
+          audio.play().then(() => { audio.pause(); audio.currentTime = 0; audio.volume = v; }).catch(() => { audio.volume = v; });
+        }
+      }
       audio.currentTime = 0;
-      audio.play().catch(() => {});
+      const p = audio.play();
+      if (p && p.catch) p.catch(() => {
+        // transient activation habis — retry di gesture berikutnya
+        const retry = () => { audio.currentTime = 0; audio.play().catch(() => {}); };
+        ["click", "touchstart", "pointerdown"].forEach((ev) =>
+          window.addEventListener(ev, retry, { capture: true, once: true }),
+        );
+      });
     },
     toggleReactBar(i) {
       this.activeReact = this.activeReact === i ? null : i;
@@ -988,14 +1035,6 @@ export default {
       if (lower.includes("tiktok") || lower.includes(" tt "))
         matched.push(CONTACT_LINKS.tiktok);
       if (
-        lower.includes("whatsapp") ||
-        lower.includes(" wa ") ||
-        lower.includes("nomor") ||
-        lower.includes("telepon") ||
-        lower.includes("hp ")
-      )
-        matched.push(CONTACT_LINKS.whatsapp);
-      if (
         lower.includes("email") ||
         lower.includes("gmail") ||
         lower.includes("e-mail")
@@ -1008,7 +1047,6 @@ export default {
           lower.includes("hubungi"))
       ) {
         return [
-          CONTACT_LINKS.whatsapp,
           CONTACT_LINKS.instagram,
           CONTACT_LINKS.email,
         ];
@@ -1081,6 +1119,9 @@ export default {
     },
     detectAnswer(text) {
       const lower = " " + text.toLowerCase() + " ";
+      // whatsapp paling prioritas — biar singkatan "wa" (word boundary) langsung kejawab lembut
+      if (/\bwa\b/.test(lower) || lower.includes("whatsapp") || lower.includes("whats app") || lower.includes("w a"))
+        return "ansWhatsapp";
       let best = null;
       let bestScore = 0;
       for (const entry of KEYWORD_MAP) {
@@ -1180,6 +1221,38 @@ export default {
     },
     handleUserInput(displayText, forcedAnswerKey) {
       if (!displayText || !displayText.trim()) return;
+      if (displayText.toLowerCase().includes("beton")) {
+        this.addMessage(displayText, "user");
+        this.playAudio("send.mp3");
+        this.saveHistoryEntry(displayText);
+        this.inputText = "";
+        this.$nextTick(() => {
+          const el = this.$refs.input;
+          if (el) el.style.height = "auto";
+        });
+        this.closeMenu();
+
+        let alreadyClaimed = false;
+        try {
+          alreadyClaimed = localStorage.getItem("gh_secret_beton_used") === "1";
+        } catch(e) {}
+
+        if (alreadyClaimed) {
+          this.showTyping(() => {
+            this.addMessage("Secret key \"BETON\" sudah pernah kamu klaim sebelumnya! Cuma bisa dipakai 1x saja ya bre 😉", "bot");
+          });
+        } else {
+          try {
+            localStorage.setItem("gh_secret_beton_used", "1");
+            localStorage.setItem("gh_gameLevel", "10");
+          } catch(e) {}
+          this.showTyping(() => {
+            this.addMessage("WAAH! Secret key \"BETON\" ditemukan! Selamat, kamu resmi naik ke LEVEL 10 RGB RAINBOW di GitHub Contributions! 🔥🌈", "bot");
+            window.dispatchEvent(new CustomEvent("set-github-level-10"));
+          });
+        }
+        return;
+      }
       const now = Date.now();
       const isSpamBurst = (() => {
         this.spamTimes = (this.spamTimes || []).filter((t) => now - t < 4000);

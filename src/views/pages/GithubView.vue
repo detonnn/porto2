@@ -69,8 +69,8 @@
                         <div class="gh-footer">
                             <div class="gh-legend">
                                 <span>less</span>
-                                <svg v-for="lvl in [0, 1, 2, 3, 4]" :key="'lg' + lvl" width="12" height="12">
-                                    <rect width="12" height="12" :rx="cellRx" :fill="colors['level' + lvl]" />
+                                <svg v-for="lvl in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" :key="'lg' + lvl" width="12" height="12">
+                                    <rect width="12" height="12" :rx="cellRx" :fill="lvl === 10 ? '#ff0000' : colors['level' + lvl]" :class="lvl === 10 ? 'gh-legend-rainbow' : ''" />
                                 </svg>
                                 <span>more</span>
 
@@ -106,14 +106,18 @@
 <script>
 import data from '../../data/portfolio.json'
 
-// ── palette lifted from terminal.css so the calendar matches the site's
-//    existing dark / light theme instead of GitHub's default green ──
 const DARK_COLORS = {
     level0: 'rgba(255,255,255,0.05)',
     level1: '#0e2f4a',
     level2: '#3a9ad9',
     level3: '#5ab0e6',
     level4: '#7ec8e3',
+    level5: '#ffa500',
+    level6: '#00cc00',
+    level7: '#ff00ff',
+    level8: '#ffff00',
+    level9: '#00ffff',
+    level10: 'rainbow',
 }
 const LIGHT_COLORS = {
     level0: 'rgba(0,0,0,0.06)',
@@ -121,6 +125,12 @@ const LIGHT_COLORS = {
     level2: '#5ab0e6',
     level3: '#3a9ad9',
     level4: '#1e3a5f',
+    level5: '#ff8c00',
+    level6: '#008000',
+    level7: '#cc00cc',
+    level8: '#cccc00',
+    level9: '#00cccc',
+    level10: 'rainbow',
 }
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -157,7 +167,7 @@ export default {
             total: 0,
             isLight: false,
             gameActive: false,
-            gameLevel: (() => { try { const v = localStorage.getItem('gh_gameLevel'); const n = parseInt(v||'0',10); return Number.isFinite(n) ? Math.min(4, Math.max(0,n)) : 0 } catch(e){ return 0 } })(),
+            gameLevel: (() => { try { const v = localStorage.getItem('gh_gameLevel'); const n = parseInt(v||'0',10); return Number.isFinite(n) ? Math.min(10, Math.max(0,n)) : 0 } catch(e){ return 0 } })(),
             gameAchievement: '',
             cellSize: 12,
             cellGap: 3,
@@ -165,6 +175,7 @@ export default {
             _observer: null,
             _cellLevels: null,
             _rafId: null,
+            _sfx: null,
         }
     },
     computed: {
@@ -237,12 +248,31 @@ export default {
         this._observer = new MutationObserver(this.checkTheme)
         this._observer.observe(document.body, { attributes: true, attributeFilter: ['class'] })
         this.fetchContributions()
+        window.addEventListener('storage', this.checkStorageLevel)
+        window.addEventListener('set-github-level-10', this.forceLevel10)
     },
     beforeUnmount() {
         if (this._observer) this._observer.disconnect()
         this.stopGame()
+        window.removeEventListener('storage', this.checkStorageLevel)
+        window.removeEventListener('set-github-level-10', this.forceLevel10)
     },
     methods: {
+         checkStorageLevel(e) {
+             if (e.key === 'gh_gameLevel') {
+                 const n = parseInt(e.newValue || '0', 10)
+                 if (Number.isFinite(n)) this.gameLevel = Math.min(10, Math.max(0, n))
+             }
+         },
+         forceLevel10() {
+             this.gameLevel = 10
+             try { localStorage.setItem('gh_gameLevel', '10') } catch(e){}
+             this.gameAchievement = `LEVEL 10 UNLOCKED VIA SECRET KEY "BETON"! 🌈`
+             if (this.gameActive) {
+                 this.stopGame()
+                 this.startGame()
+             }
+         },
          checkTheme() {
              const wasLight = this.isLight
              this.isLight = document.body.classList.contains('light-theme')
@@ -279,7 +309,7 @@ export default {
 
                 const byDate = {}
                 days.forEach((d) => {
-                    byDate[d.date] = { level: Math.min(4, Math.max(0, d.level)), count: d.count }
+                    byDate[d.date] = { level: Math.min(10, Math.max(0, d.level)), count: d.count }
                 })
                 this.byDate = byDate
 
@@ -356,6 +386,13 @@ export default {
             this.gameActive = !this.gameActive
             if (this.gameActive) {
                 this.gameAchievement = ''
+                // prime sfx langsung di handler click (masih dalam transient activation)
+                try {
+                    ["shoot","level"].forEach((k) => {
+                        const a = new Audio('/frontend/assets/audio/' + k + '.MP3');
+                        a.volume = 0; a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(()=>{});
+                    });
+                } catch(e) {}
                 this.$nextTick(this.startGame)
             } else {
                 this.stopGame()
@@ -398,23 +435,62 @@ export default {
             const colors = this.colors
             const space = this.spaceTheme
 
+            // ── sound effects: singleton per session, reuse + re-prime biar ga ilang setelah idle ──
+            const sfx = {
+                shoot: new Audio('/frontend/assets/audio/shoot.MP3'),
+                level: new Audio('/frontend/assets/audio/level.MP3'),
+            }
+            sfx.shoot.volume = 0.35
+            sfx.level.volume = 0.55
+            sfx.shoot.preload = "auto"
+            sfx.level.preload = "auto"
+            try { sfx.shoot.load(); sfx.level.load(); } catch(e) {}
+            // prime now (masih dalam click gesture dari toggleGame)
+            Object.values(sfx).forEach((a) => {
+                const v = a.volume; a.volume = 0;
+                a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = v; }).catch(() => { a.volume = v; });
+            });
+            const playSfx = (name) => {
+                const a = sfx[name]
+                if (!a) return
+                a.currentTime = 0
+                const p = a.play()
+                if (p && p.catch) p.catch(() => {
+                    const retry = () => { a.currentTime = 0; a.play().catch(()=>{}); };
+                    ["click","touchstart","pointerdown"].forEach((ev) =>
+                      window.addEventListener(ev, retry, { capture: true, once: true }),
+                    );
+                })
+            }
+            this._sfx = sfx
+
             const cellLevels = new Map()
             this.weeks.forEach((week) => {
                 week.forEach((date) => {
                     if (!date) return
                     const original = (this.byDate[date] && this.byDate[date].level) || 0
-                    const initial = Math.min(4, original + this.gameLevel)
+                    const initial = Math.min(10, original + this.gameLevel)
                     cellLevels.set(date, initial)
                     const rect = document.getElementById('gh-cell-' + date)
-                    if (rect) rect.setAttribute('fill', colors['level' + initial])
+                    if (rect) {
+                        if (initial === 10) {
+                            rect.classList.add('gh-cell-rainbow')
+                        } else {
+                            rect.classList.remove('gh-cell-rainbow')
+                            rect.setAttribute('fill', colors['level' + initial])
+                        }
+                    }
                 })
             })
             this._cellLevels = cellLevels
 
             let isDouble = this.gameLevel >= 4
-            let players = isDouble ? [
+            let players = isDouble || this.gameLevel === 10 ? [
                 { x: width / 2 - 40, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship },
-                { x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship }
+                { x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship },
+                { x: width / 2 - 70, y: height - 25, width: 30, height: 20, speed: 1.8, direction: 1, color: space.ship },
+                { x: width / 2 + 40, y: height - 25, width: 30, height: 20, speed: 2.4, direction: -1, color: space.ship },
+                { x: width / 2 - 105, y: height - 25, width: 30, height: 20, speed: 2.2, direction: 1, color: space.ship },
             ] : [
                 { x: width / 2 - 15, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship }
             ]
@@ -524,25 +600,49 @@ export default {
                 if (isLevelUp) {
                     const prevLevel = this.gameLevel
                     this.gameLevel += 1
-                    if (this.gameLevel > 4) this.gameLevel = 4
+                    if (this.gameLevel > 10) this.gameLevel = 10
                     try { localStorage.setItem('gh_gameLevel', String(this.gameLevel)) } catch(e){}
                     this.gameAchievement = `Level ${this.gameLevel} — Achievement Unlocked!`
+                    playSfx('level')
                     setTimeout(() => { this.gameAchievement = '' }, 2200)
-                    // Lv4: spawn pesawat kedua langsung tanpa refresh
+                    // Lv4: spawn pesawat tambahan langsung tanpa refresh
                     if (prevLevel < 4 && this.gameLevel >= 4 && players.length === 1) {
                         isDouble = true
                         players.push({ x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship })
+                    }
+                    if (this.gameLevel === 10 && players.length < 5) {
+                        isDouble = true
+                        while (players.length < 5) {
+                            const idx = players.length
+                            const xOffsets = [-40, 10, -70, 40, -105]
+                            const speeds = [2, 2.6, 1.8, 2.4, 2.2]
+                            const dirs = [1, -1, 1, -1, 1]
+                            players.push({
+                                x: width / 2 + xOffsets[idx],
+                                y: height - 25,
+                                width: 30,
+                                height: 20,
+                                speed: speeds[idx],
+                                direction: dirs[idx],
+                                color: space.ship
+                            })
+                        }
                     }
                 }
                 this.weeks.forEach((week) => {
                     week.forEach((date) => {
                         if (!date) return
                         const originalLevel = (this.byDate[date] && this.byDate[date].level) || 0
-                        const useLevel = isLevelUp ? Math.min(4, originalLevel + this.gameLevel) : originalLevel
+                        const useLevel = isLevelUp ? Math.min(10, originalLevel + this.gameLevel) : originalLevel
                         cellLevels.set(date, useLevel)
                         const rect = document.getElementById('gh-cell-' + date)
                         if (rect) {
-                            rect.setAttribute('fill', colors['level' + useLevel])
+                            if (useLevel === 10) {
+                                rect.classList.add('gh-cell-rainbow')
+                            } else {
+                                rect.classList.remove('gh-cell-rainbow')
+                                rect.setAttribute('fill', colors['level' + useLevel])
+                            }
                             rect.style.opacity = '1'
                             rect.style.pointerEvents = 'auto'
                         }
@@ -620,11 +720,19 @@ export default {
                             if (bullet.x < cellX + cellSize && bullet.x + bullet.width > cellX &&
                                 bullet.y < cellY + cellSize && bullet.y + bullet.height > cellY) {
                                 bullets.splice(bulletIdx, 1)
-                                const newLevel = currentLevel - 1
-                                cellLevels.set(date, newLevel)
-                                const rect = document.getElementById('gh-cell-' + date)
-                                if (rect) rect.setAttribute('fill', colors['level' + newLevel])
-                                explode(cellX + cellSize / 2, cellY + cellSize / 2, colors['level' + currentLevel])
+                                 const newLevel = currentLevel - 1
+                                 cellLevels.set(date, newLevel)
+                                 const rect = document.getElementById('gh-cell-' + date)
+                                 if (rect) {
+                                     if (newLevel === 10) {
+                                         rect.classList.add('gh-cell-rainbow')
+                                     } else {
+                                         rect.classList.remove('gh-cell-rainbow')
+                                         rect.setAttribute('fill', colors['level' + newLevel])
+                                     }
+                                 }
+                                 explode(cellX + cellSize / 2, cellY + cellSize / 2, currentLevel === 10 ? '#ff0055' : colors['level' + currentLevel])
+                                 playSfx('shoot')
                             }
                         })
                     })
@@ -694,6 +802,10 @@ export default {
              this._onMouseLeave = null
              this._onTouchMove = null
              this._onTouchEnd = null
+             if (this._sfx) {
+                 Object.values(this._sfx).forEach((a) => { a.pause(); a.currentTime = 0 })
+                 this._sfx = null
+             }
              this.weeks.forEach((week) => {
                  week.forEach((date) => {
                      if (!date) return
@@ -785,6 +897,18 @@ export default {
 .gh-achievement { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--green); color: var(--bg); font-size: 13px; font-weight: 800; padding: 8px 14px; border-radius: 8px; box-shadow: 0 4px 16px var(--shadow-color); z-index: 5; animation: gh-ach-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
 @keyframes gh-ach-pop { 0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 .gh-kitty { position: absolute; right: 12px; bottom: 0; width: 210px; height: auto; pointer-events: none; image-rendering: pixelated; opacity: .95; }
+.gh-cell-rainbow, .gh-legend-rainbow {
+    animation: gh-rainbow 2s linear infinite !important;
+}
+@keyframes gh-rainbow {
+    0%   { fill: #ff0000; }
+    17%  { fill: #ff7700; }
+    33%  { fill: #ffff00; }
+    50%  { fill: #00ff00; }
+    67%  { fill: #0099ff; }
+    83%  { fill: #8800ff; }
+    100% { fill: #ff0000; }
+}
 @media (max-width: 768px) { .gh-kitty { right: -6px; } }
 @media (max-width: 480px) { .gh-kitty { right: -10px; } }
 </style>

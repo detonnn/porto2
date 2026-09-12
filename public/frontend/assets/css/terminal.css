@@ -1102,16 +1102,49 @@ body.light-theme .hero-term {
   grid-template-columns: 1fr;
 }
 .skills__content {
+  position: relative;
+  overflow: hidden;
   background: var(--bg-window);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 1rem 1.2rem;
+  padding: 1.1rem 1.3rem;
   margin-bottom: 1.2rem;
-  transition: 0.3s;
+  transition: 0.3s ease;
 }
-.skills__content:hover {
-  border-color: var(--border);
+.skills__content:hover,
+.skills__content.skills__open {
+  border-color: var(--green);
   box-shadow: 0 0 22px var(--shadow-color);
+  padding: 1.35rem 1.6rem;
+}
+/* corner-bracket accent, revealed on hover/open (template-style) */
+.skills__content::before,
+.skills__content::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.skills__content::before {
+  top: 8px;
+  left: 8px;
+  border-top: 2px solid var(--green);
+  border-left: 2px solid var(--green);
+}
+.skills__content::after {
+  bottom: 8px;
+  right: 8px;
+  border-bottom: 2px solid var(--green);
+  border-right: 2px solid var(--green);
+}
+.skills__content:hover::before,
+.skills__content:hover::after,
+.skills__content.skills__open::before,
+.skills__content.skills__open::after {
+  opacity: 1;
 }
 .skills__header {
   display: flex;
@@ -1122,11 +1155,22 @@ body.light-theme .hero-term {
 .skills__icon {
   font-size: 1.5rem;
   color: var(--green);
+  transition: transform 0.3s ease;
+}
+.skills__content:hover .skills__icon,
+.skills__content.skills__open .skills__icon {
+  transform: scale(1.15);
 }
 .skills__header > div h1.skills__titles {
-  font-size: var(--h3-font-size);
+  font-size: clamp(1.3rem, 2.4vw, 1.85rem);
   color: var(--text);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: color 0.3s ease;
+}
+.skills__content:hover .skills__header > div h1.skills__titles,
+.skills__content.skills__open .skills__header > div h1.skills__titles {
+  color: var(--green);
 }
 .skills__header > div h1.skills__titles::before {
   content: "~/ ";
@@ -1136,11 +1180,18 @@ body.light-theme .hero-term {
   font-size: var(--smaller-font-size);
   color: var(--text-dim);
 }
-.skills__arrow {
+.skills__hover-icon {
   margin-left: auto;
   font-size: 1.4rem;
-  color: var(--text-dim);
-  transition: 0.3s;
+  color: var(--green);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.skills__content:hover .skills__hover-icon,
+.skills__content.skills__open .skills__hover-icon {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .skills__list {
@@ -1199,15 +1250,56 @@ body.light-theme .hero-term {
   height: auto;
   opacity: 1;
 }
-.skills__open .skills__arrow {
-  transform: rotate(-180deg);
-  color: var(--green);
-}
-
 /* skill widths are data-driven: each bar sets --lvl via :style from portfolio.json.
-   Bars fill from 0 -> --lvl (with transition) when their accordion panel opens. */
+   Bars fill from 0 -> --lvl (with transition) when their accordion panel opens,
+   then keep nudging past --lvl and bouncing back off an "invisible wall" forever —
+   per-keyframe easing gives the push/rebound its own accel/decel (cartoon squash feel),
+   and each row is staggered so a group's bars don't all bump in unison. */
 .skills__open .skills__percentage {
   width: var(--lvl, 0);
+  animation: skills-bump 2.8s infinite;
+  animation-delay: 1.4s;
+}
+.skills__open .skills__list .skills__data:nth-child(2) .skills__percentage {
+  animation-delay: 1.58s;
+}
+.skills__open .skills__list .skills__data:nth-child(3) .skills__percentage {
+  animation-delay: 1.76s;
+}
+.skills__open .skills__list .skills__data:nth-child(4) .skills__percentage {
+  animation-delay: 1.94s;
+}
+.skills__open .skills__list .skills__data:nth-child(5) .skills__percentage {
+  animation-delay: 2.12s;
+}
+@keyframes skills-bump {
+  0% {
+    width: var(--lvl, 0);
+    box-shadow: 0 0 10px var(--accent-glow);
+    animation-timing-function: cubic-bezier(0.6, 0, 1, 0.45);
+  }
+  14% {
+    width: calc(var(--lvl, 0) + 4%);
+    box-shadow: 0 0 20px var(--accent-glow);
+    animation-timing-function: cubic-bezier(0, 0.55, 0.4, 1);
+  }
+  27% {
+    width: calc(var(--lvl, 0) - 2.5%);
+    box-shadow: 0 0 10px var(--accent-glow);
+    animation-timing-function: cubic-bezier(0.6, 0, 1, 0.45);
+  }
+  40% {
+    width: calc(var(--lvl, 0) + 2%);
+    animation-timing-function: cubic-bezier(0, 0.55, 0.4, 1);
+  }
+  52% {
+    width: calc(var(--lvl, 0) - 1%);
+    animation-timing-function: ease-out;
+  }
+  62%, 100% {
+    width: var(--lvl, 0);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
 }
 
 @media screen and (min-width: 768px) {
@@ -1540,9 +1632,7 @@ body.light-theme .github__day[data-level="4"] {
   margin-bottom: 1rem;
 }
 .services__modal-title::before {
-  content: "man ";
-  color: var(--text-faint);
-  font-weight: 400;
+  content: "";
 }
 .services__modal-close {
   position: absolute;
@@ -2147,38 +2237,6 @@ body.light-theme .contact__form {
 .button--error.shake {
   animation: shake 0.4s ease;
 }
-.whatsapp-float {
-  position: fixed;
-  right: 1rem;
-  bottom: 1.3rem;
-  width: 52px;
-  height: 52px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #25d366;
-  color: #04101a;
-  border-radius: 50%;
-  font-size: 1.8rem;
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
-  z-index: var(--z-tooltip);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  animation: waPulse 2.4s ease-in-out infinite;
-}
-.whatsapp-float:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 28px rgba(37, 211, 102, 0.7);
-}
-@keyframes waPulse {
-  0%,
-  100% {
-    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
-  }
-  50% {
-    box-shadow: 0 6px 28px rgba(37, 211, 102, 0.75);
-  }
-}
-
 @keyframes shake {
   0%,
   100% {
