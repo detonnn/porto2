@@ -208,10 +208,22 @@ export default {
             else { mouse = { x: null, y: null }; ctx.clearRect(0,0,canvas.width,canvas.height) }
         }
         const onLeave = () => { isInsideHome = false; mouse = { x: null, y: null }; ctx.clearRect(0,0,canvas.width,canvas.height) }
+        const onScroll = () => {
+            if (isCoarse || mouse.x === null || document.hidden) return
+            const r = home.getBoundingClientRect()
+            const stillInside = mouse.x >= r.left && mouse.x <= r.right && mouse.y >= r.top && mouse.y <= r.bottom
+            if (stillInside !== isInsideHome) {
+                isInsideHome = stillInside
+                if (!stillInside) { ctx.clearRect(0,0,canvas.width,canvas.height); return }
+            }
+            if (isInsideHome) scheduleDraw()
+        }
 
         // throttle mousemove 30fps di mobile sudah via isCoarse guard, desktop rAF throttle
         window.addEventListener('mousemove', onMove, { passive: true })
         window.addEventListener('resize', resize)
+        window.addEventListener('scroll', onScroll, { passive: true })
+        if (window.lenis && typeof window.lenis.on === 'function') window.lenis.on('scroll', onScroll)
         home.addEventListener('mouseleave', onLeave)
         // kalau pointer masuk navbar (fixed header) arrow otomatis hilang karena isInsideHome=false, tapi jaga-jaga:
         const header = document.getElementById('header')
@@ -221,6 +233,8 @@ export default {
             if (rafId) cancelAnimationFrame(rafId)
             window.removeEventListener('mousemove', onMove)
             window.removeEventListener('resize', resize)
+            window.removeEventListener('scroll', onScroll)
+            if (window.lenis && typeof window.lenis.off === 'function') try { window.lenis.off('scroll', onScroll) } catch(e) {}
             document.removeEventListener('visibilitychange', onVis)
             home.removeEventListener('mouseleave', onLeave)
             if (header) header.removeEventListener('mouseenter', onLeave)

@@ -276,8 +276,7 @@ export default {
     if (this._reduced) { this.showMute = true; return; } // skip notif di reduced-motion
     const revealMute = () => { this.showMute = true; };
     const tryStart = () => {
-      const base = this._isCoarse ? 8000 : 2000;
-      this.scheduleNext(base + Math.random() * 1500);
+      this.scheduleNext(2000 + Math.random() * 1500);
       revealMute();
     };
     const loader = document.getElementById("app-loader");
@@ -302,11 +301,13 @@ export default {
     // ponytail: reuse satu Audio biar ga bikin new Audio tiap notif (iOS block per-element)
     this._notifAudio = new Audio(NOTIF_SOUND);
     this._notifAudio.volume = 0.6;
-    this._notifAudio.preload = "none";
+    this._notifAudio.preload = "auto";
+    try { this._notifAudio.load(); } catch(e) {}
     // dummy untuk keep-alive tanpa ganggu _notifAudio yang lagi play
     this._primeDummy = new Audio(NOTIF_SOUND);
     this._primeDummy.volume = 0;
-    this._primeDummy.preload = "none";
+    this._primeDummy.preload = "auto";
+    try { this._primeDummy.load(); } catch(e) {}
     this._primed = false;
     this._unlockAudio = () => {
       try {
