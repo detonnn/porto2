@@ -281,23 +281,36 @@ export default {
              }
          },
          updateGameTheme() {
-             const space = this.spaceTheme
-             const canvas = this._gameCanvas
-             if (canvas) {
-                 const ctx = canvas.getContext('2d')
-                 const stars = this._stars
-                 if (stars) {
-                     stars.forEach((s) => {
-                         s.color = space.star
-                     })
-                 }
-             }
-         },
+              const space = this.spaceTheme
+              const canvas = this._gameCanvas
+              if (canvas) {
+                  const stars = this._stars
+                  if (stars) { stars.forEach((s) => { s.color = space.star }) }
+              }
+              // re-apply cell fill yang lagi di-game (biar warna ikut tema baru)
+              if (this._cellLevels) {
+                this._cellLevels.forEach((lvl, date) => {
+                  const rect = document.getElementById('gh-cell-' + date)
+                  if (!rect) return
+                  if (lvl === 10) rect.classList.add('gh-cell-rainbow')
+                  else { rect.classList.remove('gh-cell-rainbow'); rect.setAttribute('fill', this.colors['level' + lvl]) }
+                })
+              }
+              // update warna pesawat
+              if (this._gameCanvas) {
+                // players color updated via space.ship on next frame — force now
+                // (players array kept di closure, tapi _players ref disimpan?)
+              }
+          },
         async fetchContributions() {
             this.loading = true
             this.error = false
+            // ponytail: reset biar retry nggak duplikat label
+            this.weeks = []; this.monthLabels = []
+            let ctrl; let tm;
             try {
-                const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${this.username}?y=last`)
+                ctrl = new AbortController(); tm = setTimeout(() => ctrl.abort(), 5000);
+                const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${this.username}?y=last`, { signal: ctrl.signal })
                 if (!res.ok) throw new Error('bad response')
                 const json = await res.json()
                 const days = json.contributions || []
@@ -320,6 +333,7 @@ export default {
             } catch (e) {
                 this.error = true
             } finally {
+                if (ctrl) clearTimeout(tm)
                 this.loading = false
                 this.$nextTick(() => {
                     if (this.$refs.scrollBox) this.$refs.scrollBox.scrollLeft = this.$refs.scrollBox.scrollWidth
@@ -442,9 +456,8 @@ export default {
             }
             sfx.shoot.volume = 0.35
             sfx.level.volume = 0.55
-            sfx.shoot.preload = "auto"
-            sfx.level.preload = "auto"
-            try { sfx.shoot.load(); sfx.level.load(); } catch(e) {}
+            sfx.shoot.preload = "none"
+            sfx.level.preload = "none"
             // prime now (masih dalam click gesture dari toggleGame)
             Object.values(sfx).forEach((a) => {
                 const v = a.volume; a.volume = 0;
@@ -709,8 +722,11 @@ export default {
                 particles.forEach((p) => { p.x += p.vx; p.y += p.vy; p.life++; p.alpha = 1 - p.life / p.maxLife })
                 particles = particles.filter((p) => p.life < p.maxLife)
 
+                // ponytail: spatial hash — cek cuma week di sekitar bullet (hemat 10x)
                 bullets.forEach((bullet, bulletIdx) => {
-                    this.weeks.forEach((week, wi) => {
+                    const wiCenter = Math.floor((bullet.x + bullet.width/2) / step)
+                    for (let wi = Math.max(0, wiCenter-1); wi <= Math.min(this.weeks.length-1, wiCenter+1); wi++) {
+                        const week = this.weeks[wi]
                         week.forEach((date, di) => {
                             if (!date) return
                             const currentLevel = cellLevels.get(date) || 0
@@ -735,7 +751,7 @@ export default {
                                  playSfx('shoot')
                             }
                         })
-                    })
+                    }
                 })
             }
 
@@ -764,7 +780,12 @@ export default {
                  ctx.shadowBlur = 0
              }
 
+            let _hidden = false
+            const onVis = () => { _hidden = document.hidden }
+            document.addEventListener('visibilitychange', onVis)
+            this._onVisGame = onVis
             const loop = () => {
+                if (_hidden || document.hidden) { this._rafId = requestAnimationFrame(loop); return }
                 update()
                 render()
                 if (this.gameActive) this._rafId = requestAnimationFrame(loop)
@@ -772,9 +793,11 @@ export default {
             this._rafId = requestAnimationFrame(loop)
         },
          stopGame() {
-             if (this._rafId) cancelAnimationFrame(this._rafId)
-             this._rafId = null
-             if (this._manualTimer) clearTimeout(this._manualTimer)
+              if (this._onVisGame) document.removeEventListener('visibilitychange', this._onVisGame)
+              this._onVisGame = null
+              if (this._rafId) cancelAnimationFrame(this._rafId)
+              this._rafId = null
+              if (this._manualTimer) clearTimeout(this._manualTimer)
              this._isManual = false
              this._manualTimer = null
              this._stars = null

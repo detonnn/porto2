@@ -8,15 +8,30 @@
 //   UPSTASH_REDIS_REST_TOKEN
 
 const COUNT_KEY = 'porto2:visitor_count';
-
+// ponytail: simple in-memory rate-limit (per lambda instance) — cegah spam INCR
+const _rl = new Map();
+function rateLimited(ip) {
+  const now = Date.now();
+  const last = _rl.get(ip) || 0;
+  if (now - last < 10000) return true;
+  _rl.set(ip, now);
+  // cleanup old entries biar gak bocor memori
+  if (_rl.size > 500) { for (const [k,v] of _rl) if (now - v > 60000) _rl.delete(k); }
+  return false;
+}
 async function redis(pathParts, redisUrl, redisToken) {
   const url = `${redisUrl}/${pathParts.map(encodeURIComponent).join('/')}`;
-  const r = await fetch(url, {
-    headers: { Authorization: `Bearer ${redisToken}` },
-  });
-  if (!r.ok) throw new Error(`Redis error ${r.status}`);
-  const data = await r.json();
-  return data.result;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 4000);
+  try {
+    const r = await fetch(url, {
+      headers: { Authorization: `Bearer ${redisToken}` },
+      signal: ctrl.signal,
+    });
+    if (!r.ok) throw new Error(`Redis error ${r.status}`);
+    const data = await r.json();
+    return data.result;
+  } finally { clearTimeout(t); }
 }
 
 export default async function handler(req, res) {
@@ -33,7 +48,8 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'POST') {
-      // dipanggil sekali per browser (lihat VisitorCounter.vue) buat nambah counter
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'anon';
+      if (rateLimited(ip)) return res.status(429).json({ error: 'Terlalu sering, coba lagi 10 detik' });
       const count = await redis(['incr', COUNT_KEY], REDIS_URL, REDIS_TOKEN);
       return res.status(200).json({ count });
     }

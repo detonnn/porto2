@@ -5,13 +5,13 @@
 
         <div class="contact__container container grid">
             <div>
-                <a v-for="(info, i) in contact.items" :key="i" class="contact__information" :href="contactHref(info)" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+                <component v-for="(info, i) in contact.items" :key="i" :is="contactHref(info) ? 'a' : 'div'" class="contact__information" :href="contactHref(info) || undefined" :target="contactHref(info) ? '_blank' : undefined" :rel="contactHref(info) ? 'noopener' : undefined" style="text-decoration:none;color:inherit">
                     <i class="uil contact__icon" :class="info.icon"></i>
                     <div>
                         <h3 class="contact__title">{{ info.title }}</h3>
-                        <span class="contact__subtitle">{{ info.value }}</span>
+                        <span class="contact__subtitle" style="word-break:break-word;overflow-wrap:anywhere">{{ info.value }}</span>
                     </div>
-                </a>
+                </component>
             </div>
 
             <form class="contact__form grid" @submit.prevent="send" novalidate>
@@ -69,7 +69,8 @@ export default {
         contactHref(info) {
             if (info.href) return info.href
             if (info.icon.includes('envelope') || info.title.toLowerCase().includes('email')) return 'mailto:' + info.value
-            return '#'
+            if (info.icon.includes('github')) return info.href || '#'
+            return null
         },
         triggerError(msg) {
             this.error = msg; this.showError = true; this.shake = true

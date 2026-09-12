@@ -39,14 +39,15 @@ const skillsContent = document.getElementsByClassName("skills__content"),
   skillsHeader = document.querySelectorAll(".skills__header");
 
 function toggleSkills() {
-  let itemClass = this.parentNode.className;
-
+  const parent = this.parentNode;
+  const wasClosed = parent.classList.contains("skills__close");
   for (let i = 0; i < skillsContent.length; i++) {
-    skillsContent[i].className = "skills__content skills__close";
+    skillsContent[i].classList.remove("skills__open");
+    skillsContent[i].classList.add("skills__close");
   }
-
-  if (itemClass === "skills__content skills__close") {
-    this.parentNode.className = "skills__content skills__open";
+  if (wasClosed) {
+    parent.classList.remove("skills__close");
+    parent.classList.add("skills__open");
   }
 }
 skillsHeader.forEach((el) => el.addEventListener("click", toggleSkills));
@@ -119,9 +120,12 @@ if (typeof Swiper !== "undefined") {
 }
 
 let ticking = false;
+let lastActive = 0;
 function scrollActive() {
+  const now = Date.now();
+  if (now - lastActive < 100) return; // throttle 100ms
+  lastActive = now;
   const y = window.pageYOffset;
-  // query fresh tiap frame — cache basi kalau Vue/HMR ganti node section (portfolio pernah kena ini)
   document.querySelectorAll("section[id]").forEach((s) => {
     const h = s.offsetHeight,
       top = s.offsetTop - 72,
@@ -132,13 +136,6 @@ function scrollActive() {
   });
 }
 function onScroll() {
-  // Play send sound when sending a message
-  // This is a placeholder, the actual message sending logic should be identified and updated
-  // Example: if (isUserMessage) { playAudio('send.mp3'); }
-
-  // Play receive sound when receiving a message
-  // This is a placeholder, the actual message receiving logic should be identified and updated
-  // Example: if (isAssistantMessage) { playAudio('recive.mp3'); }
   if (!ticking) {
     ticking = true;
     requestAnimationFrame(() => {
@@ -148,7 +145,11 @@ function onScroll() {
     });
   }
 }
-window.addEventListener("scroll", onScroll, { passive: true });
+const _isCoarseScroll = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+if (!_isCoarseScroll) window.addEventListener("scroll", onScroll, { passive: true });
+else { // coarse: throttle lebih jarang pakai timeout
+  let t; window.addEventListener("scroll", () => { clearTimeout(t); t=setTimeout(()=>{scrollActive();scrollHeader()},120) }, { passive: true });
+}
 
 function scrollHeader() {
   const nav = document.getElementById("header");
@@ -394,7 +395,8 @@ function initReveal() {
   const prefersReduced =
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (prefersReduced) return; // respect user's motion setting, let native scroll handle it
+  const isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  if (prefersReduced || isCoarse) return; // HP / reduce-motion → native scroll aja, hemat
   if (typeof Lenis === "undefined") {
     console.warn("[LENIS] Library tidak ditemukan, fallback ke native scroll.");
     return;

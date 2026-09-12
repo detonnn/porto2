@@ -747,14 +747,15 @@ export default {
     this.stopListenEnded = onTrackEnded(this.handleTrackEnded);
     document.addEventListener("click", this.onDocClick);
 
-    // Pre-initialize audio elements to unlock them globally
+    // Pre-initialize audio elements — send/recive butuh bunyi instan, jangan preload none
     this.audioElements = {
       send: new Audio("/frontend/assets/audio/send.MP3"),
       recive: new Audio("/frontend/assets/audio/recive.MP3"),
     };
     Object.values(this.audioElements).forEach((a) => {
       a.volume = 0.5;
-      a.load();
+      a.preload = "auto";
+      try { a.load(); } catch(e) {}
     });
 
     // ponytail: unlock pakai dummy biar gak ganggu send/recive yang lagi play di bubble yang sama
@@ -810,7 +811,7 @@ export default {
     onDocClick(e) {
       const menuWrap = this.$refs.menuWrap;
       if (menuWrap && !menuWrap.contains(e.target)) this.menuOpen = false;
-      if (e.target.closest && !e.target.closest(".chatbot-msg"))
+      if (e.target.closest && !e.target.closest(".chatbot-msg") && !e.target.closest(".chatbot-react-bar"))
         this.activeReact = null;
       // Klik tombol ganti tema jangan nutup widget assistant
       if (e.target.closest && e.target.closest("#theme-button")) return;
@@ -1119,9 +1120,12 @@ export default {
     },
     detectAnswer(text) {
       const lower = " " + text.toLowerCase() + " ";
-      // whatsapp paling prioritas — biar singkatan "wa" (word boundary) langsung kejawab lembut
-      if (/\bwa\b/.test(lower) || lower.includes("whatsapp") || lower.includes("whats app") || lower.includes("w a"))
-        return "ansWhatsapp";
+      const isWhatsapp = /\bwa\b/.test(lower) || lower.includes("whatsapp") || lower.includes("whats app") || lower.includes("w a");
+      if (isWhatsapp) {
+        // jangan override kalau user jelas mau nav: "bawa ke about" bukan "wa"
+        const navHit = ["bawa ke", "arahin ke", "ke about", "ke skills", "ke portfolio", "ke contact", "ke home"].some(k => lower.includes(k) && k !== "wa");
+        if (!navHit || lower.includes("whatsapp") || lower.includes("wa ")) return "ansWhatsapp";
+      }
       let best = null;
       let bestScore = 0;
       for (const entry of KEYWORD_MAP) {
@@ -1257,7 +1261,7 @@ export default {
       const isSpamBurst = (() => {
         this.spamTimes = (this.spamTimes || []).filter((t) => now - t < 4000);
         this.spamTimes.push(now);
-        return this.spamTimes.length > 3;
+        return this.spamTimes.length > 4;
       })();
       const isSpam = this.typing || isSpamBurst;
       if (isSpam) {
@@ -1328,12 +1332,18 @@ export default {
 <style scoped>
 .chatbot-msg.bot {
   position: relative;
+  overflow: visible;
+}
+.chatbot-msg {
+  overflow: visible;
 }
 /* ponytail: scale di row (bukan bubble) biar gak tabrakan sama entrance animation bubble */
 .chatbot-msg-row {
   display: flex;
   width: 100%;
   position: relative;
+  overflow: visible;
+  z-index: 1;
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
     opacity 0.25s ease;
 }
@@ -1347,6 +1357,7 @@ export default {
 }
 .chatbot-msg-row.focused {
   transform: scale(1.07);
+  z-index: 10;
 }
 .chatbot-msg-row.focused .chatbot-msg {
   border-color: var(--green);
@@ -1371,7 +1382,8 @@ export default {
   background: #000000;
   border: 1px solid var(--border);
   box-shadow: none;
-  z-index: 12;
+  z-index: 20;
+  pointer-events: auto;
   animation: chatbotMsgIn 0.25s ease both;
 }
 .chatbot-react-bar--below {

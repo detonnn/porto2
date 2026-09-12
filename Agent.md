@@ -6,20 +6,15 @@ and server (`server/`) components.
 
 ## Build & Commands
 
-- Typecheck and lint everything: `pnpm check`
-- Fix linting/formatting: `pnpm check:fix`
-- Run tests: `pnpm test --run --no-color`
-- Run single test: `pnpm test --run src/file.test.ts`
-- Start development server: `pnpm dev`
-- Build for production: `pnpm build`
-- Preview production build: `pnpm preview`
+- Build: `npm run build`
+- Dev: `npm run serve` (Vue CLI)
+- Lint: `npm run lint` (jika tersedia)
 
 ### Development Environment
 
-- Frontend dev server: http://localhost:3000
-- Backend dev server: http://localhost:3001
-- Database runs on port 5432
-- Redis cache on port 6379
+- Vue CLI dev server: http://localhost:8080
+- API: Vercel serverless `/api/*`
+- Redis: Upstash REST
 
 ## Code Style
 
@@ -48,13 +43,11 @@ and server (`server/`) components.
 
 ## Architecture
 
-- Frontend: React with TypeScript
-- Backend: Express.js with TypeScript
-- Database: PostgreSQL with Prisma ORM
-- State management: Zustand
-- Styling: Tailwind CSS
-- Build tool: Vite
-- Package manager: pnpm
+- Frontend: Vue 3 + Vue Router + Vuex
+- Styling: Tailwind CSS + terminal.css
+- Build tool: Vue CLI
+- Package manager: npm
+- API: Vercel serverless (visitors, chat)
 
 ## Security
 
@@ -68,9 +61,7 @@ and server (`server/`) components.
 
 ## Git Workflow
 
-- ALWAYS run `pnpm check` before committing
-- Fix linting errors with `pnpm check:fix`
-- Run `pnpm build` to verify typecheck passes
+- ALWAYS run `npm run build` before committing
 - NEVER use `git push --force` on the main branch
 - Use `git push --force-with-lease` for feature branches if needed
 - Always verify current branch before force operations

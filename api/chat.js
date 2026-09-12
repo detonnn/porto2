@@ -46,7 +46,9 @@ export default async function handler(req, res) {
       const url = process.env.UPSTASH_REDIS_REST_URL;
       const token = process.env.UPSTASH_REDIS_REST_TOKEN;
       if (url && token) {
-        const r = await fetch(`${url}/get/porto2:visitor_count`, { headers: { Authorization: `Bearer ${token}` } });
+        const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 3500);
+        const r = await fetch(`${url}/get/porto2:visitor_count`, { headers: { Authorization: `Bearer ${token}` }, signal: ctrl.signal });
+        clearTimeout(t);
         const j = await r.json();
         const c = j.result ? parseInt(j.result, 10) : 0;
         return res.status(200).json({ reply: `Portfolio ini sudah dikunjungi ${c.toLocaleString('id-ID')} orang — kamu salah satunya!` });

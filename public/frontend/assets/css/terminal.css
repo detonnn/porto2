@@ -211,6 +211,17 @@ body::before {
 html.is-scrolling body::before {
   animation-play-state: paused;
 }
+@media (max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  body::before { animation: none !important; }
+  body::after { display: none !important; }
+  .header { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  .hero-term { animation: none !important; }
+  .footer__glow-blob { filter: blur(24px) !important; }
+}
+@media (max-width: 768px) {
+  .footer__glow-blob--a { width: 200px; height: 200px; }
+  .footer__glow-blob--b { width: 180px; height: 180px; }
+}
 /* faint scanlines */
 body::after {
   content: "";
@@ -1631,9 +1642,7 @@ body.light-theme .github__day[data-level="4"] {
   color: var(--green);
   margin-bottom: 1rem;
 }
-.services__modal-title::before {
-  content: "";
-}
+
 .services__modal-close {
   position: absolute;
   top: 0.9rem;
@@ -2865,6 +2874,7 @@ body.light-theme .chatbot-menu-item:hover {
   border-radius: 14px;
   font-size: 12.5px;
   line-height: 1.5;
+  font-family: var(--body-font), "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
   animation: chatbotMsgIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 

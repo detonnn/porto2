@@ -4,7 +4,7 @@
     <span class="visitor-badge__count">{{ displayCount }}</span>
     <span class="visitor-badge__label">people</span>
   </div>
-</template>ub
+</template>
 
 <script>
 export default {
@@ -24,11 +24,12 @@ export default {
   },
   async mounted() {
     await this.registerVisit();
-    // polling ringan buat kesan realtime (angka naik kalau ada visitor lain)
-    this.pollTimer = setInterval(this.fetchCount, 10000);
+    this.pollTimer = setInterval(() => { if (!document.hidden) this.fetchCount() }, 10000);
+    document.addEventListener('visibilitychange', this._onVis = () => { if (!document.hidden) this.fetchCount() });
   },
   beforeUnmount() {
     clearInterval(this.pollTimer);
+    if (this._onVis) document.removeEventListener('visibilitychange', this._onVis);
   },
   methods: {
     async registerVisit() {

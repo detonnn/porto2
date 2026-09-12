@@ -204,7 +204,8 @@ export default {
     },
     triggerThrow(direction) {
       if (this.throwing || this.dragging) return;
-      this.commitThrowDown(direction === "left");
+      // arrow kanan = next (forward), kiri = back — sebelumnya kebalik
+      this.commitThrowDown(direction === "right");
     },
     commitThrowDown(forward) {
       this.throwing = "down";

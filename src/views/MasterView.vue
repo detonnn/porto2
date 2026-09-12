@@ -47,20 +47,22 @@
 
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import Headerr from './pages/HeaderrView.vue';
 import Home from './pages/HomeView.vue';
 import About from './pages/AboutView.vue';
 import Skills from './pages/SkillsView.vue';
-import Github from './pages/GithubView.vue';
 import Qualification from './pages/QualificationView.vue';
 import Services from './pages/ServicesView.vue';
-import Portfolio from './pages/PortfolioView.vue';
 import Project from './pages/ProjectView.vue';
 import Testimonial from './pages/TestimonialView.vue';
 import Contact from './pages/ContactView.vue';
 import Footerr from './pages/FooterView.vue';
-import AiAssistant from '../components/AiAssistant.vue';
-import LiveNotifications from '../components/LiveNotifications.vue';
+// ponytail: lazy heavy chunks — github/portfolio/ai/notif berat, split biar initial load enteng
+const Github = defineAsyncComponent(() => import('./pages/GithubView.vue'))
+const Portfolio = defineAsyncComponent(() => import('./pages/PortfolioView.vue'))
+const AiAssistant = defineAsyncComponent(() => import('../components/AiAssistant.vue'))
+const LiveNotifications = defineAsyncComponent(() => import('../components/LiveNotifications.vue'))
 
 export default {
     components: {Headerr, Home, About, Skills, Github, Qualification, Services, Portfolio, Project, Testimonial, Contact, Footerr, AiAssistant, LiveNotifications},

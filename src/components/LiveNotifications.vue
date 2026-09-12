@@ -191,13 +191,13 @@ let _lastMsg = "";
 let _lastName = "";
 function pull(pool, source, last) {
   if (pool.length === 0) pool.push(...shuffle([...source]));
-  // hindari ngulang di boundary shuffle (last item shuffle lama == first item shuffle baru)
-  if (last && pool[pool.length - 1] === last && pool.length > 1) {
-    // swap last dengan random tengah
+  const lastVal = typeof last === 'string' ? last : last?.label || last?.id || '';
+  const peek = pool[pool.length - 1];
+  const peekVal = typeof peek === 'string' ? peek : peek?.label || peek?.id || peek;
+  if (lastVal && peekVal === lastVal && pool.length > 1) {
     const k = Math.floor(Math.random() * (pool.length - 1));
     [pool[pool.length - 1], pool[k]] = [pool[k], pool[pool.length - 1]];
   }
-  // kalau pool berisi object (NAV), bandingkan by label/id
   return pool.pop();
 }
 
@@ -271,13 +271,13 @@ export default {
     try {
       this.isMuted = localStorage.getItem("live_notif_muted") === "1";
     } catch (e) {}
-    // mute btn masuk barengan nav (setelah loader hilang, sama timing kayak notif)
-    const revealMute = () => {
-      this.showMute = true;
-    };
-    // jangan spawn saat loader "hello" masih nutupin layar (~4.5-7s)
+    this._isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    this._reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (this._reduced) { this.showMute = true; return; } // skip notif di reduced-motion
+    const revealMute = () => { this.showMute = true; };
     const tryStart = () => {
-      this.scheduleNext(2000 + Math.random() * 1500);
+      const base = this._isCoarse ? 8000 : 2000;
+      this.scheduleNext(base + Math.random() * 1500);
       revealMute();
     };
     const loader = document.getElementById("app-loader");
@@ -302,13 +302,11 @@ export default {
     // ponytail: reuse satu Audio biar ga bikin new Audio tiap notif (iOS block per-element)
     this._notifAudio = new Audio(NOTIF_SOUND);
     this._notifAudio.volume = 0.6;
-    this._notifAudio.preload = "auto";
-    try { this._notifAudio.load(); } catch (e) {}
+    this._notifAudio.preload = "none";
     // dummy untuk keep-alive tanpa ganggu _notifAudio yang lagi play
     this._primeDummy = new Audio(NOTIF_SOUND);
     this._primeDummy.volume = 0;
-    this._primeDummy.preload = "auto";
-    try { this._primeDummy.load(); } catch(e) {}
+    this._primeDummy.preload = "none";
     this._primed = false;
     this._unlockAudio = () => {
       try {
@@ -334,11 +332,14 @@ export default {
       if (!this.isExpanded || !this.current) return;
       if (!e.target.closest || !e.target.closest(".live-notif")) this.dismiss();
     };
+    this._onVis = () => { if (!document.hidden) this.scheduleNext(1500); else { clearTimeout(this.spawnTimer); clearTimeout(this.hideTimer); this.current=null } };
+    document.addEventListener("visibilitychange", this._onVis);
     document.addEventListener("click", this._onDocClick);
   },
   beforeUnmount() {
     clearTimeout(this.spawnTimer);
     clearTimeout(this.hideTimer);
+    if (this._onVis) document.removeEventListener("visibilitychange", this._onVis);
     if (this._onDocClick)
       document.removeEventListener("click", this._onDocClick);
     if (this._unlockAudio)
@@ -346,24 +347,25 @@ export default {
         window.removeEventListener(ev, this._unlockAudio, { capture: true }),
       );
   },
-  methods: {
+    methods: {
     scheduleNext(delay) {
+      if (document.hidden) { clearTimeout(this.spawnTimer); this.spawnTimer = setTimeout(() => this.scheduleNext(delay), 2000); return; }
       clearTimeout(this.spawnTimer);
       let wait;
       if (delay != null) wait = delay;
       else {
-        // 30% burst: jeda pendek 1.2-3s (kesan dobel), 70% jeda normal 4-14s
-        const isBurst = Math.random() < 0.3;
+        const coarse = this._isCoarse;
+        const burstRate = coarse ? 0.1 : 0.3;
+        const isBurst = Math.random() < burstRate;
         wait = isBurst
-          ? 1200 + Math.random() * 1800
-          : 4000 + Math.random() * 10000;
-        // jitter ±20% biar ga beritme
+          ? (coarse ? 3000 : 1200) + Math.random() * 1800
+          : (coarse ? 8000 : 4000) + Math.random() * (coarse ? 6000 : 10000);
         wait *= 0.8 + Math.random() * 0.4;
       }
       this.spawnTimer = setTimeout(this.spawn, wait);
     },
      spawn() {
-       if (this.isMuted) {
+       if (this.isMuted || document.hidden || this._reduced) {
          this.scheduleNext();
          return;
        }
@@ -551,12 +553,12 @@ body.light-theme .live-notif__msg {
   color: #555;
 }
 
-/* mute toggle — kiri atas, masuk barengan nav (fixed) */
+/* mute toggle — kiri atas, masuk barengan nav (fixed) — z-index di atas live-notif biar gak ketutup */
 .notif-mute-btn {
   position: fixed;
   top: calc(var(--header-height) / 2 - 16px);
   left: 1.25rem;
-  z-index: 101;
+  z-index: 102;
   width: 32px;
   height: 32px;
   border-radius: 50%;

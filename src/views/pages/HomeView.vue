@@ -189,19 +189,28 @@ export default {
             ctx.stroke()
         }
 
-        const loop = () => { draw(); rafId = requestAnimationFrame(loop) }
-        loop()
+        // ponytail: event-driven draw, tanpa RAF loop tiap frame — hemat CPU
+        const isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches
+        let ticking = false
+        const scheduleDraw = () => {
+            if (ticking || document.hidden) return
+            ticking = true
+            rafId = requestAnimationFrame(() => { ticking = false; draw() })
+        }
+        const onVis = () => { if (document.hidden) { isInsideHome = false; mouse = { x: null, y: null }; ctx.clearRect(0,0,canvas.width,canvas.height) } }
+        document.addEventListener('visibilitychange', onVis)
 
         const onMove = (e) => {
+            if (isCoarse) return
             const r = home.getBoundingClientRect()
-            // hanya aktif kalau mouse di dalam #home section (bukan navbar, bukan section lain)
             isInsideHome = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom
-            if (isInsideHome) { mouse = { x: e.clientX, y: e.clientY } }
-            else { mouse = { x: null, y: null } }
+            if (isInsideHome) { mouse = { x: e.clientX, y: e.clientY }; scheduleDraw() }
+            else { mouse = { x: null, y: null }; ctx.clearRect(0,0,canvas.width,canvas.height) }
         }
-        const onLeave = () => { isInsideHome = false; mouse = { x: null, y: null } }
+        const onLeave = () => { isInsideHome = false; mouse = { x: null, y: null }; ctx.clearRect(0,0,canvas.width,canvas.height) }
 
-        window.addEventListener('mousemove', onMove)
+        // throttle mousemove 30fps di mobile sudah via isCoarse guard, desktop rAF throttle
+        window.addEventListener('mousemove', onMove, { passive: true })
         window.addEventListener('resize', resize)
         home.addEventListener('mouseleave', onLeave)
         // kalau pointer masuk navbar (fixed header) arrow otomatis hilang karena isInsideHome=false, tapi jaga-jaga:
@@ -209,9 +218,10 @@ export default {
         if (header) header.addEventListener('mouseenter', onLeave)
 
         this._arrowCleanup = () => {
-            cancelAnimationFrame(rafId)
+            if (rafId) cancelAnimationFrame(rafId)
             window.removeEventListener('mousemove', onMove)
             window.removeEventListener('resize', resize)
+            document.removeEventListener('visibilitychange', onVis)
             home.removeEventListener('mouseleave', onLeave)
             if (header) header.removeEventListener('mouseenter', onLeave)
             mo.disconnect()
