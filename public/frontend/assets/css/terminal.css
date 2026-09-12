@@ -128,26 +128,38 @@ body.light-theme {
   z-index: 2;
 }
 ::view-transition-group(root) {
-  animation-duration: 0.72s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-duration: 1.9s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ponytail: widget ikut ke-wipe diagonal bareng root — jangan di-isolate lagi biar line switch nyapu widget juga */
+/* ponytail: freeze view-transition bikin semua ketahan — kecuali toggle biar spin tetep keliatan */
+#theme-button,
+.change-theme {
+  view-transition-name: none;
+}
 .chatbot-widget,
 .chatbot-widget.open {
   view-transition-name: none;
 }
 
-/* Fallback smooth untuk browser tanpa ViewTransition — warna nge-blend 0.5s */
+/* Fallback smooth untuk browser tanpa ViewTransition — warna nge-blend 1.5s super slow */
 body,
 .header,
 .term-window,
 .skills__content,
 .services__content,
-.footer__bg {
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+.footer__bg,
+.nav__menu,
+.button,
+.contact__form,
+.contact__information,
+.github__day,
+.chatbot-panel,
+.chatbot-header {
+  transition: background-color 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+    color 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 1.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -284,6 +296,11 @@ textarea {
   display: flex;
   justify-content: center;
 }
+/* ponytail: angkat teks whoami/cat about.md sedikit tanpa menggeser hero */
+#about.section{padding-top:clamp(2rem,5vw,3rem) !important}
+#about .section__title{transform:translateY(-8px)}
+#about .section__subtitle{transform:translateY(-8px);margin-bottom:1.4rem !important}
+@media screen and (min-width:968px){#about.section{padding-top:2.6rem !important}}
 
 /* desktop extras */
 @media screen and (min-width: 968px) {
@@ -635,10 +652,27 @@ body.light-theme .header {
   font-size: 1.15rem;
   color: var(--text-dim);
   cursor: pointer;
-  transition: 0.25s;
+  display: inline-block;
+  will-change: transform;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 .change-theme:hover {
   color: var(--amber);
+  transform: scale(1.12) rotate(12deg);
+}
+.change-theme:active {
+  transform: scale(0.92);
+}
+.change-theme.is-animating {
+  animation: themeToggleSpin 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes themeToggleSpin {
+  0% { transform: rotate(0) scale(1); opacity: 1; filter: brightness(1); }
+  45% { transform: rotate(180deg) scale(0.18); opacity: 0.25; filter: brightness(1.4); }
+  100% { transform: rotate(360deg) scale(1); opacity: 1; filter: brightness(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .change-theme.is-animating { animation: none; }
 }
 
 /* mobile menu — dropdown anchored under the header bar.

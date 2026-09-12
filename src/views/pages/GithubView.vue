@@ -107,7 +107,7 @@
 import data from '../../data/portfolio.json'
 
 const DARK_COLORS = {
-    level0: 'rgba(255,255,255,0.05)',
+    level0: '#333333',
     level1: '#0e2f4a',
     level2: '#3a9ad9',
     level3: '#5ab0e6',
@@ -497,16 +497,27 @@ export default {
             })
             this._cellLevels = cellLevels
 
-            let isDouble = this.gameLevel >= 4
-            let players = isDouble || this.gameLevel === 10 ? [
-                { x: width / 2 - 40, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship },
-                { x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship },
-                { x: width / 2 - 70, y: height - 25, width: 30, height: 20, speed: 1.8, direction: 1, color: space.ship },
-                { x: width / 2 + 40, y: height - 25, width: 30, height: 20, speed: 2.4, direction: -1, color: space.ship },
-                { x: width / 2 - 105, y: height - 25, width: 30, height: 20, speed: 2.2, direction: 1, color: space.ship },
-            ] : [
-                { x: width / 2 - 15, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship }
-            ]
+            let isDouble = this.gameLevel >= 4 && this.gameLevel < 10
+            const isFive = this.gameLevel === 10
+            let players
+            if (isFive) {
+                players = [
+                    { x: width / 2 - 40, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship },
+                    { x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship },
+                    { x: width / 2 - 70, y: height - 25, width: 30, height: 20, speed: 1.8, direction: 1, color: space.ship },
+                    { x: width / 2 + 40, y: height - 25, width: 30, height: 20, speed: 2.4, direction: -1, color: space.ship },
+                    { x: width / 2 - 105, y: height - 25, width: 30, height: 20, speed: 2.2, direction: 1, color: space.ship },
+                ]
+            } else if (isDouble) {
+                players = [
+                    { x: width / 2 - 40, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship },
+                    { x: width / 2 + 10, y: height - 25, width: 30, height: 20, speed: 2.6, direction: -1, color: space.ship },
+                ]
+            } else {
+                players = [
+                    { x: width / 2 - 15, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship }
+                ]
+            }
             // keep single var for compat where needed (first player)
             const player = players[0]
             let bullets = []
@@ -539,12 +550,16 @@ export default {
                 const rect = canvas.getBoundingClientRect()
                 const scaleX = width / rect.width
                 const baseX = (clientX - rect.left) * scaleX
-                if (isDouble) {
-                    // dua pesawat jaga jarak 50px, ngikut kursor tapi beda offset biar gerakannya ga sama persis
-                    players[0].x = clampX(baseX - 25 - players[0].width / 2, players[0].width)
-                    players[1].x = clampX(baseX + 25 - players[1].width / 2, players[1].width)
-                } else {
+                if (players.length === 1) {
                     players[0].x = clampX(baseX - players[0].width / 2, players[0].width)
+                } else {
+                    // ponytail: formasi menyebar rata di sekitar kursor — support 2 atau 5 pesawat
+                    const spacing = players.length === 5 ? 42 : 50
+                    const half = (players.length - 1) / 2
+                    players.forEach((p, i) => {
+                        const offset = (i - half) * spacing
+                        p.x = clampX(baseX + offset - p.width / 2, p.width)
+                    })
                 }
                 this._isManual = true
                 clearTimeout(this._manualTimer)
@@ -700,11 +715,11 @@ export default {
                     p.x = Math.max(minX, Math.min(maxX, p.x))
                 })
 
-                // keep the ship in view — untuk double, follow tengah-tengah dua pesawat
+                // keep the ship in view — follow tengah formasi (support 1/2/5 pesawat)
                 const box = this.$refs.scrollBox
                 if (box) {
-                    const followX = isDouble
-                        ? (players[0].x + players[0].width / 2 + players[1].x + players[1].width / 2) / 2
+                    const followX = players.length > 1
+                        ? players.reduce((s, p) => s + p.x + p.width / 2, 0) / players.length
                         : players[0].x + players[0].width / 2
                     const target = followX - box.clientWidth / 2
                     box.scrollLeft = Math.max(0, Math.min(target, box.scrollWidth - box.clientWidth))

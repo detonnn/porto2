@@ -191,6 +191,15 @@ function showThemeBlockedToast() {
   el._t = setTimeout(() => { el.style.opacity = "0"; }, 2500);
 }
 
+function triggerThemeIconAnim() {
+  if (!themeButton) return;
+  themeButton.classList.remove("is-animating");
+  void themeButton.offsetWidth;
+  themeButton.classList.add("is-animating");
+  clearTimeout(themeButton._animT);
+  themeButton._animT = setTimeout(() => themeButton.classList.remove("is-animating"), 680);
+  themeButton.addEventListener("animationend", () => themeButton.classList.remove("is-animating"), { once: true });
+}
 async function toggleThemeWithWipe(e) {
   if (isGameActive()) {
     if (e) e.preventDefault();
@@ -198,6 +207,7 @@ async function toggleThemeWithWipe(e) {
     return;
   }
   const isLight = !document.body.classList.contains(lightTheme);
+  triggerThemeIconAnim();
 
   // Browser gak support View Transition API -> langsung toggle biasa, gak usah animasi
   if (!document.startViewTransition) {
@@ -213,7 +223,7 @@ async function toggleThemeWithWipe(e) {
 
   await transition.ready;
 
-  // Smooth diagonal wipe — 720ms balanced (ga kenceng, ga slowmo)
+  // Smooth diagonal wipe — 1900ms super slow (sinkron sama CSS 1.5s/1.9s)
   document.documentElement.animate(
     {
       clipPath: [
@@ -222,8 +232,8 @@ async function toggleThemeWithWipe(e) {
       ],
     },
     {
-      duration: 720,
-      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+      duration: 1900,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
       pseudoElement: "::view-transition-new(root)",
     },
   );
