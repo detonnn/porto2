@@ -584,7 +584,7 @@ body.light-theme .live-notif__msg {
 .notif-mute-btn.muted {
   color: var(--red);
   border-color: rgba(255, 107, 107, 0.4);
-  background: rgba(255, 107, 107, 0.12);
+  background: #2a1717;
   animation: mutePulse 1.6s ease infinite;
 }
 @keyframes mutePulse {
@@ -602,7 +602,7 @@ body.light-theme .notif-mute-btn {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 body.light-theme .notif-mute-btn.muted {
-  background: rgba(214, 69, 63, 0.1);
+  background: #fbe6e5;
 }
 .notif-mute-enter-active {
   transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
