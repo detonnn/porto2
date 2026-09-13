@@ -51,12 +51,14 @@
                                 />
                             </svg>
 
-                            <canvas
-                                v-if="gameActive"
-                                ref="gameCanvas"
-                                class="gh-game-canvas"
-                                :style="{ width: svgWidth + 'px', height: (svgHeight + 80) + 'px' }"
-                            ></canvas>
+                            <transition name="gh-game">
+                                <canvas
+                                    v-if="gameActive"
+                                    ref="gameCanvas"
+                                    class="gh-game-canvas"
+                                    :style="{ width: svgWidth + 'px', height: (svgHeight + 80) + 'px' }"
+                                ></canvas>
+                            </transition>
 
                             <div
                                 v-if="tooltip.visible"
@@ -417,7 +419,7 @@ export default {
             this.gameLevel = 0
             this.gameAchievement = ''
             try { localStorage.removeItem('gh_gameLevel') } catch(e){}
-            // kalau lagi main, reset papan ke level 0 langsung
+            // kalau lagi main, reset papan ke level 0 langsung — smooth + shrink pesawat
             if (this.gameActive && this._cellLevels) {
                 this.weeks.forEach((week) => {
                     week.forEach((date) => {
@@ -426,12 +428,20 @@ export default {
                         this._cellLevels.set(date, originalLevel)
                         const rect = document.getElementById('gh-cell-' + date)
                         if (rect) {
+                            rect.classList.remove('gh-cell-rainbow')
                             rect.setAttribute('fill', this.colors['level' + originalLevel])
                             rect.style.opacity = '1'
                             rect.style.pointerEvents = 'auto'
                         }
                     })
                 })
+                // shrink pesawat balik ke 1 kalau lagi di 2/5
+                if (this._players && this._players.length > 1) {
+                    const w = this._players[0] ? this._players[0].width : 30
+                    // keep array reference biar loop game tetap pakai array yang sama
+                    this._players.splice(1)
+                    this._players[0].x = (this.svgWidth / 2) - w / 2
+                }
             }
         },
         // ── retro space-shooter mode: shoot the contribution cells ──────────
@@ -518,6 +528,7 @@ export default {
                     { x: width / 2 - 15, y: height - 25, width: 30, height: 20, speed: 2, direction: 1, color: space.ship }
                 ]
             }
+            this._players = players
             // keep single var for compat where needed (first player)
             const player = players[0]
             let bullets = []
@@ -845,17 +856,20 @@ export default {
                  this._sfx = null
              }
              this.weeks.forEach((week) => {
-                 week.forEach((date) => {
-                     if (!date) return
-                     const rect = document.getElementById('gh-cell-' + date)
-                     if (rect) {
-                         rect.style.opacity = '1'
-                         rect.style.pointerEvents = 'auto'
-                         const lvl = (this.byDate[date] && this.byDate[date].level) || 0
-                         rect.setAttribute('fill', this.colors['level' + lvl])
-                     }
-                 })
-             })
+                  week.forEach((date) => {
+                      if (!date) return
+                      const rect = document.getElementById('gh-cell-' + date)
+                      if (rect) {
+                          rect.classList.remove('gh-cell-rainbow')
+                          rect.style.opacity = '1'
+                          rect.style.pointerEvents = 'auto'
+                          const lvl = (this.byDate[date] && this.byDate[date].level) || 0
+                          rect.setAttribute('fill', this.colors['level' + lvl])
+                      }
+                  })
+              })
+              this._cellLevels = null
+              this._players = null
          },
     },
 }
@@ -871,7 +885,7 @@ export default {
     max-width: 100%;
     border-radius: 6px;
     border: 1px solid transparent;
-    transition: background-color .4s ease, border-color .4s ease;
+    transition: background-color .65s cubic-bezier(0.22, 1, 0.36, 1), border-color .65s cubic-bezier(0.22, 1, 0.36, 1), box-shadow .65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .gh-scroll {
     position: relative;
@@ -879,16 +893,24 @@ export default {
     overflow-y: visible; /* was clipping the ship: overflow-x:auto alone makes overflow-y implicitly 'auto' too */
     scrollbar-width: none;
     padding-bottom: 0;
-    transition: padding-bottom .4s ease;
+    transition: padding-bottom .65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .gh-scroll--game { padding-bottom: 80px; }
 .gh-scroll::-webkit-scrollbar { display: none; }
-.gh-svg { overflow: visible; }
-.gh-month-label { font-size: 10px; fill: var(--text-dim); }
-.gh-cell { transition: opacity .1s ease; }
+.gh-svg { overflow: visible; transition: opacity .65s cubic-bezier(0.22, 1, 0.36, 1); }
+.gh-month-label { font-size: 10px; fill: var(--text-dim); transition: opacity .45s ease; }
+.gh-calendar--game .gh-month-label { opacity: 0; }
+.gh-cell { transition: opacity .1s ease, fill .45s ease; }
 .gh-cell:hover { stroke: var(--text-dim); stroke-width: 1px; }
 
 .gh-game-canvas { position: absolute; top: 0; left: 0; z-index: 2; cursor: crosshair; }
+/* ponytail: smooth start/stop — canvas nge-fade + scale biar ga pop instant */
+.gh-game-enter-active { transition: opacity .55s cubic-bezier(0.22, 1, 0.36, 1), transform .55s cubic-bezier(0.22, 1, 0.36, 1); }
+.gh-game-leave-active { transition: opacity .45s ease, transform .45s ease; }
+.gh-game-enter-from { opacity: 0; transform: scale(0.98); }
+.gh-game-enter-to { opacity: 1; transform: scale(1); }
+.gh-game-leave-from { opacity: 1; transform: scale(1); }
+.gh-game-leave-to { opacity: 0; transform: scale(1.02); }
 
 .gh-tooltip {
     position: fixed; z-index: 50; transform: translate(-50%, calc(-100% - 8px));

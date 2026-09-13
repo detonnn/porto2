@@ -1808,12 +1808,16 @@ body.light-theme .github__day[data-level="4"] {
 
 .project {
   padding-bottom: 0;
+  overflow: visible;
 }
 .project__bg {
   background: var(--bg-window);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding-top: 2rem;
+  box-shadow: 0 12px 28px var(--shadow-color);
+  /* ponytail: beri gutter biar shadow kanan ga kepotong body overflow-x hidden */
+  margin: 0 6px;
 }
 .project__container {
   grid-template-columns: 1fr;

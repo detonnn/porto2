@@ -60,7 +60,7 @@
         type="button"
         class="swipe-btn"
         aria-label="Previous project"
-        @click="triggerThrow('right')"
+        @click="triggerThrow('left')"
       >
         <i class="uil uil-angle-left-b swiper-portofolio-icon"></i>
       </button>
@@ -78,7 +78,7 @@
         type="button"
         class="swipe-btn"
         aria-label="Next project"
-        @click="triggerThrow('left')"
+        @click="triggerThrow('right')"
       >
         <i class="uil uil-angle-right-b swiper-portofolio-icon"></i>
       </button>
@@ -246,14 +246,17 @@ export default {
   position: relative;
   width: 100%;
   max-width: 1000px;
-  height: 440px;
+  height: 470px;
   margin: 0 auto;
   touch-action: pan-y;
+  overflow: visible;
+  padding: 12px 14px 28px;
+  box-sizing: border-box;
 }
 
 .swipe-card {
   position: absolute;
-  inset: 0;
+  inset: 12px 14px 28px 14px;
   display: grid;
   grid-template-columns: 1fr;
   align-items: stretch;
@@ -263,7 +266,7 @@ export default {
   overflow: hidden;
   will-change: transform, opacity;
   user-select: none;
-  box-shadow: 0 18px 50px var(--shadow-color);
+  box-shadow: 0 12px 28px var(--shadow-color), 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .swipe-card--top {
@@ -367,7 +370,7 @@ export default {
 
 @media screen and (min-width: 768px) {
   .swipe-deck {
-    height: 460px;
+    height: 490px;
   }
   .swipe-card {
     grid-template-columns: 1.15fr 1fr;
