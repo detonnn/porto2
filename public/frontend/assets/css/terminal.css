@@ -128,7 +128,7 @@ body.light-theme {
   z-index: 2;
 }
 ::view-transition-group(root) {
-  animation-duration: 1.9s;
+  animation-duration: 1.1s;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -143,19 +143,19 @@ body.light-theme {
 }
 
 /* Fallback smooth untuk browser tanpa ViewTransition — warna nge-blend 1.5s super slow */
-body,
-.header,
-.term-window,
-.skills__content,
-.services__content,
-.footer__bg,
-.nav__menu,
-.button,
-.contact__form,
-.contact__information,
-.github__day,
-.chatbot-panel,
-.chatbot-header {
+html.no-view-transition body,
+html.no-view-transition .header,
+html.no-view-transition .term-window,
+html.no-view-transition .skills__content,
+html.no-view-transition .services__content,
+html.no-view-transition .footer__bg,
+html.no-view-transition .nav__menu,
+html.no-view-transition .button,
+html.no-view-transition .contact__form,
+html.no-view-transition .contact__information,
+html.no-view-transition .github__day,
+html.no-view-transition .chatbot-panel,
+html.no-view-transition .chatbot-header {
   transition: background-color 1.5s cubic-bezier(0.22, 1, 0.36, 1),
     color 1.5s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 1.5s cubic-bezier(0.22, 1, 0.36, 1),

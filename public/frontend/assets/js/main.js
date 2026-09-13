@@ -174,6 +174,12 @@ function applyTheme(isLight) {
 const selectedTheme = localStorage.getItem("selected-theme");
 applyTheme(selectedTheme === "light");
 
+// Browser gak support View Transition API -> nyalain fallback CSS color transition.
+// Kalo browser support, JANGAN nyalain ini, biar gak double-animate bareng clip-path wipe.
+if (!document.startViewTransition) {
+  document.documentElement.classList.add("no-view-transition");
+}
+
 function isGameActive() {
   return !!document.querySelector(".gh-game-canvas") || !!document.querySelector(".gh-calendar--game");
 }
@@ -223,7 +229,7 @@ async function toggleThemeWithWipe(e) {
 
   await transition.ready;
 
-  // Smooth diagonal wipe — 1900ms super slow (sinkron sama CSS 1.5s/1.9s)
+  // Smooth diagonal wipe — 1100ms (sinkron sama CSS ::view-transition-group 1.1s)
   document.documentElement.animate(
     {
       clipPath: [
@@ -232,7 +238,7 @@ async function toggleThemeWithWipe(e) {
       ],
     },
     {
-      duration: 1900,
+      duration: 1100,
       easing: "cubic-bezier(0.22, 1, 0.36, 1)",
       pseudoElement: "::view-transition-new(root)",
     },

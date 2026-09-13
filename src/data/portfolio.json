@@ -260,16 +260,16 @@
     "subtitle": "recent deployments & live builds",
     "items": [
       {
-        "image": "frontend/assets/img/1.jpg",
-        "title": "Print Media Design & Packaging Workflow",
-        "description": "Six months of internship experience in the printing and online shop packing industry, handling the preparation of design files prior to printing.",
-        "url": "https://www.instagram.com/azkaprint.official/"
-      },
-      {
         "image": "frontend/assets/img/Attics-std.jpg",
         "title": "attics.std — Streetwear Brand",
         "description": "Independent graphic design brand producing exclusive, limited-run streetwear graphics — from concept art and typography to full apparel mockups, distributed through a one-buyer-per-design model.",
         "url": "https://atticsstd.vercel.app/"
+      },
+      {
+        "image": "frontend/assets/img/1.jpg",
+        "title": "Print Media Design & Packaging Workflow",
+        "description": "Six months of internship experience in the printing and online shop packing industry, handling the preparation of design files prior to printing.",
+        "url": "https://www.instagram.com/azkaprint.official/"
       },
       {
         "image": "frontend/assets/img/3.jpg",

@@ -1394,7 +1394,7 @@ export default {
 }
 .chatbot-header {
   position: relative;
-  z-index: 1;
+  z-index: 5;
 }
 .chatbot-body {
   position: relative;
