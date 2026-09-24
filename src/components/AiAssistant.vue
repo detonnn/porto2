@@ -251,6 +251,7 @@ import {
   toggleMusic,
   onTrackEnded,
 } from "./musicPlayer";
+import { unlockAudioContext } from "../utils/audio";
 
 const CONTACT_LINKS = {
   instagram: {
@@ -765,7 +766,7 @@ export default {
     try { this._primeAudio.load(); } catch(e) {}
     let _realPrimed = false;
     const unlockAll = () => {
-      // prime real elements cuma sekali (iOS butuh per-element), setelah itu cukup dummy + resume
+      unlockAudioContext();
       if (!_realPrimed) {
         let pending = Object.values(this.audioElements).length;
         Object.values(this.audioElements).forEach((a) => {
@@ -775,7 +776,6 @@ export default {
         });
         if (pending === 0) _realPrimed = true;
       }
-      // keep session alive tanpa ganggu real audio
       try { this._primeAudio.currentTime = 0; this._primeAudio.play().then(() => { this._primeAudio.pause(); this._primeAudio.currentTime = 0; }).catch(()=>{}); } catch(e) {}
       if (window._portoAudioCtx && window._portoAudioCtx.state === "suspended") window._portoAudioCtx.resume();
     };

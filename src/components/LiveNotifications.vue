@@ -73,6 +73,7 @@
 </template>
 
 <script>
+import { unlockAudioContext } from "../utils/audio";
 const RANDOM_NAMES = [
   "Windah Habatusauda",
   "Luthfi Kotak",
@@ -310,13 +311,13 @@ export default {
     try { this._primeDummy.load(); } catch(e) {}
     this._primed = false;
     this._unlockAudio = () => {
+      unlockAudioContext();
       try {
         if (!this._primed) {
           const a = this._notifAudio;
           a.volume = 0;
           a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = 0.6; this._primed = true; }).catch(() => { a.volume = 0.6; this._primed = true; });
         }
-        // keep-alive pakai dummy, jangan sentuh _notifAudio lagi biar gak kepause pas lagi bunyi
         const d = this._primeDummy;
         d.currentTime = 0;
         d.play().then(() => { d.pause(); d.currentTime = 0; }).catch(()=>{});

@@ -3,121 +3,95 @@
    (menu, accordion, tabs, modal, swiper, scroll) + dynamic terminal FX
 =====================================================================*/
 
-const navMenu = document.getElementById("nav-menu"),
-  navToggle = document.getElementById("nav-toggle"),
-  navClose = document.getElementById("nav-close");
-
-if (navToggle) {
-  navToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    navMenu.classList.toggle("show-menu");
-  });
-}
-if (navClose) {
-  navClose.addEventListener("click", () =>
-    navMenu.classList.remove("show-menu"),
-  );
-}
-/* close the dropdown when tapping outside of it */
+/* ponytail: nav delegated — works even if #nav-menu belum render saat main.js dieksekusi */
 document.addEventListener("click", (e) => {
-  if (!navMenu) return;
-  if (!navMenu.classList.contains("show-menu")) return;
-  if (navMenu.contains(e.target) || (navToggle && navToggle.contains(e.target)))
+  const toggle = e.target.closest && e.target.closest("#nav-toggle");
+  if (toggle) {
+    e.stopPropagation();
+    const menu = document.getElementById("nav-menu");
+    if (menu) menu.classList.toggle("show-menu");
     return;
+  }
+  const closer = e.target.closest && e.target.closest("#nav-close");
+  if (closer) {
+    const menu = document.getElementById("nav-menu");
+    if (menu) menu.classList.remove("show-menu");
+    return;
+  }
+  const link = e.target.closest && e.target.closest(".nav__link");
+  if (link) {
+    const menu = document.getElementById("nav-menu");
+    if (menu) menu.classList.remove("show-menu");
+    return;
+  }
+  const navMenu = document.getElementById("nav-menu");
+  const navToggle = document.getElementById("nav-toggle");
+  if (!navMenu || !navMenu.classList.contains("show-menu")) return;
+  if (navMenu.contains(e.target) || (navToggle && navToggle.contains(e.target))) return;
   navMenu.classList.remove("show-menu");
 });
 
-const navLink = document.querySelectorAll(".nav__link");
-function linkAction() {
-  const navMenu = document.getElementById("nav-menu");
-  if (!navMenu) return;
-  navMenu.classList.remove("show-menu");
-}
-navLink.forEach((n) => n.addEventListener("click", linkAction));
-
-const skillsContent = document.getElementsByClassName("skills__content"),
-  skillsHeader = document.querySelectorAll(".skills__header");
-
-function toggleSkills() {
-  const parent = this.parentNode;
-  const wasClosed = parent.classList.contains("skills__close");
-  for (let i = 0; i < skillsContent.length; i++) {
-    skillsContent[i].classList.remove("skills__open");
-    skillsContent[i].classList.add("skills__close");
+/* ponytail: delegated — semua section Vue belum ada saat main.js load, jadi pakai delegation */
+document.addEventListener("click", (e) => {
+  const header = e.target.closest && e.target.closest(".skills__header");
+  if (header) {
+    const parent = header.parentNode;
+    const wasClosed = parent.classList.contains("skills__close");
+    document.querySelectorAll(".skills__content").forEach((c) => { c.classList.remove("skills__open"); c.classList.add("skills__close"); });
+    if (wasClosed) { parent.classList.remove("skills__close"); parent.classList.add("skills__open"); }
+    return;
   }
-  if (wasClosed) {
-    parent.classList.remove("skills__close");
-    parent.classList.add("skills__open");
-  }
-}
-skillsHeader.forEach((el) => el.addEventListener("click", toggleSkills));
-
-const tabs = document.querySelectorAll("[data-target]"),
-  tabContents = document.querySelectorAll("[data-content]");
-
-tabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
+  const tab = e.target.closest && e.target.closest("[data-target]");
+  if (tab) {
     const target = document.querySelector(tab.dataset.target);
     if (!target) return;
-
-    tabContents.forEach((tc) => tc.classList.remove("qualification__active"));
+    document.querySelectorAll("[data-content]").forEach((tc) => tc.classList.remove("qualification__active"));
     target.classList.add("qualification__active");
-
-    tabs.forEach((t) => t.classList.remove("qualification__active"));
+    document.querySelectorAll("[data-target]").forEach((t) => t.classList.remove("qualification__active"));
     tab.classList.add("qualification__active");
-  });
+    return;
+  }
+  const btn = e.target.closest && e.target.closest(".services__button");
+  if (btn) {
+    const allBtns = Array.from(document.querySelectorAll(".services__button"));
+    const idx = allBtns.indexOf(btn);
+    const views = document.querySelectorAll(".services__modal");
+    if (views[idx]) views[idx].classList.add("active-modal");
+    return;
+  }
+  const closer = e.target.closest && e.target.closest(".services__modal-close");
+  if (closer) {
+    document.querySelectorAll(".services__modal").forEach((v) => v.classList.remove("active-modal"));
+    return;
+  }
+  const backdrop = e.target.closest && e.target.closest(".services__modal");
+  if (backdrop && e.target === backdrop) backdrop.classList.remove("active-modal");
 });
 
-const modalViews = document.querySelectorAll(".services__modal"),
-  modalBtns = document.querySelectorAll(".services__button"),
-  modalCloses = document.querySelectorAll(".services__modal-close");
-
-let modal = function (modalClick) {
-  modalViews[modalClick].classList.add("active-modal");
-};
-modalBtns.forEach((modalBtn, i) => {
-  modalBtn.addEventListener("click", () => modal(i));
-});
-modalCloses.forEach((modalClose) => {
-  modalClose.addEventListener("click", () => {
-    modalViews.forEach((modalView) =>
-      modalView.classList.remove("active-modal"),
-    );
-  });
-});
-/* close a modal when clicking its dark backdrop (outside the content box) */
-modalViews.forEach((modalView) => {
-  modalView.addEventListener("click", (e) => {
-    if (e.target === modalView) modalView.classList.remove("active-modal");
-  });
-});
-
-if (typeof Swiper !== "undefined") {
-  // ponytail: portfolio sekarang custom swipe-deck (tanpa .swiper-wrapper) — skip Swiper biar gak crash scrollLeft
+function initSwiperWhenReady() {
+  if (typeof Swiper === "undefined") return;
   if (document.querySelector(".portofolio__container .swiper-wrapper")) {
     new Swiper(".portofolio__container", {
-      cssMode: true,
-      loop: true,
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
+      cssMode: true, loop: true,
+      navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
       pagination: { el: ".swiper-pagination", clickable: true },
     });
   }
-
-  let testimonial__container = new Swiper(".testimonial__container", {
-    loop: true,
-    grabCursor: true,
-    spaceBetween: 48,
-    pagination: {
-      el: ".swiper-pagination",
-      clickable: true,
-      dynamicBullets: true,
-    },
-    breakpoints: { 568: { slidesPerView: 2 } },
-  });
+  const tc = document.querySelector(".testimonial__container");
+  if (tc && !tc.classList.contains("swiper-initialized")) {
+    new Swiper(".testimonial__container", {
+      loop: true, grabCursor: true, spaceBetween: 48,
+      pagination: { el: ".swiper-pagination", clickable: true, dynamicBullets: true },
+      breakpoints: { 568: { slidesPerView: 2 } },
+    });
+  }
 }
+(function waitSwiper() {
+  if (document.querySelector(".testimonial__container")) initSwiperWhenReady();
+  else setTimeout(waitSwiper, 300);
+  // retry after Vue mounts (in case first check too early)
+  setTimeout(initSwiperWhenReady, 1500);
+})();
 
 let ticking = false;
 let lastActive = 0;
@@ -157,15 +131,14 @@ function scrollHeader() {
   nav.classList.toggle("scroll-header", window.scrollY >= 12);
 }
 
-const themeButton = document.getElementById("theme-button");
 const lightTheme = "light-theme";
-
+const getThemeButton = () => document.getElementById("theme-button");
 const setIcon = (isLight) => {
-  if (!themeButton) return;
-  themeButton.classList.toggle("uil-moon", isLight);
-  themeButton.classList.toggle("uil-sun", !isLight);
+  const btn = getThemeButton();
+  if (!btn) return;
+  btn.classList.toggle("uil-moon", isLight);
+  btn.classList.toggle("uil-sun", !isLight);
 };
-
 function applyTheme(isLight) {
   document.documentElement.classList.toggle(lightTheme, isLight);
   document.body.classList.toggle(lightTheme, isLight);
@@ -173,6 +146,13 @@ function applyTheme(isLight) {
 }
 const selectedTheme = localStorage.getItem("selected-theme");
 applyTheme(selectedTheme === "light");
+/* retry icon after Vue mounts (button belum ada saat main.js dieksekusi) */
+setTimeout(() => setIcon(document.body.classList.contains(lightTheme)), 800);
+let _iconTries = 0;
+const _iconIv = setInterval(() => {
+  const b = getThemeButton();
+  if (b || ++_iconTries > 20) { clearInterval(_iconIv); if (b) setIcon(document.body.classList.contains(lightTheme)); }
+}, 300);
 
 // Browser gak support View Transition API -> nyalain fallback CSS color transition.
 // Kalo browser support, JANGAN nyalain ini, biar gak double-animate bareng clip-path wipe.
@@ -198,13 +178,14 @@ function showThemeBlockedToast() {
 }
 
 function triggerThemeIconAnim() {
-  if (!themeButton) return;
-  themeButton.classList.remove("is-animating");
-  void themeButton.offsetWidth;
-  themeButton.classList.add("is-animating");
-  clearTimeout(themeButton._animT);
-  themeButton._animT = setTimeout(() => themeButton.classList.remove("is-animating"), 680);
-  themeButton.addEventListener("animationend", () => themeButton.classList.remove("is-animating"), { once: true });
+  const btn = getThemeButton();
+  if (!btn) return;
+  btn.classList.remove("is-animating");
+  void btn.offsetWidth;
+  btn.classList.add("is-animating");
+  clearTimeout(btn._animT);
+  btn._animT = setTimeout(() => btn.classList.remove("is-animating"), 680);
+  btn.addEventListener("animationend", () => btn.classList.remove("is-animating"), { once: true });
 }
 async function toggleThemeWithWipe(e) {
   if (isGameActive()) {
@@ -245,9 +226,11 @@ async function toggleThemeWithWipe(e) {
   );
 }
 
-if (themeButton) {
-  themeButton.addEventListener("click", toggleThemeWithWipe);
-}
+/* ponytail: delegated — #theme-button mungkin belum ada saat main.js load (Vue mount belakangan) */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest && e.target.closest("#theme-button");
+  if (btn) toggleThemeWithWipe(e);
+});
 
 (function () {
   let t;
@@ -314,7 +297,7 @@ function rotateRoles(el, roles) {
   const roleEl = document.getElementById("typed-role");
   const titleEl = document.querySelector(".home__title");
   const descEl = document.querySelector(".home__description");
-  if (!cmdEl || !outputEl) return;
+  if (!cmdEl || !outputEl) { setTimeout(bootHero, 300); return; }
 
   const cmdText = cmdEl.dataset.cmd || "whoami && cat profile.json";
   let roles = ["Fullstack Developer", "DevOps Engineer", "UI/UX Designer"];

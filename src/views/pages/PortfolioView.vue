@@ -176,6 +176,9 @@ export default {
       this.startY = e.clientY;
       this.deltaX = 0;
       this.deltaY = 0;
+      // ponytail: lock pointer + block browser back-swipe, cuma card yang geser
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+      try { window.lenis && window.lenis.stop(); } catch {}
       window.addEventListener("pointermove", this.onPointerMove);
       window.addEventListener("pointerup", this.onPointerUp);
       window.addEventListener("pointercancel", this.onPointerUp);
@@ -184,6 +187,8 @@ export default {
       if (!this.dragging) return;
       this.deltaX = e.clientX - this.startX;
       this.deltaY = e.clientY - this.startY;
+      // cegah browser swipe-back / overscroll ikut geser widget kanan
+      if (Math.abs(this.deltaX) > 10) e.preventDefault();
     },
     onPointerUp() {
       if (!this.dragging) return;
@@ -191,6 +196,7 @@ export default {
       window.removeEventListener("pointermove", this.onPointerMove);
       window.removeEventListener("pointerup", this.onPointerUp);
       window.removeEventListener("pointercancel", this.onPointerUp);
+      try { window.lenis && window.lenis.start(); } catch {}
 
       if (this.deltaX <= -this.threshold) {
         this.commitThrow("left");
@@ -249,6 +255,9 @@ export default {
   height: 470px;
   margin: 0 auto;
   touch-action: pan-y;
+  overscroll-behavior: contain;
+  overscroll-behavior-x: contain;
+  isolation: isolate;
   overflow: visible;
   padding: 12px 14px 28px;
   box-sizing: border-box;
@@ -271,6 +280,7 @@ export default {
 
 .swipe-card--top {
   cursor: grab;
+  touch-action: none;
 }
 
 .swipe-card__img {

@@ -9,12 +9,7 @@
 <script>
 export default {
   name: "VisitorCounter",
-  data() {
-    return {
-      count: null,
-      pollTimer: null,
-    };
-  },
+  data() { return { count: null }; },
   computed: {
     displayCount() {
       if (this.count == null) return "—";
@@ -22,15 +17,7 @@ export default {
       return Number.isFinite(n) ? n.toLocaleString("id-ID") : "—";
     },
   },
-  async mounted() {
-    await this.registerVisit();
-    this.pollTimer = setInterval(() => { if (!document.hidden) this.fetchCount() }, 10000);
-    document.addEventListener('visibilitychange', this._onVis = () => { if (!document.hidden) this.fetchCount() });
-  },
-  beforeUnmount() {
-    clearInterval(this.pollTimer);
-    if (this._onVis) document.removeEventListener('visibilitychange', this._onVis);
-  },
+  async mounted() { await this.registerVisit(); },
   methods: {
     async registerVisit() {
       try {

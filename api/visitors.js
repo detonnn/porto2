@@ -7,6 +7,7 @@
 //   UPSTASH_REDIS_REST_URL
 //   UPSTASH_REDIS_REST_TOKEN
 
+import { redisGet, redisIncr } from './_redis.js';
 const COUNT_KEY = 'porto2:visitor_count';
 // ponytail: simple in-memory rate-limit (per lambda instance) — cegah spam INCR
 const _rl = new Map();
@@ -15,23 +16,8 @@ function rateLimited(ip) {
   const last = _rl.get(ip) || 0;
   if (now - last < 10000) return true;
   _rl.set(ip, now);
-  // cleanup old entries biar gak bocor memori
   if (_rl.size > 500) { for (const [k,v] of _rl) if (now - v > 60000) _rl.delete(k); }
   return false;
-}
-async function redis(pathParts, redisUrl, redisToken) {
-  const url = `${redisUrl}/${pathParts.map(encodeURIComponent).join('/')}`;
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 4000);
-  try {
-    const r = await fetch(url, {
-      headers: { Authorization: `Bearer ${redisToken}` },
-      signal: ctrl.signal,
-    });
-    if (!r.ok) throw new Error(`Redis error ${r.status}`);
-    const data = await r.json();
-    return data.result;
-  } finally { clearTimeout(t); }
 }
 
 export default async function handler(req, res) {
@@ -50,13 +36,12 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'anon';
       if (rateLimited(ip)) return res.status(429).json({ error: 'Terlalu sering, coba lagi 10 detik' });
-      const count = await redis(['incr', COUNT_KEY], REDIS_URL, REDIS_TOKEN);
+      const count = await redisIncr(COUNT_KEY, REDIS_URL, REDIS_TOKEN);
       return res.status(200).json({ count });
     }
 
     if (req.method === 'GET') {
-      // dipanggil buat polling angka realtime tanpa nambah counter
-      const raw = await redis(['get', COUNT_KEY], REDIS_URL, REDIS_TOKEN);
+      const raw = await redisGet(COUNT_KEY, REDIS_URL, REDIS_TOKEN);
       const count = raw ? parseInt(raw, 10) : 0;
       return res.status(200).json({ count });
     }
