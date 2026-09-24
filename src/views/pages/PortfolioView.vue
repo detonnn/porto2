@@ -12,6 +12,10 @@
           :class="{ 'swipe-card--top': stackIndex === 0 }"
           :style="cardStyle(stackIndex)"
           @pointerdown="stackIndex === 0 && onPointerDown($event)"
+          @pointermove="stackIndex === 0 && onPointerMove($event)"
+          @pointerup="stackIndex === 0 && onPointerUp($event)"
+          @pointercancel="stackIndex === 0 && onPointerUp($event)"
+          @dragstart.prevent
         >
           <img
             :src="card.image"
@@ -168,42 +172,51 @@ export default {
       };
     },
     onPointerDown(e) {
-      // tekan mulai dari link/tombol = klik, bukan drag kartu
+      if (this.throwing || this.dragging) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
       if (e.target.closest("a, button")) return;
       this.dragging = true;
-      this.throwing = null;
       this.startX = e.clientX;
       this.startY = e.clientY;
       this.deltaX = 0;
       this.deltaY = 0;
-      // ponytail: lock pointer + block browser back-swipe, cuma card yang geser
+      this._pid = e.pointerId;
+      // capture ke card ini aja -> move/up cuma dikirim ke card, elemen lain (hero/widget/header) ga kena
       try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
-      try { window.lenis && window.lenis.stop(); } catch {}
-      window.addEventListener("pointermove", this.onPointerMove);
-      window.addEventListener("pointerup", this.onPointerUp);
-      window.addEventListener("pointercancel", this.onPointerUp);
     },
     onPointerMove(e) {
-      if (!this.dragging) return;
-      this.deltaX = e.clientX - this.startX;
-      this.deltaY = e.clientY - this.startY;
-      // cegah browser swipe-back / overscroll ikut geser widget kanan
-      if (Math.abs(this.deltaX) > 10) e.preventDefault();
+      if (!this.dragging || e.pointerId !== this._pid) return;
+      // batch ke 1x per frame: pointermove di HP bisa 120Hz+, tiap event = re-render Vue = lag
+      this._mx = e.clientX;
+      this._my = e.clientY;
+      if (this._raf) return;
+      this._raf = requestAnimationFrame(() => {
+        this._raf = 0;
+        if (!this.dragging) return;
+        this.deltaX = this._mx - this.startX;
+        this.deltaY = this._my - this.startY;
+      });
     },
-    onPointerUp() {
-      if (!this.dragging) return;
+    onPointerUp(e) {
+      if (!this.dragging || e.pointerId !== this._pid) return;
       this.dragging = false;
-      window.removeEventListener("pointermove", this.onPointerMove);
-      window.removeEventListener("pointerup", this.onPointerUp);
-      window.removeEventListener("pointercancel", this.onPointerUp);
-      try { window.lenis && window.lenis.start(); } catch {}
-
+      if (this._raf) { cancelAnimationFrame(this._raf); this._raf = 0; }
+      if (e.type !== "pointercancel") {
+        this.deltaX = e.clientX - this.startX; // posisi final akurat
+        this.deltaY = e.clientY - this.startY;
+      }
+      try { e.currentTarget.releasePointerCapture(e.pointerId); } catch {}
+      // pointercancel (browser ambil alih buat scroll vertikal) = batal, snap back
+      if (e.type === "pointercancel") {
+        this.deltaX = 0;
+        this.deltaY = 0;
+        return;
+      }
       if (this.deltaX <= -this.threshold) {
         this.commitThrow("left");
       } else if (this.deltaX >= this.threshold) {
         this.commitThrow("right");
       } else {
-        // snap back
         this.deltaX = 0;
         this.deltaY = 0;
       }
@@ -248,6 +261,16 @@ export default {
 </script>
 
 <style scoped>
+/* kartu yang di-drag/dilempar keluar layar jangan bikin halaman melebar (penyebab hero/header/widget ikut geser) */
+.portfolio {
+  overflow: hidden;
+}
+@supports (overflow: clip) {
+  .portfolio {
+    overflow: clip;
+  }
+}
+
 .swipe-deck {
   position: relative;
   width: 100%;
@@ -255,8 +278,8 @@ export default {
   height: 470px;
   margin: 0 auto;
   touch-action: pan-y;
-  overscroll-behavior: contain;
-  overscroll-behavior-x: contain;
+  overscroll-behavior: none;
+  overscroll-behavior-x: none;
   isolation: isolate;
   overflow: visible;
   padding: 12px 14px 28px;
@@ -280,7 +303,7 @@ export default {
 
 .swipe-card--top {
   cursor: grab;
-  touch-action: none;
+  touch-action: pan-y; /* horizontal buat JS, vertical tetep scroll halaman */
 }
 
 .swipe-card__img {

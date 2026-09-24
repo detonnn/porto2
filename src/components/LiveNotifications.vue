@@ -274,7 +274,7 @@ export default {
     } catch (e) {}
     this._isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     this._reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (this._reduced) { this.showMute = true; return; } // skip notif di reduced-motion
+    // reduced-motion sebelumnya bikin notif GA MUNCUL SAMA SEKALI (banyak HP nyalain ini via battery saver/remove animations) -> sekarang tetap muncul, animasinya aja yang dimatiin (lihat CSS)
     const revealMute = () => { this.showMute = true; };
     const tryStart = () => {
       this.scheduleNext(2000 + Math.random() * 1500);
@@ -311,6 +311,10 @@ export default {
     try { this._primeDummy.load(); } catch(e) {}
     this._primed = false;
     this._unlockAudio = () => {
+      // throttle: dulu jalan di SETIAP tap/swipe (play dummy audio tiap sentuh = berat di HP)
+      const now = Date.now();
+      if (this._lastUnlock && now - this._lastUnlock < 4000) return;
+      this._lastUnlock = now;
       unlockAudioContext();
       try {
         if (!this._primed) {
@@ -334,14 +338,18 @@ export default {
       if (!this.isExpanded || !this.current) return;
       if (!e.target.closest || !e.target.closest(".live-notif")) this.dismiss();
     };
-    this._onVis = () => { if (!document.hidden) this.scheduleNext(1500); else { clearTimeout(this.spawnTimer); clearTimeout(this.hideTimer); this.current=null } };
+    this._onVis = () => { if (!document.hidden) { if (!this.current) this.scheduleNext(1500); } else { clearTimeout(this.spawnTimer); clearTimeout(this.hideTimer); this.current=null } };
     document.addEventListener("visibilitychange", this._onVis);
+    // bfcache/restore di HP: kadang cuma pageshow yang kepanggil, rantai timer bisa putus
+    this._onPageShow = () => { if (!document.hidden && !this.current) this.scheduleNext(1500); };
+    window.addEventListener("pageshow", this._onPageShow);
     document.addEventListener("click", this._onDocClick);
   },
   beforeUnmount() {
     clearTimeout(this.spawnTimer);
     clearTimeout(this.hideTimer);
     if (this._onVis) document.removeEventListener("visibilitychange", this._onVis);
+    if (this._onPageShow) window.removeEventListener("pageshow", this._onPageShow);
     if (this._onDocClick)
       document.removeEventListener("click", this._onDocClick);
     if (this._unlockAudio)
@@ -367,7 +375,7 @@ export default {
       this.spawnTimer = setTimeout(this.spawn, wait);
     },
      spawn() {
-       if (this.isMuted || document.hidden || this._reduced) {
+       if (this.isMuted || document.hidden) {
          this.scheduleNext();
          return;
        }
@@ -643,6 +651,20 @@ body.light-theme .notif-mute-btn.muted {
   transform: translateX(-16px) scale(0.95);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .notif-pop-enter-active,
+  .notif-pop-leave-active {
+    transition: opacity 0.15s linear;
+  }
+  .notif-pop-enter-from,
+  .notif-pop-leave-to {
+    transform: none;
+  }
+  .notif-mute-btn.muted {
+    animation: none;
+  }
+}
+
 @media (max-width: 1112px) {
   .notif-mute-btn {
     top: calc(var(--header-height) + 0.6rem);
@@ -652,9 +674,8 @@ body.light-theme .notif-mute-btn.muted {
 @media (max-width: 768px) {
   .live-notif-wrap {
     top: 4.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
+    left: 0;
+    right: 0; /* dulu left:50% + width:100% + translateX (fixed melebar keluar layar, rawan di beberapa browser HP) */
     display: flex;
     justify-content: center;
   }

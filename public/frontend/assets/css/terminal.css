@@ -172,6 +172,7 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-height) + 10px);
   min-height: 100%;
+  overscroll-behavior-x: none;
 }
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -187,7 +188,9 @@ body {
   color: var(--text);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
 }
 
 /* animated background grid + glow */
@@ -601,12 +604,6 @@ body.light-theme .header {
   font-size: var(--normal-font-size);
   display: inline-flex;
   align-items: center;
-}
-.nav__logo::before {
-  content: "λ ";
-  color: var(--cyan);
-  margin-right: 0.15rem;
-  font-weight: 800;
 }
 .nav__logo::after {
   content: "_";

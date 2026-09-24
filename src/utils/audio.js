@@ -1,9 +1,15 @@
 // ponytail: single audio-unlock util — replaces clones in main.js / AiAssistant / LiveNotifications
 export function unlockAudioContext() {
   try {
+    // singleton: sebelumnya bikin AudioContext baru di SETIAP tap (limit browser HP ~4-6, sisanya leak + lag)
+    let ctx = window._portoAudioCtx;
+    if (ctx && ctx.state !== 'closed') {
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      return;
+    }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
-    const ctx = new AC();
+    ctx = new AC();
     const buffer = ctx.createBuffer(1, 1, 22050);
     const source = ctx.createBufferSource();
     source.buffer = buffer;
