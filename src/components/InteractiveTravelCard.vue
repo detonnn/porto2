@@ -56,6 +56,8 @@ export default {
     title: { type: String, default: "" },
     subtitle: { type: String, default: "" },
     className: { type: String, default: "" },
+    // false = no 3D tilt / zoom (used inside the lanyard badge, which tilts itself)
+    tilt: { type: Boolean, default: true },
   },
   data() {
     return {
@@ -79,6 +81,7 @@ export default {
   },
   computed: {
     cardStyle() {
+      if (!this.tilt) return {};
       return {
         transform: `perspective(1000px) rotateX(${this.rotateX}deg) rotateY(${this.rotateY}deg) scale(${this.scale})`,
       };
@@ -137,20 +140,23 @@ export default {
     },
     handleMouseEnter() {
       this.isHovered = true;
-      this.targetScale = 1.03;
-      this.startLoop();
+      if (this.tilt) {
+        this.targetScale = 1.03;
+        this.startLoop();
+      }
       this.runReveal(true);
     },
     handleMouseMove(e) {
       const rect = this.$refs.cardRef.getBoundingClientRect();
       const xPct = (e.clientX - rect.left) / rect.width - 0.5;
       const yPct = (e.clientY - rect.top) / rect.height - 0.5;
-      this.targetY = xPct * 14;
-      this.targetX = yPct * -14;
       this.spotlightPos = {
         x: (xPct + 0.5) * 100,
         y: (yPct + 0.5) * 100,
       };
+      if (!this.tilt) return;
+      this.targetY = xPct * 14;
+      this.targetX = yPct * -14;
       this.startLoop();
     },
     handleMouseLeave() {
