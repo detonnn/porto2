@@ -13,7 +13,6 @@
                     <div class="home__hero-row">
                         <div class="hero-term term-window">
                             <div class="term-window__bar">
-                                <div class="term-window__dots"><span></span><span></span><span></span></div>
                                 <span class="term-window__title"><i class="uil uil-shell"></i> {{ profile.terminalTitle }}</span>
                             </div>
                             <div class="term-window__body hero-term__body">

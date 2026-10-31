@@ -6,7 +6,6 @@
         <div class="github__container container">
             <div class="github__window term-window">
                 <div class="term-window__bar">
-                    <div class="term-window__dots"><span></span><span></span><span></span></div>
                     <span class="term-window__title"><i class="uil uil-github"></i> contributions @{{ username }}</span>
                 </div>
                 <div class="term-window__body gh-body">

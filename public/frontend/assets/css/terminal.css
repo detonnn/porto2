@@ -471,32 +471,12 @@ textarea {
 .term-window__bar {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
   padding: 0.6rem 0.9rem;
   background: var(--titlebar);
   border-bottom: 1px solid var(--border);
 }
-.term-window__dots {
-  display: flex;
-  gap: 0.45rem;
-}
-.term-window__dots span {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.term-window__dots span:nth-child(1) {
-  background: var(--dot-red);
-}
-.term-window__dots span:nth-child(2) {
-  background: var(--dot-yellow);
-}
-.term-window__dots span:nth-child(3) {
-  background: var(--dot-green);
-}
 .term-window__title {
-  margin: 0 auto;
   font-size: var(--smaller-font-size);
   color: var(--text-dim);
   letter-spacing: 0.3px;

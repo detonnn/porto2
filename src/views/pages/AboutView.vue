@@ -15,7 +15,6 @@
 
             <div class="about__data term-window">
                 <div class="term-window__bar">
-                    <div class="term-window__dots"><span></span><span></span><span></span></div>
                     <span class="term-window__title"><i class="uil uil-file-alt"></i> {{ about.windowTitle }}</span>
                 </div>
                 <div class="term-window__body">
