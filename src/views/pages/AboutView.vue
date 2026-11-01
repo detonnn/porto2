@@ -108,8 +108,8 @@ const readTheme = () => {
     return {
         font,
         light: false,
-        strapColor: '#181b20',
-        inkColor: cssVar('--text-dim', '#6b7a92'),
+        strapColor: cssVar('--text', '#c7d2e0'),
+        inkColor: '#2b3340',
         cardColor: cssVar('--text', '#c7d2e0'),
     }
 }

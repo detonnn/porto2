@@ -15,9 +15,8 @@
         </div>
         <div class="chatbot-header-info">
           <strong>Dexton Assistant</strong>
-          <span class="chatbot-status" :class="{ typing: typing }">
-            <span class="chatbot-status-dot"></span>
-            <span>{{ typing ? "mengetik..." : "Online" }}</span>
+          <span class="chatbot-status" :class="{ typing: typing, offline: !isOnline && !typing }">
+            <span :key="typing ? 'typing' : isOnline ? 'online' : 'offline'">{{ typing ? "typing..." : isOnline ? "Online" : "Offline" }}</span>
           </span>
         </div>
         <button
@@ -212,9 +211,6 @@
           </div>
           <div class="chatbot-actions-row">
             <div class="chatbot-actions-left">
-              <span class="chatbot-hint"
-                >Enter kirim · Shift+Enter baris baru</span
-              >
             </div>
             <button
               class="chatbot-send-btn"
@@ -291,7 +287,7 @@ const QUICK_REPLIES = [
 ];
 
 const ANSWERS = {
-  ans1: "Muhammad Ibnu Dexton Alfathir — 19 tahun, Tangerang, mahasiswa Universitas Pamulang, anak pertama dari 2 bersaudara. Lulusan SMKN 5 Kota Tangerang DKV, fokus di UI/UX, graphic design, motion design, dan frontend dev.",
+  ans1: "Muhammad Ibnu Dexton Alfathir — 19 tahun, Tangerang, mahasiswa Universitas Pamulang. Lulusan SMKN 5 Kota Tangerang DKV, fokus di UI/UX, graphic design, motion design, dan frontend dev.",
   ans2: "Keahlian: Graphic Design 95% (Illustrator/Photoshop), UI/UX 90% (Figma), Motion & Video Editing 80% (CapCut), Frontend 75% (React, Tailwind, Vite, Vanilla JS, Canvas/Web Audio), Layout & Print 85%.",
   ans3: "Proyek: Brand Identity Garuda Private Server, Custom Vector Logo & Typography, Internship Azka Print (packaging workflow), Brand fashion Attics (katalog), Packaging Keripik Tempe & Social Media Kit sneaker lokal.",
   ans4: "Gampang! Scroll ke section kontak di bawah, isi form, atau langsung klik salah satu link ini",
@@ -508,8 +504,6 @@ const KEYWORD_MAP = [
       "lahir",
       "ulang tahun",
       "19 tahun",
-      "anak pertama",
-      "2 bersaudara",
     ],
     answer: "ansAge",
   },
@@ -727,7 +721,12 @@ export default {
       lastSpamWarnAt: 0,
       spamQueue: null,
       spamWarnScheduled: false,
+      warnPending: false,
+      inflight: null,
       typingTimer: null,
+      isOnline: false,
+      offlineTimer: null,
+      pendingReply: false,
     };
   },
   computed: {
@@ -834,11 +833,38 @@ export default {
       this.isOpen = false;
       this.menuOpen = false;
       this.clearIdleTimer();
+      if (this.offlineTimer) {
+        clearTimeout(this.offlineTimer);
+        this.offlineTimer = null;
+      }
     },
     clearIdleTimer() {
       if (this.idleTimer) {
         clearTimeout(this.idleTimer);
         this.idleTimer = null;
+      }
+    },
+    resetOnlineTimer() {
+      this.isOnline = true;
+      if (this.offlineTimer) {
+        clearTimeout(this.offlineTimer);
+        this.offlineTimer = null;
+      }
+      if (this.isOpen && this.chatInitialized) {
+        this.offlineTimer = setTimeout(() => {
+          this.setOffline();
+        }, 2500);
+      }
+    },
+    setOffline() {
+      if (this.typing || this.pendingReply || this.spamQueue || this.warnPending) {
+        this.resetOnlineTimer();
+        return;
+      }
+      this.isOnline = false;
+      if (this.offlineTimer) {
+        clearTimeout(this.offlineTimer);
+        this.offlineTimer = null;
       }
     },
     closeMenu() {
@@ -852,7 +878,7 @@ export default {
       }, 7000);
     },
     showIdleMessage() {
-      if (!this.isOpen || this.typing || this.hasSentIdle) return;
+      if (!this.isOpen || this.typing || this.pendingReply || this.hasSentIdle) return;
       const idleMessages = [
         "Masih di situ kan? Ada yang mau ditanyain lagi gak nih?",
         "Bengong ya? Tanya aja bebas — profil, skill, hobi, atau tiktok?!",
@@ -865,10 +891,13 @@ export default {
         idx = Math.floor(Math.random() * idleMessages.length);
       } while (idx === this.lastIdleIdx && idleMessages.length > 1);
       this.lastIdleIdx = idx;
-      this.hasSentIdle = true; // Tandai sudah kirim idle, stop spamming!
+      this.hasSentIdle = true;
 
       this.showTyping(() => {
         this.addMessage(idleMessages[idx], "bot");
+        setTimeout(() => {
+          this.resetOnlineTimer();
+        }, 2000);
       });
     },
     startFreshChat() {
@@ -877,9 +906,14 @@ export default {
       this.historyView = false;
       this.chatInitialized = true;
       this.hasSentIdle = false;
-      this.resetIdleTimer();
-      // ponytail: greeting jangan lama — 700ms cukup
-      this.showTyping(() => this.addMessage(ANSWERS.greeting, "bot"), 700);
+      this.isOnline = false;
+      setTimeout(() => {
+        this.isOnline = true;
+        this.resetIdleTimer();
+        setTimeout(() => {
+          this.showTyping(() => this.addMessage(ANSWERS.greeting, "bot"), 700);
+        }, 1000);
+      }, 1500);
     },
     endChat() {
       this.chatInitialized = false;
@@ -989,6 +1023,7 @@ export default {
     },
     showTyping(cb, delay) {
       if (this.typingTimer) clearTimeout(this.typingTimer);
+      this.isOnline = true;
       this.typing = true;
       this.scrollDown();
       const d = delay != null ? delay : 1500 + Math.random() * 1200;
@@ -996,6 +1031,8 @@ export default {
         this.typingTimer = null;
         this.typing = false;
         cb();
+        this.resetOnlineTimer(); // abis ngebales, balik offline kalau ga ada aktivitas
+        this.$nextTick(() => this._flushQueue());
       }, d);
     },
     cancelTyping() {
@@ -1143,6 +1180,7 @@ export default {
       return VISITOR_KEYWORDS.some((k) => l.includes(k));
     },
     async replyVisitor() {
+      this.isOnline = true;
       this.typing = true;
       this.scrollDown();
       await new Promise((r) => setTimeout(r, 1500 + Math.random() * 1200));
@@ -1163,6 +1201,7 @@ export default {
         );
       } finally {
         this.typing = false;
+        this._flushQueue();
       }
     },
     // ponytail: helper — cuma balas bot, tanpa add user msg (dipakai buat queue spam)
@@ -1258,72 +1297,82 @@ export default {
         return;
       }
       const now = Date.now();
-      const isSpamBurst = (() => {
-        this.spamTimes = (this.spamTimes || []).filter((t) => now - t < 4000);
-        this.spamTimes.push(now);
-        return this.spamTimes.length > 4;
-      })();
-      const isSpam = this.typing || isSpamBurst;
-      if (isSpam) {
-        // cancel jawaban pending pertama biar gak double, tapi jangan cancel warning yang lagi jalan
-        if (this.typing && !this.spamWarnScheduled) this.cancelTyping();
-        // simpan cuma yang terakhir — semua spam sebelumnya diabaikan, cuma jawab paling akhir
-        this.spamQueue = { text: displayText, key: forcedAnswerKey };
-        // tampilkan bubble user biar keliatan dia spam (gak silent drop)
-        this.addMessage(displayText, "user");
-        this.playAudio("send.mp3");
-        this.saveHistoryEntry(displayText);
-        this.inputText = "";
-        this.$nextTick(() => {
-          const el = this.$refs.input;
-          if (el) el.style.height = "auto";
-        });
-        if (this.spamWarnScheduled) return;
-        this.spamWarnScheduled = true;
-        this.lastSpamWarnAt = now;
-        const warnMsg = isSpamBurst && !this.typing
-          ? "Woy pelan-pelan, jangan spam quick chat 😅 — kasih jeda bentar ya"
-          : "Santai bre, jangan di-spam — tunggu gue jawab satu-satu ya 🙏";
-        const waitAndProcess = () => {
-          if (this.typing) { setTimeout(waitAndProcess, 350); return; }
-          this.showTyping(() => {
-            this.addMessage(warnMsg, "bot");
-            // setelah warning selesai (typing false lagi), baru jawab queue paling akhir aja
-            const afterWarn = () => {
-              if (this.typing) { setTimeout(afterWarn, 350); return; }
-              const q = this.spamQueue;
-              this.spamQueue = null;
-              this.spamWarnScheduled = false;
-              this.spamTimes = [];
-              if (q) {
-                this.hasSentIdle = false;
-                this.resetIdleTimer();
-                this.historyView = false;
-                this.activeReact = null;
-                // user bubble-nya udah ditambah di atas untuk q yang terakhir,
-                // jadi di sini cuma trigger balasan bot-nya aja
-                this._replyBot(q.text, q.key);
-              }
-            };
-            setTimeout(afterWarn, 350);
-          });
-        };
-        waitAndProcess();
+      this.spamTimes = this.spamTimes.filter((t) => now - t < 3000);
+      this.spamTimes.push(now);
+      const busy = this.typing || this.pendingReply;
+      // spam = 3+ chat dalam 3 detik, ATAU chat ke-2 pas bot masih sibuk
+      const isSpam = this.spamTimes.length >= 3 || (busy && !!this.spamQueue);
+
+      this._pushUser(displayText);
+
+      if (busy || isSpam) {
+        const norm = (t) => (t || "").trim().toLowerCase();
+        const dupe =
+          (this.inflight && norm(this.inflight) === norm(displayText)) ||
+          (this.spamQueue && norm(this.spamQueue.text) === norm(displayText));
+        if (!dupe) this.spamQueue = { text: displayText, key: forcedAnswerKey };
+        if (isSpam && !this.spamWarnScheduled) {
+          this.spamWarnScheduled = true;
+          this.warnPending = true;
+          setTimeout(() => { this.spamWarnScheduled = false; }, 4000);
+        }
+        this._flushQueue(); // no-op kalau bot masih sibuk, otomatis jalan pas selesai
         return;
       }
+
       this.hasSentIdle = false;
       this.resetIdleTimer();
       this.historyView = false;
       this.activeReact = null;
-      this.addMessage(displayText, "user");
+      this._beginReply(displayText, forcedAnswerKey);
+    },
+    // off -> on (delay tipis) dulu, baru callback (typing + balas)
+    _goOnline(cb) {
+      this.pendingReply = true;
+      this.isOnline = false;
+      setTimeout(() => {
+        this.isOnline = true;
+        setTimeout(() => {
+          this.pendingReply = false;
+          cb();
+        }, 700);
+      }, 600);
+    },
+    _beginReply(text, key) {
+      this.inflight = text;
+      this._goOnline(() => this._replyBot(text, key));
+    },
+    _pushUser(text) {
+      this.addMessage(text, "user");
       this.playAudio("send.mp3");
-      this.saveHistoryEntry(displayText);
+      this.saveHistoryEntry(text);
       this.inputText = "";
       this.$nextTick(() => {
         const el = this.$refs.input;
         if (el) el.style.height = "auto";
       });
-      this._replyBot(displayText, forcedAnswerKey);
+    },
+    _flushQueue() {
+      if (this.typing || this.pendingReply) return;
+      if (this.warnPending) {
+        this.warnPending = false;
+        this._goOnline(() =>
+          this.showTyping(
+            () => this.addMessage("Woy pelan-pelan, jangan spam chat ya 😅 Kasih jeda bentar!", "bot"),
+            900,
+          ),
+        );
+        return; // abis warning, showTyping manggil _flushQueue lagi
+      }
+      this.inflight = null;
+      const q = this.spamQueue;
+      if (!q) return;
+      this.spamQueue = null;
+      this.hasSentIdle = false;
+      this.resetIdleTimer();
+      this.historyView = false;
+      this.activeReact = null;
+      this._beginReply(q.text, q.key);
     },
   },
 };

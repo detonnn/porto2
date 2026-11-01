@@ -17,6 +17,7 @@
 
       <div ref="innerRef" class="lyd__inner" :style="innerStyle">
         <div class="lyd__face" :style="faceStyle">
+          <div class="lyd__content lyd__cut">
           <slot name="front">
             <div class="lyd__fill" :style="{ background: cardColor, color: inkColor }">
               <LanyardArt
@@ -68,11 +69,13 @@
               </div>
             </div>
           </slot>
+          </div>
           <div class="lyd__slot" aria-hidden="true" :style="slotStyle"></div>
-          <div class="lyd__shade" aria-hidden="true"></div>
+          <div class="lyd__shade lyd__cut" aria-hidden="true"></div>
         </div>
 
         <div class="lyd__face" :style="[faceStyle, { transform: 'rotateY(180deg)' }]">
+          <div class="lyd__content lyd__cut">
           <slot name="back">
             <div class="lyd__fill" :style="{ background: cardColor }">
               <LanyardArt
@@ -152,8 +155,9 @@
               </div>
             </div>
           </slot>
+          </div>
           <div class="lyd__slot" aria-hidden="true" :style="slotStyle"></div>
-          <div class="lyd__shade" aria-hidden="true"></div>
+          <div class="lyd__shade lyd__cut" aria-hidden="true"></div>
         </div>
       </div>
     </div>
@@ -247,7 +251,19 @@ const innerStyle = computed(() => ({
   top: ringR.value + clipH.value * 0.6 + 'px',
   height: ch.value + 'px',
 }))
-const faceStyle = computed(() => ({ borderRadius: cw.value * 0.06 + 'px' }))
+// real punched hole: the slot shape is cut out of the card so the page shows through
+const faceStyle = computed(() => {
+  const w = +(cw.value * 0.2).toFixed(2)
+  const h = +(cw.value * 0.035).toFixed(2)
+  const svg =
+    "<svg xmlns='http://www.w3.org/2000/svg' width='" + w + "' height='" + h + "'>" +
+    "<rect width='" + w + "' height='" + h + "' rx='" + h / 2 + "' fill='black'/></svg>"
+  return {
+    borderRadius: cw.value * 0.06 + 'px',
+    '--slot-mask': 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")',
+    '--slot-t': cw.value * 0.05 + 'px',
+  }
+})
 const slotStyle = computed(() => ({
   top: cw.value * 0.05 + 'px',
   width: cw.value * 0.2 + 'px',
@@ -306,6 +322,12 @@ function mountBadge() {
   let H = 1
   let strapTex = null
   let plainTex = null
+  // theme change: old textures stay under the new ones while they fade in
+  let prevStrap = null
+  let prevPlain = null
+  let fadeStart = 0
+  const FADE_MS = 500
+  let fade = 1
   const spin = { a: 0, v: 0 }
   let spinTarget = showBack.value ? Math.PI : 0
   spin.a = spinTarget
@@ -343,7 +365,17 @@ function mountBadge() {
     plainTex = makeStrap(lowLen + 4, sw * 0.8, dpr, { ...strapOpts(), plain: true })
   }
   // theme / font change: repaint the strap only, keep the swing going
-  relook = makeTextures
+  relook = () => {
+    const op = strapTex
+    const pp = plainTex
+    makeTextures()
+    if (op && pp) {
+      prevStrap = op
+      prevPlain = pp
+      fadeStart = performance.now()
+      fade = 0
+    }
+  }
 
   const build = () => {
     dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -391,7 +423,7 @@ function mountBadge() {
   }
 
   // ---- drawing ---------------------------------------------------------
-  const ribbon = (ids, tex, rest, light) => {
+  const ribbon = (ids, tex, prev, rest, light) => {
     const Wt = tex.width
     for (let i = 0; i < ids.length - 1; i++) {
       const a = pts[ids[i]]
@@ -417,7 +449,13 @@ function mountBadge() {
       )
       // +1.5 overlaps the next slice, so bends never show a hairline seam
       const src = Math.min(dv + 1.5, tex.height - v0)
-      if (src > 0) ctx.drawImage(tex, 0, v0, Wt, src, 0, v0, Wt, src)
+      if (src > 0) {
+        const old = fade < 1 && prev && prev.width === tex.width && prev.height === tex.height
+        if (old) ctx.drawImage(prev, 0, v0, Wt, src, 0, v0, Wt, src)
+        ctx.globalAlpha = old ? fade : 1
+        ctx.drawImage(tex, 0, v0, Wt, src, 0, v0, Wt, src)
+        ctx.globalAlpha = 1
+      }
       // a strand turned away from the light reads darker, which sells the 3D
       const shade = 0.22 * (1 - Math.max(0, nx * light))
       ctx.fillStyle = 'rgba(0,0,0,' + shade.toFixed(3) + ')'
@@ -439,9 +477,18 @@ function mountBadge() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     if (!strapTex || !plainTex) return
     ctx.imageSmoothingEnabled = true
-    ribbon(left, strapTex, strandRest, -1)
-    ribbon(right, strapTex, strandRest, 1)
-    ribbon(low, plainTex, (lowLen * 1) / 3, 0)
+    if (fade < 1) {
+      const t = Math.min(1, (performance.now() - fadeStart) / FADE_MS)
+      fade = t * t * (3 - 2 * t) // smoothstep
+      if (t >= 1) {
+        fade = 1
+        prevStrap = null
+        prevPlain = null
+      }
+    }
+    ribbon(left, strapTex, prevStrap, strandRest, -1)
+    ribbon(right, strapTex, prevStrap, strandRest, 1)
+    ribbon(low, plainTex, prevPlain, (lowLen * 1) / 3, 0)
 
     // side-release buckle, turned to follow the short strap
     const B = pts[iB]
@@ -706,13 +753,28 @@ onBeforeUnmount(() => {
   position: absolute;
   max-width: none;
 }
+.lyd__content {
+  position: absolute;
+  inset: 0;
+}
+.lyd__cut {
+  -webkit-mask-image: var(--slot-mask), linear-gradient(#000, #000);
+  mask-image: var(--slot-mask), linear-gradient(#000, #000);
+  -webkit-mask-position: 50% var(--slot-t), 0 0;
+  mask-position: 50% var(--slot-t), 0 0;
+  -webkit-mask-repeat: no-repeat, no-repeat;
+  mask-repeat: no-repeat, no-repeat;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+/* only the rim of the hole: the middle is see-through */
 .lyd__slot {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.28);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  background: transparent;
+  box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.22);
   z-index: 6;
 }
 .lyd__shade {

@@ -2649,25 +2649,6 @@ body.light-theme .contact__form {
   gap: 5px;
 }
 
-.chatbot-status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #4ade80;
-  box-shadow: none;
-  animation: chatbotStatusBlink 2s ease-in-out infinite;
-}
-
-@keyframes chatbotStatusBlink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
-}
-
 .chatbot-music-toggle {
   background: transparent;
   border: none;
@@ -2941,8 +2922,33 @@ body.light-theme .chatbot-menu-item:hover {
   animation: chatbotTypingBlink 1.2s ease-in-out infinite;
 }
 
+.chatbot-status {
+  transition: color 0.3s ease;
+}
+
+.chatbot-status span {
+  display: inline-block;
+  animation: statusFadeIn 0.4s ease;
+}
+
 .chatbot-status.typing {
   color: var(--green);
+}
+
+.chatbot-status.offline {
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+@keyframes statusFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes chatbotTypingBlink {
