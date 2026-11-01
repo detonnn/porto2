@@ -8,6 +8,7 @@
             <!-- rig is pulled up to the section top, so the strap hangs from the edge under the navbar -->
             <div
               class="about__lanyard-rig"
+              :class="{ 'about__lanyard-rig--dark': !theme.light }"
               :style="{ top: -rig.up + 'px', left: rig.left + 'px', width: rig.width + 'px', '--fade-start': rig.fade + 'px' }"
             >
                 <lanyard-badge
@@ -98,6 +99,7 @@ const readTheme = () => {
     if (document.body.classList.contains('light-theme')) {
         return {
             font,
+            light: true,
             strapColor: cssVar('--text', '#1f2a3a'),
             inkColor: cssVar('--text-faint', '#9aa6b8'),
             cardColor: cssVar('--bg-window', '#f6f8fb'),
@@ -105,6 +107,7 @@ const readTheme = () => {
     }
     return {
         font,
+        light: false,
         strapColor: '#181b20',
         inkColor: cssVar('--text-dim', '#6b7a92'),
         cardColor: cssVar('--text', '#c7d2e0'),
@@ -122,7 +125,7 @@ export default {
             inView: false,
             cardWidth: 270,
             rig: { up: 0, height: 560, layoutH: 560, left: 0, width: 0, anchorX: 0, spread: 0, fade: 0 },
-            theme: { font: 'monospace', strapColor: '#181b20', inkColor: '#6b7a92', cardColor: '#c7d2e0' },
+            theme: { light: false, font: 'monospace', strapColor: '#181b20', inkColor: '#6b7a92', cardColor: '#c7d2e0' },
         }
     },
     mounted() {
@@ -195,8 +198,10 @@ export default {
 .shiny-btn__shimmer{position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,var(--shine-color,rgba(255,255,255,.35)),transparent);transform:skewX(-20deg);animation:shine 5s infinite}
 @keyframes shine{0%{left:-100%}20%{left:200%}100%{left:200%}}
 .about__lanyard{position:relative;width:100%;min-height:420px;justify-self:center}
-.about__lanyard-rig{position:absolute;z-index:5;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,transparent var(--fade-start),#000 calc(var(--fade-start) + 40px));mask-image:linear-gradient(to bottom,transparent var(--fade-start),#000 calc(var(--fade-start) + 40px))}
+.about__lanyard-rig{position:absolute;z-index:50;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,transparent var(--fade-start),#000 calc(var(--fade-start) + 40px));mask-image:linear-gradient(to bottom,transparent var(--fade-start),#000 calc(var(--fade-start) + 40px))}
 .about__lanyard-rig :deep([role="button"]){pointer-events:auto}
+/* dark mode: a black drop shadow is invisible on a black page, so use a soft light rim + glow instead */
+.about__lanyard-rig--dark :deep(.lyd__face){box-shadow:0 0 0 1px rgba(255,255,255,.16),0 0 26px 2px rgba(199,210,224,.26),0 22px 44px -10px rgba(0,0,0,.7)}
 @media screen and (max-width:767px){.about__lanyard{min-height:460px}}
 .about__id{position:relative;width:100%;height:100%;overflow:hidden;background:#f3f4f6}
 .about__id img{position:absolute;top:50%;left:50%;max-width:none;object-fit:contain;transform:translate(-50%,-50%) rotate(-90deg);pointer-events:none;user-select:none;-webkit-user-drag:none}
