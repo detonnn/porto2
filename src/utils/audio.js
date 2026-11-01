@@ -1,4 +1,4 @@
-// ponytail: single audio-unlock util — replaces clones in main.js / AiAssistant / LiveNotifications
+// ponytail: single audio-unlock util — replaces clones in main.js / AiAssistant
 export function unlockAudioContext() {
   try {
     // singleton: sebelumnya bikin AudioContext baru di SETIAP tap (limit browser HP ~4-6, sisanya leak + lag)

@@ -17,6 +17,7 @@
                   :anchor-x="rig.anchorX"
                   :anchor-spread="rig.spread"
                   :card-width="cardWidth"
+                  :card-ratio="idRatio"
                   :strap-text="about.title"
                   strap-label="IBNU DEXTON"
                   name="Ibnu Dexton"
@@ -29,6 +30,18 @@
                   :flip-button="false"
                 >
                     <template #front>
+                        <div class="about__id">
+                            <img
+                              :src="idImage"
+                              alt="Identity card Ibnu Dexton"
+                              draggable="false"
+                              data-pin-nopin="true"
+                              data-pin-no-hover="true"
+                              :style="{ width: cardWidth * idRatio + 'px', height: cardWidth + 'px' }"
+                            />
+                        </div>
+                    </template>
+                    <template #back>
                         <div class="about__photo">
                             <img :src="about.revealImage" alt="Ibnu Dexton" draggable="false" data-pin-nopin="true" data-pin-no-hover="true" />
                             <span class="about__photo-shine"></span>
@@ -104,6 +117,8 @@ export default {
     data() {
         return {
             about: data.about,
+            idImage: 'frontend/assets/img/identity-card.jpg',
+            idRatio: 1306 / 752, // identity-card.jpg is landscape; the badge is that shape turned upright
             inView: false,
             cardWidth: 270,
             rig: { up: 0, height: 560, layoutH: 560, left: 0, width: 0, anchorX: 0, spread: 0, fade: 0 },
@@ -145,10 +160,10 @@ export default {
             const slotW = slot.offsetWidth
             const slotH = Math.round(slot.offsetHeight)
             const mobile = window.innerWidth < 768
-            const cw = Math.max(200, Math.min(mobile ? 230 : 270, Math.floor(slotW - 24)))
+            const cw = Math.max(190, Math.min(mobile ? 220 : 250, Math.floor(slotW - 24)))
             // same numbers the badge uses (see LanyardBadge build()), so the layout below matches it
             const sw = Math.max(14, Math.round(cw * 0.1))
-            const block = sw * 2.2 + Math.max(7, Math.round(cw * 0.036)) * 2 + Math.round(cw * 0.1) + Math.round(cw * 1.5) + 28
+            const block = sw * 2.2 + Math.max(7, Math.round(cw * 0.036)) * 2 + Math.round(cw * 0.1) + Math.round(cw * this.idRatio) + 28
             const EXTRA = 170 // rope hidden above the section top (calmer swing, never drawn)
             const SHOW = 130 // rope we want visible between section top and buckle
             // hang the card a bit lower than the about.md card when it is tall, inside the section padding
@@ -178,6 +193,8 @@ export default {
 .about__lanyard-rig{position:absolute;z-index:5;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,transparent var(--fade-start),#000 calc(var(--fade-start) + 40px));mask-image:linear-gradient(to bottom,transparent var(--fade-start),#000 calc(var(--fade-start) + 40px))}
 .about__lanyard-rig :deep([role="button"]){pointer-events:auto}
 @media screen and (max-width:767px){.about__lanyard{min-height:460px}}
+.about__id{position:relative;width:100%;height:100%;overflow:hidden;background:#f3f4f6}
+.about__id img{position:absolute;top:50%;left:50%;max-width:none;object-fit:contain;transform:translate(-50%,-50%) rotate(-90deg);pointer-events:none;user-select:none;-webkit-user-drag:none}
 .about__photo{position:relative;width:100%;height:100%;overflow:hidden}
 .about__photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 22%;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .about__photo-shine{position:absolute;top:0;left:-100%;width:50%;height:100%;pointer-events:none;background:linear-gradient(90deg,transparent,var(--shine-color,rgba(255,255,255,.35)),transparent);transform:skewX(-20deg);animation:badgeShine 5s infinite}

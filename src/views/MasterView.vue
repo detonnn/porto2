@@ -40,9 +40,6 @@
         
         <!--==================== AI ASSISTANT ====================-->
         <ai-assistant/>
-
-        <!--==================== LIVE NOTIFICATIONS ====================-->
-        <live-notifications/>
 </template>
 
 
@@ -58,14 +55,13 @@ import Project from './pages/ProjectView.vue';
 import Testimonial from './pages/TestimonialView.vue';
 import Contact from './pages/ContactView.vue';
 import Footerr from './pages/FooterView.vue';
-// ponytail: lazy heavy chunks — github/portfolio/ai/notif berat, split biar initial load enteng
+// ponytail: lazy heavy chunks — github/portfolio/ai berat, split biar initial load enteng
 const Github = defineAsyncComponent(() => import('./pages/GithubView.vue'))
 const Portfolio = defineAsyncComponent(() => import('./pages/PortfolioView.vue'))
 const AiAssistant = defineAsyncComponent(() => import('../components/AiAssistant.vue'))
-const LiveNotifications = defineAsyncComponent(() => import('../components/LiveNotifications.vue'))
 
 export default {
-    components: {Headerr, Home, About, Skills, Github, Qualification, Services, Portfolio, Project, Testimonial, Contact, Footerr, AiAssistant, LiveNotifications},
+    components: {Headerr, Home, About, Skills, Github, Qualification, Services, Portfolio, Project, Testimonial, Contact, Footerr, AiAssistant},
     name: 'Master',
 };
 </script>

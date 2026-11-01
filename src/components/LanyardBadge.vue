@@ -194,6 +194,8 @@ const props = defineProps({
   cardColor: { type: String, default: '#e8dfcc' },
   flipButton: { type: Boolean, default: true },
   cardWidth: { type: Number, default: 240 },
+  /** Card height / width. 1.5 = the original 3:2 portrait. */
+  cardRatio: { type: Number, default: 1.5 },
   /** Root height. A definite length, never a percentage. */
   height: { type: String, default: '100svh' },
   className: { type: String, default: '' },
@@ -227,7 +229,7 @@ const reduced = ref(
 const showBack = ref(false)
 
 const cw = computed(() => props.cardWidth)
-const ch = computed(() => Math.round(props.cardWidth * 1.5))
+const ch = computed(() => Math.round(props.cardWidth * props.cardRatio))
 const ringR = computed(() => Math.max(7, Math.round(props.cardWidth * 0.036)))
 const clipH = computed(() => Math.round(props.cardWidth * 0.1))
 const s = computed(() => props.cardWidth / 240) // built-in faces are laid out at 240px
@@ -610,7 +612,7 @@ function sync() {
   else stop()
 }
 
-watch([() => props.active, reduced, cw], sync, { flush: 'post' })
+watch([() => props.active, reduced, cw, ch], sync, { flush: 'post' })
 watch([() => props.anchorX, () => props.anchorSpread, () => props.layoutHeight], () => {
   if (rebuild) rebuild()
 })
