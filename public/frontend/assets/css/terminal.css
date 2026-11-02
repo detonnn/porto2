@@ -2047,13 +2047,13 @@ body.light-theme .contact__form {
 }
 @media screen and (min-width: 768px) {
   .footer {
-    height: 460px;
+    height: 700px;
   }
   .footer__pin {
-    height: 460px;
+    height: 700px;
   }
   .footer__sticky {
-    top: max(0px, calc(100vh - 460px));
+    top: max(0px, calc(100vh - 700px));
   }
 }
 @keyframes catWalk {
@@ -2084,6 +2084,15 @@ body.light-theme .contact__form {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+.footer__crew {
+  /* keep static: the doodle layer positions itself against .footer__bg */
+  width: min(100%, 820px);
+  margin: 1.6rem auto 0;
+  padding: 0 1.4rem;
+}
+.footer__crew + .footer__bottom {
+  margin-top: 0;
 }
 .footer__glow {
   position: absolute;

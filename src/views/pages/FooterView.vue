@@ -34,6 +34,8 @@
                             </div>
                         </div>
 
+                        <doodle-crew class="footer__crew" wordmark="dxtnn" />
+
                         <div class="footer__bottom container">
                             <div class="footer__bottom-left">
                                 <p class="footer__copy">&#169; {{ footer.copyright }}</p>
@@ -53,10 +55,11 @@
 <script>
 import data from '../../data/portfolio.json'
 import VisitorCounter from '../../components/VisitorCounter.vue'
+import DoodleCrew from '../../components/DoodleCrew.vue'
 
 export default {
     name: 'Footer',
-    components: { VisitorCounter },
+    components: { VisitorCounter, DoodleCrew },
     data() {
         return { footer: data.footer }
     },
