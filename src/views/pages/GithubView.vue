@@ -21,6 +21,7 @@
                     <div v-else-if="error" class="github__fallback">
                         <p class="comment">live api unreachable — rendering cached chart</p>
                         <img :src="'https://ghchart.rshah.org/3ee07f/' + username" :alt="username + ' github contribution chart'">
+                        <button type="button" class="button button--flex" style="margin-top:.75rem" @click="fetchContributions">retry</button>
                     </div>
 
                     <div v-else class="gh-calendar" :class="{ 'gh-calendar--game': gameActive }" :style="gameActive ? gameBgStyle : null">
@@ -245,11 +246,16 @@ export default {
         this._observer.observe(document.body, { attributes: true, attributeFilter: ['class'] })
         this.fetchContributions()
         window.addEventListener('storage', this.checkStorageLevel)
+        this._retryIfFailed = () => { if (this.error && !this.loading) this.fetchContributions() }
+        window.addEventListener('online', this._retryIfFailed)
+        document.addEventListener('visibilitychange', this._retryIfFailed)
         window.addEventListener('set-github-level-10', this.forceLevel10)
     },
     beforeUnmount() {
         if (this._observer) this._observer.disconnect()
         window.removeEventListener('storage', this.checkStorageLevel)
+        window.removeEventListener('online', this._retryIfFailed)
+        document.removeEventListener('visibilitychange', this._retryIfFailed)
         window.removeEventListener('set-github-level-10', this.forceLevel10)
     },
     methods: {
@@ -267,42 +273,73 @@ export default {
           checkTheme() {
               this.isLight = document.body.classList.contains('light-theme')
           },
-        async fetchContributions() {
-            this.loading = true
-            this.error = false
-            // ponytail: reset biar retry nggak duplikat label
+        applyContributions(json) {
+            const days = json.contributions || []
+            if (!days.length) throw new Error('no data')
+            this.total = (json.total && json.total.lastYear != null)
+                ? json.total.lastYear
+                : days.reduce((acc, d) => acc + (d.count || 0), 0)
+            const byDate = {}
+            days.forEach((d) => {
+                byDate[d.date] = { level: Math.min(10, Math.max(0, d.level)), count: d.count }
+            })
+            this.byDate = byDate
+            const start = parseDate(days[0].date)
+            const end = parseDate(days[days.length - 1].date)
+            this.resolvedEnd = formatDate(end)
             this.weeks = []; this.monthLabels = []
-            let ctrl; let tm;
+            this.buildGrid(start, end)
+        },
+        // retry + timeout biar kuat di sinyal HP / in-app browser (IG) yang sering telat
+        async fetchJson(attempts = 3) {
+            const url = `https://github-contributions-api.jogruber.de/v4/${this.username}?y=last`
+            let lastErr
+            for (let i = 0; i < attempts; i++) {
+                const ctrl = new AbortController()
+                const tm = setTimeout(() => ctrl.abort(), 8000 + i * 4000)
+                try {
+                    const res = await fetch(url, { signal: ctrl.signal })
+                    if (!res.ok) throw new Error('bad response')
+                    return await res.json()
+                } catch (e) {
+                    lastErr = e
+                    await new Promise((r) => setTimeout(r, 600 * (i + 1)))
+                } finally {
+                    clearTimeout(tm)
+                }
+            }
+            throw lastErr
+        },
+        scrollCalendarEnd() {
+            this.$nextTick(() => {
+                if (this.$refs.scrollBox) this.$refs.scrollBox.scrollLeft = this.$refs.scrollBox.scrollWidth
+            })
+        },
+        async fetchContributions() {
+            const CACHE_KEY = 'gh_contrib_cache_v1'
+            this.error = false
+            // tampilin cache dulu (kalau ada) biar langsung keliatan, lalu refresh di belakang
+            let hasCache = false
             try {
-                ctrl = new AbortController(); tm = setTimeout(() => ctrl.abort(), 5000);
-                const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${this.username}?y=last`, { signal: ctrl.signal })
-                if (!res.ok) throw new Error('bad response')
-                const json = await res.json()
-                const days = json.contributions || []
-                if (!days.length) throw new Error('no data')
-
-                this.total = (json.total && json.total.lastYear != null)
-                    ? json.total.lastYear
-                    : days.reduce((acc, d) => acc + (d.count || 0), 0)
-
-                const byDate = {}
-                days.forEach((d) => {
-                    byDate[d.date] = { level: Math.min(10, Math.max(0, d.level)), count: d.count }
-                })
-                this.byDate = byDate
-
-                const start = parseDate(days[0].date)
-                const end = parseDate(days[days.length - 1].date)
-                this.resolvedEnd = formatDate(end)
-                this.buildGrid(start, end)
+                const raw = localStorage.getItem(CACHE_KEY)
+                if (raw) {
+                    this.applyContributions(JSON.parse(raw))
+                    hasCache = true
+                    this.loading = false
+                    this.scrollCalendarEnd()
+                }
+            } catch (e) { hasCache = false }
+            if (!hasCache) this.loading = true
+            try {
+                const json = await this.fetchJson()
+                this.applyContributions(json)
+                try { localStorage.setItem(CACHE_KEY, JSON.stringify(json)) } catch (e) {}
+                this.error = false
             } catch (e) {
-                this.error = true
+                if (!hasCache) this.error = true
             } finally {
-                if (ctrl) clearTimeout(tm)
                 this.loading = false
-                this.$nextTick(() => {
-                    if (this.$refs.scrollBox) this.$refs.scrollBox.scrollLeft = this.$refs.scrollBox.scrollWidth
-                })
+                this.scrollCalendarEnd()
             }
         },
         buildGrid(start, end) {

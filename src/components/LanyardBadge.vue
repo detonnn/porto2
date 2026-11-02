@@ -13,7 +13,7 @@
       @keydown="onKeydown"
     >
       <!-- badge clip: hooks the ring, bites the card -->
-      <div class="lyd__clip" aria-hidden="true" :style="clipStyle"></div>
+      <div ref="clipRef" class="lyd__clip" aria-hidden="true" :style="clipStyle"></div>
 
       <div ref="innerRef" class="lyd__inner" :style="innerStyle">
         <div class="lyd__face" :style="faceStyle">
@@ -225,6 +225,7 @@ const rootRef = ref(null)
 const canvasRef = ref(null)
 const cardRef = ref(null)
 const innerRef = ref(null)
+const clipRef = ref(null)
 
 const reduced = ref(
   typeof window !== 'undefined' &&
@@ -294,6 +295,7 @@ function mountBadge() {
   const canvas = canvasRef.value
   const card = cardRef.value
   const inner = innerRef.value
+  const clipEl = clipRef.value
   const ctx = canvas && canvas.getContext('2d')
   if (!root || !canvas || !card || !inner || !ctx) return null
 
@@ -541,6 +543,12 @@ function mountBadge() {
       'rad)'
     inner.style.transform = 'perspective(1100px) rotateY(' + spin.a.toFixed(4) + 'rad)'
     const edge = 1 - Math.abs(Math.cos(spin.a))
+    if (clipEl) {
+      // the clip passes through the hole, so it turns with the card
+      clipEl.style.transform =
+        'translateX(-50%) perspective(1100px) rotateY(' + spin.a.toFixed(4) + 'rad)'
+      clipEl.style.filter = 'brightness(' + (1 - edge * 0.35).toFixed(3) + ')'
+    }
     inner.style.setProperty('--lyd-dim', (edge * 0.5).toFixed(3))
     inner.style.setProperty('--lyd-shine', (50 + Math.sin(spin.a) * 70 + swing * 90).toFixed(1) + '%')
   }
