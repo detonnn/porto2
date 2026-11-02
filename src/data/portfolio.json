@@ -260,7 +260,7 @@
     "subtitle": "recent deployments & live builds",
     "items": [
       {
-        "image": "frontend/assets/img/Attics-std.jpg",
+        "image": "frontend/assets/img/attics-std.jpg",
         "title": "attics.std — Streetwear Brand",
         "description": "Independent graphic design brand producing exclusive, limited-run streetwear graphics — from concept art and typography to full apparel mockups, distributed through a one-buyer-per-design model.",
         "url": "https://atticsstd.vercel.app/"

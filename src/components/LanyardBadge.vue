@@ -624,8 +624,23 @@ function mountBadge() {
     }
     draw()
     place()
+    // sleep when the badge is off-screen or the tab is hidden; resume() wakes it up
+    raf = onScreen && !document.hidden ? requestAnimationFrame(tick) : 0
+  }
+  let onScreen = true
+  const resume = () => {
+    if (raf || !onScreen || document.hidden) return
+    last = performance.now()
     raf = requestAnimationFrame(tick)
   }
+  const io = typeof IntersectionObserver !== 'undefined'
+    ? new IntersectionObserver((es) => {
+        onScreen = es[es.length - 1].isIntersecting
+        resume()
+      }, { rootMargin: '120px' })
+    : null
+  if (io) io.observe(root)
+  document.addEventListener('visibilitychange', resume)
   build()
   draw()
   place()
@@ -644,6 +659,10 @@ function mountBadge() {
 
   return () => {
     cancelAnimationFrame(raf)
+    raf = 0
+    onScreen = false
+    if (io) io.disconnect()
+    document.removeEventListener('visibilitychange', resume)
     observer.disconnect()
     card.removeEventListener('pointerdown', onDown)
     card.removeEventListener('pointermove', onMove)
