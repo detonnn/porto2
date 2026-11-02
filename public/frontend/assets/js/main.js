@@ -3,8 +3,6 @@
    (menu, accordion, tabs, modal, swiper, scroll) + dynamic terminal FX
 =====================================================================*/
 
-const _reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 /* ponytail: nav delegated — works even if #nav-menu belum render saat main.js dieksekusi */
 document.addEventListener("click", (e) => {
   const toggle = e.target.closest && e.target.closest("#nav-toggle");
@@ -70,37 +68,29 @@ document.addEventListener("click", (e) => {
   if (backdrop && e.target === backdrop) backdrop.classList.remove("active-modal");
 });
 
-let _swiperInit = false;
 function initSwiperWhenReady() {
-  if (_swiperInit || typeof Swiper === "undefined") return;
-  let inited = false;
+  if (typeof Swiper === "undefined") return;
   if (document.querySelector(".portofolio__container .swiper-wrapper")) {
-    try {
-      new Swiper(".portofolio__container", {
-        cssMode: _reducedMotion, loop: !_reducedMotion,
-        navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
-        pagination: { el: ".swiper-pagination", clickable: true },
-      });
-      inited = true;
-    } catch {}
+    new Swiper(".portofolio__container", {
+      cssMode: true, loop: true,
+      navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+      pagination: { el: ".swiper-pagination", clickable: true },
+    });
   }
   const tc = document.querySelector(".testimonial__container");
   if (tc && !tc.classList.contains("swiper-initialized")) {
-    try {
-      new Swiper(".testimonial__container", {
-        loop: !_reducedMotion, grabCursor: !_reducedMotion, spaceBetween: 48,
-        pagination: { el: ".swiper-pagination", clickable: true, dynamicBullets: true },
-        breakpoints: { 568: { slidesPerView: 2 } },
-      });
-      inited = true;
-    } catch {}
+    new Swiper(".testimonial__container", {
+      loop: true, grabCursor: true, spaceBetween: 48,
+      pagination: { el: ".swiper-pagination", clickable: true, dynamicBullets: true },
+      breakpoints: { 568: { slidesPerView: 2 } },
+    });
   }
-  if (inited) _swiperInit = true;
 }
 (function waitSwiper() {
-  initSwiperWhenReady();
-  if (!_swiperInit) setTimeout(waitSwiper, 500);
-  setTimeout(initSwiperWhenReady, 2000);
+  if (document.querySelector(".testimonial__container")) initSwiperWhenReady();
+  else setTimeout(waitSwiper, 300);
+  // retry after Vue mounts (in case first check too early)
+  setTimeout(initSwiperWhenReady, 1500);
 })();
 
 let ticking = false;

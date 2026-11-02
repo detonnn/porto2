@@ -13,8 +13,6 @@
         :src="imageUrl"
         :alt="`${title}, ${subtitle}`"
         class="tilt-card__img"
-        loading="lazy"
-        decoding="async"
       />
       <img
         v-if="revealImageUrl"
@@ -22,8 +20,6 @@
         alt=""
         aria-hidden="true"
         class="tilt-card__img tilt-card__img--reveal"
-        loading="lazy"
-        decoding="async"
         :class="{ 'is-revealed': isRevealed }"
       />
       <div v-if="revealImageUrl" class="tilt-card__pixels" aria-hidden="true">
