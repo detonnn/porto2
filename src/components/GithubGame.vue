@@ -24,7 +24,11 @@ export default {
       return this.isLight ? { bg: '#ffffff', star: '#000000', ship: '#0369a1' } : { bg: '#000000', star: '#ffffff', ship: '#38bdf8' };
     }
   },
-  mounted() { this.startGame(); },
+  mounted() {
+    // ponytail: skip game di reduce-motion — heavy canvas + audio
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    this.startGame();
+  },
   beforeUnmount() { this.stopGame(); },
   methods: {
     startGame() {

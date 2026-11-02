@@ -11,6 +11,8 @@
             src="/frontend/assets/img/raccon.gif"
             class="chatbot-avatar-img"
             alt="Assistant"
+            loading="lazy"
+            decoding="async"
           />
         </div>
         <div class="chatbot-header-info">
@@ -148,6 +150,7 @@
                     :src="opt.cover"
                     :alt="opt.title"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div class="pl-row__text">
                     <div class="pl-row__title">{{ opt.title }}</div>
@@ -747,7 +750,7 @@ export default {
     this.stopListenEnded = onTrackEnded(this.handleTrackEnded);
     document.addEventListener("click", this.onDocClick);
 
-    // Pre-initialize audio elements — send/recive butuh bunyi instan, jangan preload none
+    // Audio elements untuk send/recive
     this.audioElements = {
       send: new Audio("/frontend/assets/audio/send.MP3"),
       recive: new Audio("/frontend/assets/audio/recive.MP3"),
@@ -755,45 +758,29 @@ export default {
     Object.values(this.audioElements).forEach((a) => {
       a.volume = 0.5;
       a.preload = "auto";
-      try { a.load(); } catch(e) {}
     });
 
-    // ponytail: unlock pakai dummy biar gak ganggu send/recive yang lagi play di bubble yang sama
-    this._primeAudio = new Audio("/frontend/assets/audio/send.MP3");
-    this._primeAudio.volume = 0;
-    this._primeAudio.preload = "auto";
-    try { this._primeAudio.load(); } catch(e) {}
-    let _realPrimed = false;
-    const unlockAll = () => {
+    // ponytail: unlock audio context + prime elements di gesture pertama
+    let primed = false;
+    this._unlockAll = () => {
+      if (primed) return;
       unlockAudioContext();
-      if (!_realPrimed) {
-        let pending = Object.values(this.audioElements).length;
-        Object.values(this.audioElements).forEach((a) => {
-          const prevVol = a.volume;
-          a.volume = 0;
-          a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = prevVol; if (--pending === 0) _realPrimed = true; }).catch(() => { a.volume = prevVol; if (--pending === 0) _realPrimed = true; });
-        });
-        if (pending === 0) _realPrimed = true;
-      }
-      try { this._primeAudio.currentTime = 0; this._primeAudio.play().then(() => { this._primeAudio.pause(); this._primeAudio.currentTime = 0; }).catch(()=>{}); } catch(e) {}
-      if (window._portoAudioCtx && window._portoAudioCtx.state === "suspended") window._portoAudioCtx.resume();
+      Object.values(this.audioElements).forEach((a) => {
+        const v = a.volume;
+        a.volume = 0;
+        a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = v; primed = true; }).catch(() => { a.volume = v; primed = true; });
+      });
     };
-    this._unlockAll = unlockAll;
-    ["click", "touchstart", "keydown", "pointerdown"].forEach((evt) =>
-      window.addEventListener(evt, unlockAll, { capture: true }),
+    ["click", "touchstart", "keydown"].forEach((evt) =>
+      window.addEventListener(evt, this._unlockAll, { capture: true, once: true }),
     );
-    if (navigator.userActivation && navigator.userActivation.hasBeenActive) unlockAll();
 
     this.$nextTick(() => {
       const b = this.$refs.body;
       if (b) {
         b.setAttribute("data-lenis-prevent", "");
-        b.addEventListener("wheel", (e) => e.stopPropagation(), {
-          passive: true,
-        });
-        b.addEventListener("touchmove", (e) => e.stopPropagation(), {
-          passive: true,
-        });
+        b.addEventListener("wheel", (e) => e.stopPropagation(), { passive: true });
+        b.addEventListener("touchmove", (e) => e.stopPropagation(), { passive: true });
       }
     });
   },
@@ -801,7 +788,7 @@ export default {
     document.removeEventListener("click", this.onDocClick);
     if (this.stopListenEnded) this.stopListenEnded();
     if (this._unlockAll) {
-      ["click", "touchstart", "keydown", "pointerdown"].forEach((evt) =>
+      ["click", "touchstart", "keydown"].forEach((evt) =>
         window.removeEventListener(evt, this._unlockAll, { capture: true }),
       );
     }
@@ -1264,38 +1251,6 @@ export default {
     },
     handleUserInput(displayText, forcedAnswerKey) {
       if (!displayText || !displayText.trim()) return;
-      if (displayText.toLowerCase().includes("beton")) {
-        this.addMessage(displayText, "user");
-        this.playAudio("send.mp3");
-        this.saveHistoryEntry(displayText);
-        this.inputText = "";
-        this.$nextTick(() => {
-          const el = this.$refs.input;
-          if (el) el.style.height = "auto";
-        });
-        this.closeMenu();
-
-        let alreadyClaimed = false;
-        try {
-          alreadyClaimed = localStorage.getItem("gh_secret_beton_used") === "1";
-        } catch(e) {}
-
-        if (alreadyClaimed) {
-          this.showTyping(() => {
-            this.addMessage("Secret key \"BETON\" sudah pernah kamu klaim sebelumnya! Cuma bisa dipakai 1x saja ya bre 😉", "bot");
-          });
-        } else {
-          try {
-            localStorage.setItem("gh_secret_beton_used", "1");
-            localStorage.setItem("gh_gameLevel", "10");
-          } catch(e) {}
-          this.showTyping(() => {
-            this.addMessage("WAAH! Secret key \"BETON\" ditemukan! Selamat, kamu resmi naik ke LEVEL 10 RGB RAINBOW di GitHub Contributions! 🔥🌈", "bot");
-            window.dispatchEvent(new CustomEvent("set-github-level-10"));
-          });
-        }
-        return;
-      }
       const now = Date.now();
       this.spamTimes = this.spamTimes.filter((t) => now - t < 3000);
       this.spamTimes.push(now);
