@@ -566,7 +566,6 @@ body.light-theme .term-window__title {
   display: inline-block;
   transform: translateY(105%);
   transition: transform 0.7s cubic-bezier(0.2, 1.08, 0.3, 1);
-  will-change: transform;
 }
 .vcr-word.is-rev .vcr-char {
   transform: translateY(-105%);
@@ -904,7 +903,6 @@ body.light-theme .hero-term {
   transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
     filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
 }
 .name-short .name-letter {
   opacity: 1;

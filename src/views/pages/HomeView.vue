@@ -50,7 +50,7 @@
                                     <p class="home__description">{{ profile.description }}</p>
                                 </div>
                                 <div class="home__cat" aria-hidden="true">
-                                    <img src="frontend/assets/img/cat.gif" alt="" loading="lazy" decoding="async" />
+                                    <img src="frontend/assets/img/cat.gif" alt="" decoding="async" />
                                 </div>
                             </div>
                         </div>

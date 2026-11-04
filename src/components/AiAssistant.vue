@@ -8,9 +8,11 @@
       <div class="chatbot-header">
         <div class="chatbot-avatar">
           <img
+            v-if="isOpen"
             src="/frontend/assets/img/raccon.gif"
             class="chatbot-avatar-img"
             alt="Assistant"
+            decoding="async"
           />
         </div>
         <div class="chatbot-header-info">

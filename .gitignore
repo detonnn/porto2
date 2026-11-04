@@ -23,6 +23,3 @@ pnpm-debug.log*
 *.sw?
 .vercel
 .env*
-
-public/frontend/assets/img/Ibnu Dexton.jpg
-public/frontend/assets/img/identity-card.jpg
