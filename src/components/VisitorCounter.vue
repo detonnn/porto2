@@ -17,7 +17,12 @@ export default {
       return Number.isFinite(n) ? n.toLocaleString("id-ID") : "—";
     },
   },
-  async mounted() { await this.registerVisit(); },
+  mounted() {
+    // count the visit only once the hello screen is gone
+    const go = () => this.registerVisit();
+    if (window.onSiteReady) window.onSiteReady(go);
+    else go();
+  },
   methods: {
     async registerVisit() {
       try {

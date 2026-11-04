@@ -129,10 +129,17 @@
       (function () {
         var t0 = Date.now(),
           min = 4500;
+        // everything behind the hello screen stays a skeleton (no fetches, no animations) until this fires
+        window.onSiteReady = function (cb) {
+          if (window.__siteReady) cb();
+          else window.addEventListener("site:ready", cb, { once: true });
+        };
         function hide() {
           var el = document.getElementById("app-loader");
           if (!el || el.dataset.done) return;
           el.dataset.done = 1;
+          window.__siteReady = true;
+          window.dispatchEvent(new Event("site:ready"));
           var a = document.getElementById("app");
           if (a) a.classList.add("is-ready");
           el.style.transition = "opacity .5s ease";

@@ -275,19 +275,91 @@ function deleteFrom(el, done) {
   })();
 }
 
+/* Vertical cut reveal (vanilla port of the React/framer-motion template):
+   every character slides up out of a clipped line, staggered. */
+const VCR_REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function vcrOrder(i, total, from) {
+  if (from === "last") return total - 1 - i;
+  if (from === "center") return Math.abs(Math.floor(total / 2) - i);
+  return i;
+}
+
+// builds the clipped, hidden characters (layout is final, nothing visible yet)
+function cutBuild(el, text, o) {
+  o = o || {};
+  const stagger = o.stagger != null ? o.stagger : 0.025;
+  const base = o.delay || 0;
+  el.textContent = "";
+  const token = (el.__vcr = (el.__vcr || 0) + 1); // lets a stale run notice it was replaced
+  const words = [];
+  const chars = [];
+  text.split(" ").forEach((tok, t, all) => {
+    if (tok) {
+      const w = document.createElement("span");
+      w.className = "vcr-word" + (o.reverse ? " is-rev" : "");
+      Array.from(tok).forEach((ch) => {
+        const c = document.createElement("span");
+        c.className = "vcr-char";
+        c.textContent = ch;
+        w.appendChild(c);
+        chars.push(c);
+      });
+      el.appendChild(w);
+      words.push(w);
+    }
+    if (t < all.length - 1) el.appendChild(document.createTextNode(" "));
+  });
+  chars.forEach((c, i) => {
+    c.style.transitionDelay = (base + vcrOrder(i, chars.length, o.from) * stagger).toFixed(3) + "s";
+  });
+  return { words, chars, token, total: base + Math.max(0, chars.length - 1) * stagger + 0.75 };
+}
+
+function cutIn(el, text, o) {
+  o = o || {};
+  return new Promise((resolve) => {
+    if (!el) return resolve();
+    if (VCR_REDUCED) { el.textContent = text; return resolve(); }
+    const b = cutBuild(el, text, o);
+    void el.offsetWidth; // commit the hidden state, then let it transition
+    requestAnimationFrame(() => b.words.forEach((w) => w.classList.add("is-in")));
+    setTimeout(() => {
+      if (o.plain && el.__vcr === b.token) el.textContent = text; // flatten: fewer DOM nodes once it is done
+      resolve();
+    }, b.total * 1000);
+  });
+}
+window.cutBuild = cutBuild;
+window.cutIn = cutIn;
+
+function cutOut(el, o) {
+  o = o || {};
+  const stagger = o.stagger != null ? o.stagger : 0.02;
+  return new Promise((resolve) => {
+    if (!el) return resolve();
+    const chars = Array.from(el.querySelectorAll(".vcr-char"));
+    if (VCR_REDUCED || !chars.length) { el.textContent = ""; return resolve(); }
+    chars.forEach((c, i) => {
+      c.style.transitionDelay = (vcrOrder(i, chars.length, o.from) * stagger).toFixed(3) + "s";
+    });
+    el.querySelectorAll(".vcr-word").forEach((w) => { w.classList.remove("is-in"); w.classList.add("is-out"); });
+    setTimeout(() => { el.textContent = ""; resolve(); }, (Math.max(0, chars.length - 1) * stagger + 0.7) * 1000);
+  });
+}
+
 function rotateRoles(el, roles) {
   let idx = 0;
-  function loop() {
-    typeInto(el, roles[idx], 65, () => {
+  (function loop() {
+    cutIn(el, roles[idx], { stagger: 0.03 }).then(() => {
       setTimeout(() => {
-        deleteFrom(el, () => {
+        cutOut(el, { stagger: 0.02, from: "last" }).then(() => {
           idx = (idx + 1) % roles.length;
           loop();
         });
-      }, 1500);
+      }, 1600);
     });
-  }
-  loop();
+  })();
 }
 
 (function bootHero() {
@@ -320,23 +392,77 @@ function rotateRoles(el, roles) {
   const descText = descEl ? descEl.textContent : "";
   if (descEl) descEl.textContent = "";
 
-  setTimeout(() => {
-    typeInto(cmdEl, cmdText, 85, () => {
-      if (cursorEl) cursorEl.style.display = "none";
-      outputEl.style.display = "block";
-      const cat = document.querySelector(".home__cat");
-      if (cat) cat.classList.add("is-visible");
+  // "Hi, I'm " gets its own span in front of the name (the original text node stays untouched for Vue)
+  let preEl = null;
+  if (prefixNode && prefixNode.parentNode) {
+    preEl = document.createElement("span");
+    prefixNode.parentNode.insertBefore(preEl, prefixNode);
+  }
+  // the prompt line is static now: only the output below it animates
+  cmdEl.textContent = cmdText;
+  if (cursorEl) cursorEl.style.display = "none";
+  const catEl = document.querySelector(".home__cat");
+  let gen = 0; // bumped on every play/reset so an interrupted run stops itself
+  let shown = false;
+  let rolesStarted = false;
 
-      typeInto(prefixNode, prefixText, 45, () => {
-        // ponytail: double rAF biar huruf pertama (H/I) kebaca initial state dulu, baru transisi — jadi smooth kayak lainnya
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          if (titleEl) titleEl.classList.add("is-typed");
-        }));
-        if (roleEl) rotateRoles(roleEl, roles);
-        typeInto(descEl, descText, 12);
+  // hidden but fully laid out: the terminal window keeps its final height, nothing jumps while the text animates
+  function prepHidden() {
+    if (preEl) cutBuild(preEl, prefixText, { stagger: 0.03 });
+    if (descEl) cutBuild(descEl, descText, { stagger: 0.008, delay: 0.15 });
+  }
+  prepHidden();
+
+  function resetHero() {
+    gen++;
+    shown = false;
+    outputEl.style.visibility = "hidden";
+    if (catEl) catEl.classList.remove("is-visible");
+    if (titleEl) titleEl.classList.remove("is-typed"); // name letters drop back, ready for the next wave
+    prepHidden();
+  }
+
+  function playHero(first) {
+    const g = ++gen;
+    shown = true;
+    const alive = () => g === gen;
+    setTimeout(() => {
+      if (!alive()) return;
+      Promise.resolve().then(() => {
+        if (!alive()) return;
+        outputEl.style.visibility = "visible";
+        if (catEl) catEl.classList.add("is-visible");
+        cutIn(preEl, prefixText, { stagger: 0.03, plain: true }).then(() => {
+          if (!alive()) return;
+          // ponytail: double rAF biar huruf pertama (H/I) kebaca initial state dulu, baru transisi — jadi smooth kayak lainnya
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            if (alive() && titleEl) titleEl.classList.add("is-typed");
+          }));
+          if (roleEl && !rolesStarted) { rolesStarted = true; rotateRoles(roleEl, roles); }
+          cutIn(descEl, descText, { stagger: 0.008, delay: 0.15, plain: true });
+        });
       });
-    });
-  }, 600);
+    }, first ? 600 : 150);
+  }
+
+  // play when the home section comes into view, rewind when it is left, so coming back replays the opening
+  const homeEl = outputEl.closest("#home") || outputEl.parentNode;
+  const whenReady = window.onSiteReady || ((f) => f());
+  whenReady(() => {
+    if ("IntersectionObserver" in window) {
+      let firstRun = true;
+      new IntersectionObserver((entries) => {
+        const e = entries[entries.length - 1];
+        if (e.isIntersecting && e.intersectionRatio >= 0.2) {
+          if (!shown) { playHero(firstRun); firstRun = false; }
+        } else if (!e.isIntersecting && shown) {
+          resetHero();
+        }
+      }, { threshold: [0, 0.2] }).observe(homeEl);
+    } else {
+      playHero(true);
+    }
+  });
 })();
 
 function initReveal() {
@@ -366,21 +492,27 @@ function initReveal() {
     els.forEach((el) => el.classList.add("is-visible"));
     return true;
   }
+  let ready = !!window.__siteReady; // sections stay hidden (skeleton) behind the hello screen
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting) e.target.classList.add("is-visible");
+        if (e.isIntersecting && ready) e.target.classList.add("is-visible");
         else e.target.classList.remove("is-visible");
       });
     },
     { threshold: 0.12 },
   );
   els.forEach((el) => io.observe(el));
-  els.forEach((el) => {
-    const r = el.getBoundingClientRect();
-    if (r.top < window.innerHeight * 0.92 && r.bottom > 0)
-      el.classList.add("is-visible");
-  });
+  const kick = () => {
+    ready = true;
+    els.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight * 0.92 && r.bottom > 0)
+        el.classList.add("is-visible");
+    });
+  };
+  if (ready) kick();
+  else window.addEventListener("site:ready", kick, { once: true });
   return true;
 }
 (function setupReveal() {

@@ -244,7 +244,9 @@ export default {
         this.checkTheme()
         this._observer = new MutationObserver(this.checkTheme)
         this._observer.observe(document.body, { attributes: true, attributeFilter: ['class'] })
-        this.fetchContributions()
+        // the contributions request waits for the hello screen; the skeleton stays until then
+        if (window.onSiteReady) window.onSiteReady(() => this.fetchContributions())
+        else this.fetchContributions()
         window.addEventListener('storage', this.checkStorageLevel)
         this._retryIfFailed = () => { if (this.error && !this.loading) this.fetchContributions() }
         window.addEventListener('online', this._retryIfFailed)

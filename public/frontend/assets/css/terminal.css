@@ -477,12 +477,49 @@ textarea {
   border-bottom: 1px solid var(--border);
 }
 .term-window__title {
+  --ts-base: var(--text-dim);
+  --ts-peak: #ffffff; /* dark theme: bright white sweep */
   font-size: var(--smaller-font-size);
   color: var(--text-dim);
   letter-spacing: 0.3px;
+  /* the shine lives inside the letters (and the icon), not as a box on top */
+  /* layer 1: the moving shine band; layer 2: a solid base so the text never disappears where the band is not */
+  background: linear-gradient(
+      110deg,
+      transparent 42%,
+      var(--ts-peak) 50%,
+      transparent 58%
+    )
+    150% 0 / 250% 100% no-repeat,
+    linear-gradient(var(--ts-base), var(--ts-base));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: term-title-shine 2.2s linear infinite;
+}
+/* light theme: white would vanish on the pale bar, so sweep with the accent colour instead */
+body.light-theme .term-window__title {
+  --ts-peak: var(--green);
 }
 .term-window__title i {
-  color: var(--text-faint);
+  color: inherit;
+  -webkit-text-fill-color: transparent;
+}
+@keyframes term-title-shine {
+  0% {
+    background-position: 150% 0, 0 0;
+  }
+  75%,
+  100% {
+    background-position: -50% 0, 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .term-window__title {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
 }
 .term-window__body {
   padding: 1.4rem 1.3rem;
@@ -516,6 +553,31 @@ textarea {
 }
 .comment::before {
   content: "# ";
+}
+
+/* vertical cut reveal: characters slide up out of a clipped line */
+.vcr-word {
+  display: inline-flex;
+  overflow: hidden;
+  white-space: pre;
+  vertical-align: top;
+}
+.vcr-char {
+  display: inline-block;
+  transform: translateY(105%);
+  transition: transform 0.7s cubic-bezier(0.2, 1.08, 0.3, 1);
+  will-change: transform;
+}
+.vcr-word.is-rev .vcr-char {
+  transform: translateY(-105%);
+}
+.vcr-word.is-in .vcr-char {
+  transform: translateY(0);
+}
+.vcr-word.is-out .vcr-char {
+  transform: translateY(-105%);
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
 }
 
 /* blinking cursor */

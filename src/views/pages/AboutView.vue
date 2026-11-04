@@ -52,17 +52,17 @@
             </div>
         </div>
 
-            <div class="about__data term-window">
+            <div ref="dataBox" class="about__data term-window">
                 <div class="term-window__bar">
                     <span class="term-window__title"><i class="uil uil-file-alt"></i> {{ about.windowTitle }}</span>
                 </div>
                 <div class="term-window__body">
                     <p class="about__prompt prompt">
                         <span class="user">ibnu</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~</span><span class="sym">$</span>
-                        <span class="cmd">cat {{ about.windowTitle }}</span>
+                        <span ref="cmdEl" class="cmd">cat {{ about.windowTitle }}</span>
                     </p>
 
-                    <p class="about__description">{{ about.description }}</p>
+                    <p ref="descEl" class="about__description">{{ about.description }}</p>
 
                     <div class="about__info">
                         <div v-for="(stat, i) in about.stats" :key="i">
@@ -144,16 +144,47 @@ export default {
         this.ro.observe(this.$refs.section)
         this.ro.observe(this.$refs.slot)
 
+        // about.md prompt + description: cut-reveal, replayed every time the card is visited
+        this._gen = 0
+        this.shown = false
+        this.prepText()
+        this.io2 = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting && e.intersectionRatio >= 0.3) { if (!this.shown) this.playText() }
+            else if (!e.isIntersecting && this.shown) this.prepText()
+        }, { threshold: [0, 0.3] })
+        this.io2.observe(this.$refs.dataBox)
+
         this.mo = new MutationObserver(() => { this.theme = readTheme() })
         this.mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
         this.mo.observe(document.body, { attributes: true, attributeFilter: ['class'] })
     },
     beforeUnmount() {
         if (this.io) this.io.disconnect()
+        if (this.io2) this.io2.disconnect()
         if (this.ro) this.ro.disconnect()
         if (this.mo) this.mo.disconnect()
     },
     methods: {
+        textParts() {
+            return [
+                { el: this.$refs.cmdEl, text: 'cat ' + this.about.windowTitle, o: { stagger: 0.03, from: 'first', plain: true } },
+                // spreads out from the middle, so letters leave to the left and to the right
+                { el: this.$refs.descEl, text: this.about.description, o: { stagger: 0.012, from: 'center', delay: 0.25, plain: true } },
+            ]
+        },
+        // hidden but fully laid out, so the card (and the lanyard that measures it) never changes height
+        prepText() {
+            this._gen++
+            this.shown = false
+            if (!window.cutBuild) return
+            this.textParts().forEach(({ el, text, o }) => { if (el) window.cutBuild(el, text, o) })
+        },
+        playText() {
+            this.shown = true
+            this._gen++
+            if (!window.cutIn) return
+            this.textParts().forEach(({ el, text, o }) => { if (el) window.cutIn(el, text, o) })
+        },
         measure() {
             const sec = this.$refs.section
             const slot = this.$refs.slot

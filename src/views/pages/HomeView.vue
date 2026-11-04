@@ -17,7 +17,7 @@
                             </div>
                             <div class="term-window__body hero-term__body">
                                 <p class="hero-line"><span class="prompt"><span class="user">visitor</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~</span><span class="sym">$</span></span> <span id="hero-cmd" class="cmd" :data-cmd="profile.heroCommand"></span><span class="cursor" id="hero-cursor"></span></p>
-                                <div class="hero-output" id="hero-output" style="display:none">
+                                <div class="hero-output" id="hero-output" style="visibility:hidden">
                                     <h1 class="home__title">Hi, I'm
                                         <span class="accent hero-name-hover">
                                             <span class="name-short">
@@ -45,7 +45,7 @@
                                         </span>
                                     </h1>
                                     <h3 class="home__subtitle">
-                                        <span class="sym">&gt;</span> <span class="role" id="typed-role" :data-roles="rolesJson"></span><span class="cursor"></span>
+                                        <span class="sym">&gt;</span> <span class="role" id="typed-role" :data-roles="rolesJson"></span>
                                     </h3>
                                     <p class="home__description">{{ profile.description }}</p>
                                 </div>
