@@ -226,11 +226,10 @@ body::before {
 html.is-scrolling body::before {
   animation-play-state: paused;
 }
-@media (max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce) {
-  body::before { animation: none !important; }
+/* weak/touch devices: drop only the expensive bits (backdrop blur, scanlines, big blur); animations keep running */
+@media (max-width: 768px), (pointer: coarse) {
   body::after { display: none !important; }
   .header { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-  .hero-term { animation: none !important; }
   .footer__glow-blob { filter: blur(24px) !important; }
 }
 @media (max-width: 768px) {
@@ -512,13 +511,6 @@ body.light-theme .term-window__title {
   75%,
   100% {
     background-position: -50% 0, 0 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .term-window__title {
-    animation: none;
-    background: none;
-    -webkit-text-fill-color: currentColor;
   }
 }
 .term-window__body {
@@ -1339,6 +1331,7 @@ body.light-theme .hero-term {
    and each row is staggered so a group's bars don't all bump in unison. */
 .skills__open .skills__percentage {
   width: var(--lvl, 0);
+  transform-origin: left center;
   animation: skills-bump 2.8s infinite;
   animation-delay: 1.4s;
 }
@@ -1356,31 +1349,27 @@ body.light-theme .hero-term {
 }
 @keyframes skills-bump {
   0% {
-    width: var(--lvl, 0);
-    box-shadow: 0 0 10px var(--accent-glow);
+    transform: scaleX(1);
     animation-timing-function: cubic-bezier(0.6, 0, 1, 0.45);
   }
   14% {
-    width: calc(var(--lvl, 0) + 4%);
-    box-shadow: 0 0 20px var(--accent-glow);
+    transform: scaleX(1.05);
     animation-timing-function: cubic-bezier(0, 0.55, 0.4, 1);
   }
   27% {
-    width: calc(var(--lvl, 0) - 2.5%);
-    box-shadow: 0 0 10px var(--accent-glow);
+    transform: scaleX(0.97);
     animation-timing-function: cubic-bezier(0.6, 0, 1, 0.45);
   }
   40% {
-    width: calc(var(--lvl, 0) + 2%);
+    transform: scaleX(1.024);
     animation-timing-function: cubic-bezier(0, 0.55, 0.4, 1);
   }
   52% {
-    width: calc(var(--lvl, 0) - 1%);
+    transform: scaleX(0.988);
     animation-timing-function: ease-out;
   }
   62%, 100% {
-    width: var(--lvl, 0);
-    box-shadow: 0 0 10px var(--accent-glow);
+    transform: scaleX(1);
   }
 }
 
@@ -2145,13 +2134,14 @@ body.light-theme .contact__form {
   flex-direction: column;
   justify-content: center;
 }
-.footer__crew {
-  /* keep static: the doodle layer positions itself against .footer__bg */
+.footer__bg .footer__crew {
+  /* specificity bumped: .dcf{width:100%} from the component was winning and blowing the doodle up */
   width: min(100%, 820px);
+  max-width: 820px;
   margin: 1.6rem auto 0;
   padding: 0 1.4rem;
 }
-.footer__crew + .footer__bottom {
+.footer__bg .footer__crew + .footer__bottom {
   margin-top: 0;
 }
 .footer__glow {

@@ -303,7 +303,7 @@ function mountBadge() {
   const chv = ch.value
   const ring = ringR.value
   const clip = clipH.value
-  const isReduced = reduced.value
+  const isReduced = false // always play the swing-in; it is cheap
 
   const sw = Math.max(14, Math.round(cwv * 0.1)) // strap width
   const lowLen = sw * 2.2 // buckle to ring
@@ -337,6 +337,8 @@ function mountBadge() {
   const STEP = 1 / 120
   const GRAVITY = 2400
   const ITER = 18
+  const isReducedLocal = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const isWeak = (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
 
   const add = (x, y, w) => {
     pts.push({ x, y, px: x, py: y, w })
@@ -613,14 +615,14 @@ function mountBadge() {
         T.y += (drag.ty - T.y) * 0.35
       }
       const C = pts[iC]
-      if (!isReduced && !drag) {
+      if (!drag) { // sway also on weak/phone: it's just 2 adds, no extra cost
         // a draught in the room, so the badge is never perfectly still
         C.x += (22 * Math.sin(t * 0.7) + 12 * Math.sin(t * 1.9)) * STEP * STEP
       }
       integrate(pts, STEP, GRAVITY, 0.992)
-      solve(pts, links, ITER)
+      solve(pts, links, isWeak ? 6 : ITER)
       const vx = (C.x - C.px) / STEP
-      spinStep(spin, spinTarget, STEP, vx * 0.03 + (isReduced ? 0 : 0.6 * Math.sin(t * 0.5)))
+      spinStep(spin, spinTarget, STEP, vx * 0.03 + 0.6 * Math.sin(t * 0.5))
     }
     draw()
     place()

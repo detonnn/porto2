@@ -149,6 +149,12 @@ export default {
         }
         resize()
 
+        let resizeTimeout
+        const debouncedResize = () => {
+            clearTimeout(resizeTimeout)
+            resizeTimeout = setTimeout(resize, 200)
+        }
+
         const draw = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height)
             if (!isInsideHome || mouse.x === null || mouse.y === null) return
@@ -220,7 +226,7 @@ export default {
 
         // throttle mousemove 30fps di mobile sudah via isCoarse guard, desktop rAF throttle
         window.addEventListener('mousemove', onMove, { passive: true })
-        window.addEventListener('resize', resize)
+        window.addEventListener('resize', debouncedResize)
         window.addEventListener('scroll', onScroll, { passive: true })
         if (window.lenis && typeof window.lenis.on === 'function') window.lenis.on('scroll', onScroll)
         home.addEventListener('mouseleave', onLeave)
@@ -231,7 +237,7 @@ export default {
         this._arrowCleanup = () => {
             if (rafId) cancelAnimationFrame(rafId)
             window.removeEventListener('mousemove', onMove)
-            window.removeEventListener('resize', resize)
+            if (resizeTimeout) clearTimeout(resizeTimeout)
             window.removeEventListener('scroll', onScroll)
             if (window.lenis && typeof window.lenis.off === 'function') try { window.lenis.off('scroll', onScroll) } catch(e) {}
             document.removeEventListener('visibilitychange', onVis)

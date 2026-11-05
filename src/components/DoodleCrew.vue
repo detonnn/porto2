@@ -4,6 +4,7 @@
     class="dcf"
     :data-play="play || reduced ? '1' : '0'"
     :data-interactive="interactive ? '1' : '0'"
+    :data-tier="tier"
   >
     <div ref="world" class="dcf-world">
       <div class="dcf-stage">
@@ -15,6 +16,7 @@
           :aria-label="word + ' — meet the crew'"
         >
           <defs>
+            <pattern :id="uid + '-tx'" width="160" height="90" patternUnits="userSpaceOnUse"><g style="stroke:var(--dcf-bg);fill:var(--dcf-bg)" stroke-linecap="round" v-html="texHtml"></g></pattern>
             <pattern :id="uid + '-hatch'" width="4.6" height="4.6" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
               <line x1="0" y1="0" x2="0" y2="4.6" style="stroke: var(--dcf-ink)" stroke-width="1.25" />
             </pattern>
@@ -59,7 +61,7 @@
               :style="{ '--d': tl.letter(i) + 'ms', '--r': ((hash(i * 2.3) - 0.5) * 9).toFixed(2) + 'deg' }"
             >
               <g class="dcf-glyph">
-                <text :x="layout.x[i]" y="0" :font-size="FONT_SIZE" font-weight="900" :style="{ fontFamily }" :filter="'url(#' + uid + '-ink)'">{{ c }}</text>
+                <text :x="layout.x[i]" y="0" :font-size="FONT_SIZE" font-weight="900" :style="{ fontFamily }" :filter="tier === 'full' ? 'url(#' + uid + '-ink)' : null">{{ c }}</text>
               </g>
               <path
                 class="dcf-dust"
@@ -67,6 +69,15 @@
               />
             </g>
           </template>
+
+          <rect
+            v-if="tier !== 'full'"
+            class="dcf-tex dcf-fade"
+            :style="{ '--d': tl.letter(chars.length - 1) + 600 + 'ms' }"
+            :x="view.x" :y="-cap - 4" :width="view.w" :height="cap + 8"
+            :fill="'url(#' + uid + '-tx)'"
+            pointer-events="none"
+          />
 
           <g ref="layerB">
             <g v-html="crewHtml.behindFront + crewHtml.others"></g>
@@ -130,6 +141,17 @@ import {
 
 let UID = 0
 
+// 'full' = filters + 60fps; 'lite' = no SVG noise filters, 30fps, fewer doodles. Animations still play on both.
+function pickTier() {
+  try {
+    const n = navigator
+    const weak = (n.hardwareConcurrency && n.hardwareConcurrency <= 4) || (n.deviceMemory && n.deviceMemory <= 4) ||
+      (n.connection && n.connection.saveData) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
+    const rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    return weak || rm ? 'lite' : 'full'
+  } catch (e) { return 'lite' }
+}
+
 const DEFAULT_CREW = [
   { kind: 'yeti', letter: 0, seat: 'front', offset: -0.32, name: 'Bruno', says: 'Laper nih. Ada cemilan?' },
   { kind: 'bird', letter: 1, seat: 'top', offset: 0.02, name: 'Pip', says: 'Chat aja kak, serius.' },
@@ -161,11 +183,26 @@ export default {
       metrics: estimate(word),
       play: false,
       reduced: false,
+      tier: pickTier(),
       talking: -1,
       layerBox: { width: '100%', height: '100%' },
     }
   },
   computed: {
+    // static scratchy-ink texture for the lite tier: horizontal streaks + specks, drawn once (no feTurbulence)
+    texHtml() {
+      let o = ''
+      for (let k = 0; k < 34; k++) {
+        const x = hash(k * 3.1) * 160
+        const y = hash(k * 7.3) * 90
+        const l = 18 + hash(k * 5.7) * 80
+        o += '<line x1="' + x.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + (x + l).toFixed(1) + '" y2="' + (y + (hash(k * 2.9) - 0.5) * 2).toFixed(1) + '" stroke-width="' + (0.9 + hash(k * 9.1) * 1.8).toFixed(1) + '"/>'
+      }
+      for (let k = 0; k < 70; k++) {
+        o += '<circle cx="' + (hash(k * 4.3) * 160).toFixed(1) + '" cy="' + (hash(k * 6.7) * 90).toFixed(1) + '" r="' + (0.5 + hash(k * 8.9) * 0.7).toFixed(1) + '" stroke="none"/>'
+      }
+      return o
+    },
     word() { return this.wordmark.toUpperCase() },
     chars() { return Array.from(this.word) },
     layout() { return layoutWord(this.metrics.advances, this.tracking, FONT_SIZE) },
@@ -203,7 +240,8 @@ export default {
         b = Math.max(b, p.y + p.art.box.b * p.scale)
       }
       const pad = 24
-      if (this.flush) return { x: l - pad, y: t - pad, w: r - l + pad * 2, h: 2 - t + pad }
+      // flush: crew on bottom edge, height from top to baseline (y=0). t is negative, so -t gives positive height
+      if (this.flush) return { x: l - pad, y: t - pad, w: r - l + pad * 2, h: -t + pad }
       return { x: l - pad, y: t - pad, w: r - l + pad * 2, h: b - t + pad * 2 }
     },
     viewBox() {
@@ -260,10 +298,13 @@ export default {
     },
     doodleList() {
       const kinds = this.doodles.length ? this.doodles : []
-      const n = kinds.length ? clamp(Math.floor(this.doodleCount) || 0, 0, 40) : 0
+      const n = kinds.length ? clamp(Math.floor(this.doodleCount * (this.tier === 'lite' ? 0.5 : 1)) || 0, 0, 40) : 0
+      // limit doodle size to a safe small value (max 28 px) to keep footer compact
+      const MAX_DOODLE_SIZE = 28
       return Array.from({ length: n }, (_, k) => {
         const kind = kinds[k % kinds.length]
-        return { kind, size: 22 + hash(k * 4.7) * 14, svg: doodleSvg(kind) }
+        const baseSize = 22 + hash(k * 4.7) * 14
+        return { kind, size: Math.min(baseSize, MAX_DOODLE_SIZE), svg: doodleSvg(kind) }
       })
     },
   },
@@ -297,7 +338,7 @@ export default {
 
     if (window.matchMedia) {
       this._mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-      this._mqFn = () => { this.reduced = this._mq.matches }
+      this._mqFn = () => {}
       this._mqFn()
       if (this._mq.addEventListener) this._mq.addEventListener('change', this._mqFn)
     }
@@ -502,7 +543,9 @@ export default {
         this._last = now
         return
       }
-      const dt = Math.min(0.05, (now - this._last) / 1000)
+      const gap = now - this._last
+      if (this.tier === 'lite' && gap < 32) return // ~30fps cap
+      const dt = Math.min(0.05, gap / 1000)
       this._last = now
       const t = now / 1000
       const placed = this.placed
@@ -560,13 +603,13 @@ export default {
           const r = (this.$refs.layer || this.$refs.world).getBoundingClientRect()
           const px = s.inside && this.interactive ? s.px - r.left : NaN
           const py = s.inside && this.interactive ? s.py - r.top : NaN
-          if (!this.reduced) for (const f of s.floaters) stepFloater(f, dt, t, s.w, s.h - 36, px, py, 110, rand)
+          for (const f of s.floaters) stepFloater(f, dt, t, s.w, s.h - 36, px, py, 110, rand)
           this.paintDoodles()
         }
       }
 
       // line boil: three hand-drawn takes swapped at 8 fps
-      if (!this.reduced && now - this._boilAt > 125) {
+      if (this.tier === 'full' && now - this._boilAt > 125) {
         this._boilAt = now
         this._boil = (this._boil + 1) % 3
         const f = 'url(#' + this.uid + '-boil' + this._boil + ')'
@@ -596,6 +639,7 @@ export default {
 .dcf-ground .dcf-tufts{stroke-width:1.8}
 .dcf-pebble{fill:var(--dcf-bg);stroke:var(--dcf-ink);stroke-width:1.6}
 .dcf-dust{fill:none;stroke:var(--dcf-ink);stroke-width:3;stroke-linecap:round;opacity:0}
+.dcf-tex{pointer-events:none}
 .dcf-hit{fill:transparent;stroke:none;cursor:pointer;outline:none}
 .dcf-hit:focus-visible{stroke:var(--dcf-ink);stroke-width:2.5;stroke-dasharray:6 6}
 .dcf-glyph{transform-box:fill-box;transform-origin:50% 100%}
@@ -619,6 +663,7 @@ export default {
 .dcf-doodle-in{display:block;width:100%;height:100%}
 .dcf[data-interactive='0'] .dcf-doodle{pointer-events:none}
 .dcf-doodle svg{display:block;width:100%;height:100%;stroke:var(--dcf-ink);stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(2px 2px 0 color-mix(in oklab,var(--dcf-ink) 18%,transparent))}
+.dcf[data-tier='lite'] .dcf-doodle svg{filter:none}
 /* storyboard: hidden until play, then each piece runs at its own --d */
 .dcf[data-play='0'] .dcf-letter,.dcf[data-play='0'] .dcf-arrive,.dcf[data-play='0'] .dcf-fade,.dcf[data-play='0'] .dcf-doodle-in{opacity:0}
 .dcf[data-play='0'] .dcf-draw{stroke-dasharray:1;stroke-dashoffset:1}
@@ -645,7 +690,7 @@ export default {
 @keyframes dcf-peck{0%,62%,100%{transform:none}66%{transform:rotate(14deg) translateY(2px)}70%{transform:none}74%{transform:rotate(12deg) translateY(2px)}78%{transform:none}}
 @keyframes dcf-tail{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-12deg)}}
 @keyframes dcf-bubble{from{opacity:0;scale:.6}to{opacity:1;scale:1}}
-@media (prefers-reduced-motion:reduce){.dcf *,.dcf *::before,.dcf *::after{animation:none!important;transition:none!important}.dcf .dcf-letter,.dcf .dcf-arrive,.dcf .dcf-fade,.dcf .dcf-doodle-in{opacity:1!important}.dcf .dcf-draw{stroke-dashoffset:0!important}.dcf .dcf-dust{opacity:0!important}}
+/* reduced-motion intentionally NOT killing animations: lite tier keeps them cheap */
 /* dark mode: only the stars glow */
-body:not(.light-theme) .dcf-doodle[data-kind='star'] svg{filter:drop-shadow(0 0 5px #ffd23f) drop-shadow(0 0 12px rgba(255,210,63,.55))}
+body:not(.light-theme) .dcf[data-tier='full'] .dcf-doodle[data-kind='star'] svg{filter:drop-shadow(0 0 5px #ffd23f) drop-shadow(0 0 12px rgba(255,210,63,.55))}
 </style>

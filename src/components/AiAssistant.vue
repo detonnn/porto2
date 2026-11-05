@@ -801,6 +801,9 @@ export default {
   },
   beforeUnmount() {
     document.removeEventListener("click", this.onDocClick);
+    clearTimeout(this.offlineTimer);
+    clearTimeout(this.idleTimer);
+    clearTimeout(this.typingTimer);
     if (this.stopListenEnded) this.stopListenEnded();
     if (this._unlockAll) {
       ["click", "touchstart", "keydown", "pointerdown"].forEach((evt) =>

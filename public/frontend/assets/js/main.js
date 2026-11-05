@@ -68,31 +68,6 @@ document.addEventListener("click", (e) => {
   if (backdrop && e.target === backdrop) backdrop.classList.remove("active-modal");
 });
 
-function initSwiperWhenReady() {
-  if (typeof Swiper === "undefined") return;
-  if (document.querySelector(".portofolio__container .swiper-wrapper")) {
-    new Swiper(".portofolio__container", {
-      cssMode: true, loop: true,
-      navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
-      pagination: { el: ".swiper-pagination", clickable: true },
-    });
-  }
-  const tc = document.querySelector(".testimonial__container");
-  if (tc && !tc.classList.contains("swiper-initialized")) {
-    new Swiper(".testimonial__container", {
-      loop: true, grabCursor: true, spaceBetween: 48,
-      pagination: { el: ".swiper-pagination", clickable: true, dynamicBullets: true },
-      breakpoints: { 568: { slidesPerView: 2 } },
-    });
-  }
-}
-(function waitSwiper() {
-  if (document.querySelector(".testimonial__container")) initSwiperWhenReady();
-  else setTimeout(waitSwiper, 300);
-  // retry after Vue mounts (in case first check too early)
-  setTimeout(initSwiperWhenReady, 1500);
-})();
-
 let ticking = false;
 let lastActive = 0;
 function scrollActive() {
@@ -277,7 +252,7 @@ function deleteFrom(el, done) {
 
 /* Vertical cut reveal (vanilla port of the React/framer-motion template):
    every character slides up out of a clipped line, staggered. */
-const VCR_REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const VCR_REDUCED = false; // text reveal is cheap (transform only), keep it on phones too
 
 function vcrOrder(i, total, from) {
   if (from === "last") return total - 1 - i;
@@ -432,14 +407,14 @@ function rotateRoles(el, roles) {
         if (!alive()) return;
         outputEl.style.visibility = "visible";
         if (catEl) catEl.classList.add("is-visible");
-        cutIn(preEl, prefixText, { stagger: 0.03, plain: true }).then(() => {
+        cutIn(preEl, prefixText, { stagger: 0.03 }).then(() => {
           if (!alive()) return;
           // ponytail: double rAF biar huruf pertama (H/I) kebaca initial state dulu, baru transisi — jadi smooth kayak lainnya
           requestAnimationFrame(() => requestAnimationFrame(() => {
             if (alive() && titleEl) titleEl.classList.add("is-typed");
           }));
           if (roleEl && !rolesStarted) { rolesStarted = true; rotateRoles(roleEl, roles); }
-          cutIn(descEl, descText, { stagger: 0.008, delay: 0.15, plain: true });
+          cutIn(descEl, descText, { stagger: 0.008, delay: 0.15 });
         });
       });
     }, first ? 600 : 150);
