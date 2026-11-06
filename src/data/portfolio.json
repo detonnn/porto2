@@ -61,25 +61,37 @@
         "items": [
           {
             "name": "Tailwind",
-            "level": 70
+            "level": 70,
+            "icon": "tailwind",
+            "desc": "Utility classes that style the markup directly, so clean layouts come together much faster. I am confident with it."
           },
           {
             "name": "React",
-            "level": 90
+            "level": 90,
+            "icon": "react",
+            "desc": "A library for building interactive interfaces. It is the one I know best, and my first portfolio was built with it."
           },
           {
             "name": "Next Js",
-            "level": 67
+            "level": 67,
+            "icon": "next",
+            "desc": "A React framework for fast, well-structured sites, routing included. I am confident with it and still digging deeper."
           },
           {
             "name": "css",
-            "level": 87
+            "level": 87,
+            "icon": "css",
+            "desc": "The language behind colors, layout, and animation. Most effects on this site are pure CSS, and it is one of my strongest skills.",
+            "short": "CSS"
           },
           {
             "name": "Vue.js",
-            "level": 69
+            "level": 69,
+            "icon": "vue",
+            "desc": "The framework behind the portfolio you are viewing, including its animations and AI chatbot. I am confident with it."
           }
-        ]
+        ],
+        "tab": "Frontend"
       },
       {
         "icon": "uil-server-network",
@@ -88,21 +100,30 @@
         "items": [
           {
             "name": "PHP",
-            "level": 40
+            "level": 40,
+            "icon": "php",
+            "desc": "A backend language I use for server logic and simple CRUD. It works for me, but I still check the docs a lot."
           },
           {
             "name": "Node.js",
-            "level": 70
+            "level": 70,
+            "icon": "node",
+            "desc": "JavaScript on the server. I use it for my own tools, like a local AI router proxy and a Telegram bot for DevOps. I am confident with it."
           },
           {
             "name": "Python",
-            "level": 40
+            "level": 40,
+            "icon": "python",
+            "desc": "A versatile language I use for experiments, like hand tracking with OpenCV and MediaPipe. It works for me, though I am not deep into it yet."
           },
           {
             "name": "Java",
-            "level": 20
+            "level": 20,
+            "icon": "java",
+            "desc": "A language I am still learning. So far I only know the basics, like OOP."
           }
-        ]
+        ],
+        "tab": "Backend"
       },
       {
         "icon": "uil-share-alt",
@@ -111,25 +132,37 @@
         "items": [
           {
             "name": "C++",
-            "level": 25
+            "level": 25,
+            "icon": "cpp",
+            "desc": "Where I practice logic and programming fundamentals. Still at an early stage."
           },
           {
             "name": "Visual Studio Code (VS Code)",
-            "level": 80
+            "level": 80,
+            "icon": "vscode",
+            "desc": "My everyday code editor. Almost every project of mine is written here, and I know its shortcuts and extensions well.",
+            "short": "VS Code"
           },
           {
             "name": "Postman",
-            "level": 30
+            "level": 30,
+            "icon": "postman",
+            "desc": "An app for testing APIs before wiring them into the UI. It works for me, but I do not use it that intensively yet."
           },
           {
             "name": "Docker",
-            "level": 40
+            "level": 40,
+            "icon": "docker",
+            "desc": "Packages an app so it runs the same on any machine. I can handle the basics and still check the docs often."
           },
           {
             "name": "Github",
-            "level": 70
+            "level": 70,
+            "icon": "github",
+            "desc": "Where I store and track my code versions. I use it daily, including a bot that automates my contributions. I am confident with it."
           }
-        ]
+        ],
+        "tab": "Tools"
       },
       {
         "icon": "uil-swatchbook",
@@ -138,23 +171,35 @@
         "items": [
           {
             "name": "Figma",
-            "level": 90
+            "level": 90,
+            "icon": "figma",
+            "desc": "Where I design interfaces and layouts before coding them. One of the tools I know best."
           },
           {
             "name": "Adobe Illustrator",
-            "level": 80
+            "level": 80,
+            "icon": "illustrator",
+            "desc": "For vectors, logos, and graphics, including my streetwear brand designs. I am confident with it."
           },
           {
             "name": "Photoshop",
-            "level": 90
+            "level": 90,
+            "icon": "photoshop",
+            "desc": "For photo editing, mockups, and posters. One of my strongest design tools and the one I open most."
           },
           {
             "name": "Corel Draw",
-            "level": 50
+            "level": 50,
+            "icon": "corel",
+            "desc": "For vector design and print layouts. It works for me, but I open it less often than Illustrator."
           }
-        ]
+        ],
+        "tab": "Designer"
       }
-    ]
+    ],
+    "eyebrow": "Tech stack · Skill belt",
+    "heading": "My stack, always on the move.",
+    "caption": "Hover to pause the belt, drag to spin it, click a plate to learn more."
   },
   "github": {
     "title": "git log --graph",

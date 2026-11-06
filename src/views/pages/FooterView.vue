@@ -34,7 +34,7 @@
                             </div>
                         </div>
 
-                        <doodle-crew class="footer__crew" wordmark="dxtnn" />
+                        <doodle-crew class="footer__crew" wordmark="dxtnn" :doodle-count="0" />
 
                         <div class="footer__bottom container">
                             <div class="footer__bottom-left">

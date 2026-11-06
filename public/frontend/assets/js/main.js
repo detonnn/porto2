@@ -69,21 +69,52 @@ document.addEventListener("click", (e) => {
 });
 
 let ticking = false;
-let lastActive = 0;
-function scrollActive() {
-  const now = Date.now();
-  if (now - lastActive < 100) return; // throttle 100ms
-  lastActive = now;
-  const y = window.pageYOffset;
-  document.querySelectorAll("section[id]").forEach((s) => {
-    const h = s.offsetHeight,
-      top = s.offsetTop - 72,
-      id = s.getAttribute("id");
-    const link = document.querySelector('.nav__menu a[href*="' + id + '"]');
-    if (!link) return;
-    link.classList.toggle("active-link", y > top && y <= top + h);
+let navLockUntil = 0; // while a nav click is scrolling, don't let the spy flip through the sections in between
+function headerH() {
+  const h = document.getElementById("header");
+  return h ? h.offsetHeight : 56;
+}
+function setActiveNav(id) {
+  document.querySelectorAll('.nav__menu a[href^="#"]').forEach((l) => {
+    l.classList.toggle("active-link", l.getAttribute("href") === "#" + id);
   });
 }
+function scrollActive() {
+  if (Date.now() < navLockUntil) return;
+  const secs = document.querySelectorAll("section[id]");
+  if (!secs.length) return;
+  // the section that owns the reading line (just under the header) is the active one
+  const line = headerH() + Math.min(160, window.innerHeight * 0.3);
+  let cur = secs[0].id;
+  secs.forEach((s) => {
+    if (s.getBoundingClientRect().top <= line) cur = s.id;
+  });
+  if (window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 4) cur = secs[secs.length - 1].id;
+  setActiveNav(cur);
+}
+// where a section's heading should sit: right under the header, same for every section and every browser
+function sectionTarget(el) {
+  if (el.id === "home") return 0;
+  const pad = parseFloat(getComputedStyle(el).paddingTop) || 0;
+  return Math.max(0, el.getBoundingClientRect().top + window.pageYOffset + pad - headerH() - 16);
+}
+document.addEventListener("click", (e) => {
+  const link = e.target.closest && e.target.closest('a[href^="#"]');
+  if (!link) return;
+  const id = link.getAttribute("href");
+  if (!id || id === "#") return;
+  const el = document.querySelector(id);
+  if (!el) return;
+  e.preventDefault();
+  const y = sectionTarget(el);
+  navLockUntil = Date.now() + 1500;
+  setActiveNav(el.id);
+  if (window.lenis) window.lenis.scrollTo(y, { duration: 1.1 });
+  else window.scrollTo({ top: y, behavior: "smooth" });
+  setTimeout(scrollActive, 1550); // settle on whatever we actually landed on
+  link.blur();
+});
+window.addEventListener("load", () => { setTimeout(scrollActive, 300); setTimeout(scrollActive, 1500); });
 function onScroll() {
   if (!ticking) {
     ticking = true;
@@ -547,18 +578,6 @@ function initReveal() {
     }
     requestAnimationFrame(raf);
 
-    // smooth-scroll for in-page anchor nav links (#home, #about, etc.)
-    document.addEventListener("click", (e) => {
-      const link = e.target.closest('a[href^="#"]');
-      if (!link) return;
-      const id = link.getAttribute("href");
-      if (!id || id === "#") return;
-      const el = document.querySelector(id);
-      if (!el) return;
-      e.preventDefault();
-      lenis.scrollTo(el, { offset: 0, duration: 1.1 });
-      link.blur();
-    });
   } catch (err) {
     console.warn(
       "[LENIS] Error inisialisasi, fallback ke native scroll:",

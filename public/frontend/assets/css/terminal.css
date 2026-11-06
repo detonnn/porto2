@@ -170,7 +170,7 @@ html.no-view-transition .chatbot-header {
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-height) + 10px);
+  scroll-padding-top: var(--header-height);
   min-height: 100%;
   overscroll-behavior-x: none;
 }
@@ -288,7 +288,7 @@ textarea {
 .section {
   padding-top: clamp(4.5rem, 8vw, 6rem);
   padding-bottom: clamp(4.5rem, 8vw, 6rem);
-  scroll-margin-top: var(--header-height);
+  scroll-margin-top: calc(1rem - clamp(4.5rem, 8vw, 6rem)); /* heading lands 1rem under the header; matches sectionTarget() in main.js */
 }
 
 /* The landing/hero section intentionally fills the visible screen. */
@@ -494,7 +494,7 @@ textarea {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: term-title-shine 2.2s linear infinite;
+  animation: term-title-shine 1.6s linear infinite;
 }
 /* light theme: white would vanish on the pale bar, so sweep with the accent colour instead */
 body.light-theme .term-window__title {
@@ -504,13 +504,14 @@ body.light-theme .term-window__title {
   color: inherit;
   -webkit-text-fill-color: transparent;
 }
+/* band centre travels only across the text (-20%..120% of its width), so there is no long idle sweep off to the sides */
 @keyframes term-title-shine {
   0% {
-    background-position: 150% 0, 0 0;
+    background-position: 97% 0, 0 0;
   }
-  75%,
+  80%,
   100% {
-    background-position: -50% 0, 0 0;
+    background-position: 3% 0, 0 0;
   }
 }
 .term-window__body {
