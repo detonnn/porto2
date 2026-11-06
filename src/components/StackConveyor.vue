@@ -77,7 +77,7 @@
       </button>
     </div>
 
-    <div v-if="items.length > 1" class="stk-controls">
+    <div v-if="base.length > 1" class="stk-controls">
       <button type="button" class="stk-ctl" aria-label="Previous plate" @click="go((active ?? sim.center) - 1, false)">
         <svg viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5" /></svg>
       </button>
@@ -114,7 +114,7 @@
             </span>
           </div>
           <div class="stk-info" :class="{ on: shown }">
-            <p class="stk-idx">{{ pad(openIndex % items.length + 1) }} / {{ pad(items.length) }}</p>
+            <p class="stk-idx">{{ pad(openIndex % base.length + 1) }} / {{ pad(base.length) }}</p>
             <h3 class="stk-title">{{ list[openIndex].name }}</h3>
             <p v-if="list[openIndex].description" class="stk-desc">{{ list[openIndex].description }}</p>
             <div class="stk-foot">
@@ -149,13 +149,13 @@ const pad = (n) => String(n).padStart(2, '0')
 const coarse = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer: coarse)').matches
 
 // short lists get repeated so the belt always looks full
+const PLATES = 8 // same for every tab, so the belt keeps its shape when tabs change
+const shownItems = ref(props.items) // lags props.items by one fade-out, see the watcher
+const base = computed(() => shownItems.value)
 const list = computed(() => {
-  const n = props.items.length
-  if (!n) return []
-  const reps = Math.max(1, Math.ceil(8 / n))
-  const out = []
-  for (let r = 0; r < reps; r++) props.items.forEach((it) => out.push({ ...it, key: it.id + '-' + r }))
-  return out
+  const src = shownItems.value
+  if (!src.length) return []
+  return Array.from({ length: PLATES }, (_, i) => ({ ...src[i % src.length], key: src[i % src.length].id + '-' + i }))
 })
 const count = computed(() => list.value.length)
 
@@ -264,9 +264,9 @@ const kb = computed(() => (narrow.value ? 0.6 : 0.68))
 const geo = computed(() => {
   if (!size.stage || !count.value) return null
   const span = halfSpan(makeGeo(1000, count.value, 100, kb.value)) / 100
-  const cap = clamp(size.section * 0.143, 96, 150)
+  const cap = narrow.value ? 150 : clamp(size.section * 0.143, 96, 150)
   const fit = (size.stage - 8) / (2 * span)
-  return makeGeo(size.stage, count.value, Math.round(clamp(fit, Math.min(96, cap), cap)), kb.value)
+  return makeGeo(size.stage, count.value, Math.round(clamp(fit, 44, cap)), kb.value)
 })
 const paths = computed(() => {
   const g = geo.value
@@ -276,7 +276,7 @@ const counterTop = computed(() => (geo.value ? Math.max(0, geo.value.edgeTop - g
 const current = computed(() => (active.value === null ? null : list.value[active.value] || null))
 const roving = computed(() => active.value ?? center.value)
 
-const plateStyle = (i) => (geo.value ? { width: geo.value.d + 'px', height: geo.value.d * TILT + 'px', visibility: lifted.value === i ? 'hidden' : undefined } : null)
+const plateStyle = (i) => (geo.value ? { '--i': i, width: geo.value.d + 'px', height: geo.value.d * TILT + 'px', visibility: lifted.value === i ? 'hidden' : undefined } : null)
 
 /* ---------- painting ---------- */
 function paintPlate(i) {
@@ -615,7 +615,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', onVis)
   document.removeEventListener('keydown', onDocKey)
   if (sim.raf) cancelAnimationFrame(sim.raf)
-  window.clearTimeout(autoTimer)
+  window.clearTimeout(autoTimer); window.clearTimeout(swapTimer)
   if (openIndex.value !== null) document.body.style.overflow = ''
 })
 
@@ -632,17 +632,23 @@ watch(geo, (g) => {
   sim.l = g.l; sim.z = []; sim.lane = []
   nextTick(() => { paintAll(); kick(); startAuto() })
 }, { flush: 'post' })
-// tab switch: keep the same belt mounted and just swap the plates, so nothing remounts or flashes
+// tab switch: the belt stays mounted. Plates shrink out, the content swaps while they are hidden, then they grow back in with a small stagger.
+let swapTimer = 0
 watch(() => props.items, () => {
-  if (openIndex.value !== null) { document.body.style.overflow = ''; lifted.value = null; openIndex.value = null; shown.value = false; closing = false }
+  window.clearTimeout(swapTimer)
   window.clearTimeout(autoTimer)
-  active.value = null; autoActive = null; autoLast = null; playing = props.autoplay
-  sim.lift = []; sim.vlift = []; sim.z = []; sim.lane = []
-  swap.value = true // plates hidden for one frame, then fade in
-  nextTick(() => {
-    paintAll(); kick(); startAuto()
-    requestAnimationFrame(() => { swap.value = false })
-  })
+  active.value = null; autoActive = null
+  swap.value = true
+  swapTimer = window.setTimeout(() => {
+    if (openIndex.value !== null) { document.body.style.overflow = ''; lifted.value = null; openIndex.value = null; shown.value = false; closing = false }
+    autoLast = null; playing = props.autoplay
+    shownItems.value = props.items
+    sim.lift = []; sim.vlift = []; sim.z = []; sim.lane = []
+    nextTick(() => {
+      paintAll(); kick(); startAuto()
+      requestAnimationFrame(() => requestAnimationFrame(() => { swap.value = false }))
+    })
+  }, 200)
 })
 watch([active, paused, openIndex], () => { kick(); startAuto() })
 </script>
@@ -687,12 +693,13 @@ body.light-theme, html.light-theme body {
 .stk-belt { position: absolute; inset: 0; pointer-events: none; }
 .stk-belt svg { position: absolute; left: 0; top: 0; overflow: visible; }
 .stk-plate { position: absolute; left: 0; top: 0; padding: 0; margin: 0; border: 0; background: none; border-radius: 50%; cursor: pointer; outline: none; will-change: transform; -webkit-tap-highlight-color: transparent; }
-.stk-plate { transition: opacity .25s; }
-.stk-stage.swap .stk-plate { opacity: 0; transition: none; }
+.stk-plate { transition: opacity .35s calc(var(--i, 0) * 35ms); }
+.stk-stage.swap .stk-plate { opacity: 0; transition: opacity .2s ease; }
+.stk-stage.swap .stk-disc { transform: scale(.8); transition: transform .2s ease, border-color .25s; }
 .stk-plate:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .stk-shadow { position: absolute; inset: 14% 2% -10% 2%; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,0)); }
 .stk-lift { position: absolute; inset: 0; }
-.stk-disc { position: absolute; inset: 3%; border-radius: 50%; border: 2px solid var(--stk-plate-edge); transition: border-color .25s;
+.stk-disc { position: absolute; inset: 3%; border-radius: 50%; border: 2px solid var(--stk-plate-edge); transition: border-color .25s, transform .45s cubic-bezier(.2,1.25,.4,1) calc(var(--i, 0) * 35ms);
   background: radial-gradient(ellipse at 32% 22%, var(--stk-plate-hi) 0%, var(--stk-plate) 46%, var(--stk-plate-lo) 100%);
   box-shadow: 0 5px 0 var(--stk-plate-lo), 0 7px 10px rgba(0,0,0,.4), inset 0 2px 1px rgba(255,255,255,.35), inset 0 0 0 6px var(--stk-plate), inset 0 0 0 7px var(--stk-plate-line); }
 .stk-disc::after { content: ''; position: absolute; inset: 17%; border-radius: 50%; border: 1px solid var(--stk-plate-line);
