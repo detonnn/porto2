@@ -21,6 +21,8 @@
             :src="card.image"
             :alt="card.title"
             class="swipe-card__img"
+            loading="lazy"
+            decoding="async"
             draggable="false"
           />
 

@@ -10,7 +10,7 @@
                     </a>
                 </div>
 
-                <img :src="project.image" alt="" class="project__img">
+                <img :src="project.image" alt="" class="project__img" loading="lazy" decoding="async">
             </div>
         </div>
     </section>

@@ -10,7 +10,7 @@
                         <div class="testimonial__content" v-for="(item, i) in col" :key="i">
                             <div class="testimonial__data">
                                 <div class="testimonial__header">
-                                    <img :src="item.image" class="testimonial__img" alt="" decoding="async">
+                                    <img :src="item.image" class="testimonial__img" alt="" loading="lazy" decoding="async">
                                     <div>
                                         <h3 class="testimonial__name">{{ item.name }}</h3>
                                         <span class="testimonial__client">{{ item.role }}</span>

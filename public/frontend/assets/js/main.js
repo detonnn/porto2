@@ -150,8 +150,12 @@ function applyTheme(isLight) {
   document.body.classList.toggle(lightTheme, isLight);
   setIcon(isLight);
 }
-const selectedTheme = localStorage.getItem("selected-theme");
+let selectedTheme;
+try { selectedTheme = localStorage.getItem("selected-theme"); } catch(e) { selectedTheme = null; }
 applyTheme(selectedTheme === "light");
+const syncHidden = () => document.documentElement.classList.toggle("is-hidden", document.hidden);
+syncHidden();
+document.addEventListener("visibilitychange", syncHidden);
 /* retry icon after Vue mounts (button belum ada saat main.js dieksekusi) */
 setTimeout(() => setIcon(document.body.classList.contains(lightTheme)), 800);
 let _iconTries = 0;
@@ -205,13 +209,13 @@ async function toggleThemeWithWipe(e) {
   // Browser gak support View Transition API -> langsung toggle biasa, gak usah animasi
   if (!document.startViewTransition) {
     applyTheme(isLight);
-    localStorage.setItem("selected-theme", isLight ? "light" : "dark");
+    try { localStorage.setItem("selected-theme", isLight ? "light" : "dark"); } catch(e) {}
     return;
   }
 
   const transition = document.startViewTransition(() => {
     applyTheme(isLight);
-    localStorage.setItem("selected-theme", isLight ? "light" : "dark");
+    try { localStorage.setItem("selected-theme", isLight ? "light" : "dark"); } catch(e) {}
   });
 
   await transition.ready;

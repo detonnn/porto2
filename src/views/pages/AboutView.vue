@@ -44,7 +44,7 @@
                     </template>
                     <template #back>
                         <div class="about__photo">
-                            <img :src="about.revealImage" alt="Ibnu Dexton" draggable="false" data-pin-nopin="true" data-pin-no-hover="true" />
+                            <img :src="about.revealImage" alt="Ibnu Dexton" draggable="false" loading="lazy" decoding="async" data-pin-nopin="true" data-pin-no-hover="true" />
                             <span class="about__photo-shine"></span>
                         </div>
                     </template>

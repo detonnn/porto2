@@ -140,8 +140,8 @@ export default {
         }
         resolveColor()
         const mo = new MutationObserver(resolveColor)
-        mo.observe(document.documentElement, { attributes: true })
-        mo.observe(document.body, { attributes: true })
+        mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+        mo.observe(document.body, { attributes: true, attributeFilter: ['class'] })
 
         const resize = () => {
             canvas.width = window.innerWidth

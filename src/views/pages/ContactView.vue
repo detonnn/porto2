@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <div class="contact__content" style="position:relative">
-                    <img src="/frontend/assets/img/star.gif" alt="" :style="{position:'absolute',right:'8px',top:'8px',width:'38px',pointerEvents:'none',zIndex:1,opacity:msgFocus?0:1,transition:'opacity .35s ease'}" />
+                    <img src="/frontend/assets/img/star.gif" alt="" loading="lazy" decoding="async" :style="{position:'absolute',right:'8px',top:'8px',width:'38px',pointerEvents:'none',zIndex:1,opacity:msgFocus?0:1,transition:'opacity .35s ease'}" />
                     <label for="" class="contact__label">message *</label>
                     <textarea v-model.trim="form.message" @focus="msgFocus=true" @blur="msgFocus=false" cols="0" rows="7" class="contact__input" placeholder="echo 'your message here...'" required></textarea>
                 </div>
@@ -60,10 +60,13 @@ export default {
             const els = this.$el.querySelectorAll('.section__title,.section__subtitle,.contact__information,.contact__content,.button')
             els.forEach((el, i) => { el.classList.add('reveal'); el.style.transitionDelay = (Math.min(i, 6) * 80) + 'ms' })
             if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('is-visible')); return }
-            const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('is-visible', e.isIntersecting)), { threshold: 0.12 })
-            els.forEach(el => io.observe(el))
+            this._contactIO = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('is-visible', e.isIntersecting)), { threshold: 0.12 })
+            els.forEach(el => this._contactIO.observe(el))
             els.forEach(el => { const r = el.getBoundingClientRect(); if (r.top < innerHeight * 0.92 && r.bottom > 0) el.classList.add('is-visible') })
         })
+    },
+    beforeUnmount() {
+        if (this._contactIO) this._contactIO.disconnect()
     },
     methods: {
         contactHref(info) {

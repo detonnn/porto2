@@ -760,11 +760,7 @@ export default {
       try { a.load(); } catch(e) {}
     });
 
-    // ponytail: unlock pakai dummy biar gak ganggu send/recive yang lagi play di bubble yang sama
-    this._primeAudio = new Audio("/frontend/assets/audio/send.MP3");
-    this._primeAudio.volume = 0;
-    this._primeAudio.preload = "auto";
-    try { this._primeAudio.load(); } catch(e) {}
+    // ponytail: prime real audio sekali, tanpa dummy player yang diputar tiap klik
     let _realPrimed = false;
     const unlockAll = () => {
       unlockAudioContext();
@@ -777,7 +773,6 @@ export default {
         });
         if (pending === 0) _realPrimed = true;
       }
-      try { this._primeAudio.currentTime = 0; this._primeAudio.play().then(() => { this._primeAudio.pause(); this._primeAudio.currentTime = 0; }).catch(()=>{}); } catch(e) {}
       if (window._portoAudioCtx && window._portoAudioCtx.state === "suspended") window._portoAudioCtx.resume();
     };
     this._unlockAll = unlockAll;

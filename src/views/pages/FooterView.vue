@@ -1,6 +1,6 @@
 <template>
     <div class="footer-wrap">
-        <img src="/frontend/assets/img/wcat.gif" alt="" class="footer__cat reveal" />
+        <img src="/frontend/assets/img/wcat.gif" alt="" class="footer__cat reveal" loading="lazy" decoding="async" />
 
         <footer class="footer">
             <div class="footer__pin">

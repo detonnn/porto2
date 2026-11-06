@@ -4,8 +4,8 @@
    Class & id hooks used by main.js are preserved.
 =====================================================================*/
 
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Fira+Code:wght@400;500;600&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap");
+/* removed unused Inter & Fira Code imports */
 
 :root {
   --header-height: 3.5rem;
@@ -226,6 +226,12 @@ body::before {
 html.is-scrolling body::before {
   animation-play-state: paused;
 }
+html.is-hidden *,
+html.is-hidden::before,
+html.is-hidden::after {
+  animation-play-state: paused !important;
+}
+
 /* weak/touch devices: drop only the expensive bits (backdrop blur, scanlines, big blur); animations keep running */
 @media (max-width: 768px), (pointer: coarse) {
   body::after { display: none !important; }
@@ -2520,7 +2526,7 @@ body.light-theme .contact__form {
   flex-direction: column;
   align-items: flex-end;
   pointer-events: none;
-  font-family: "SF Mono", ui-monospace, "Inter", sans-serif;
+  font-family: "SF Mono", ui-monospace, sans-serif;
 }
 
 .chatbot-widget input,
