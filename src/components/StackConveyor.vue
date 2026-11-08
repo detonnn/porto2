@@ -130,6 +130,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import icons from '../data/stackIcons'
+import { createFrameGovernor } from '../utils/perf'
 
 const props = defineProps({
   items: { type: Array, required: true }, // { id, name, price, description, details, icon }
@@ -146,7 +147,7 @@ const LIFT_Y = -6, LIFT_SCALE = 0.08, BACK_SHADE = 0.15, CHIP_ROOM = 34
 const HOLD = 1400, RUN = 0, SEEK = 1, DRAG = 2
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v))
 const pad = (n) => String(n).padStart(2, '0')
-const coarse = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer: coarse)').matches
+const gov = createFrameGovernor()
 
 // short lists get repeated so the belt always looks full
 const PLATES = 8 // same for every tab, so the belt keeps its shape when tabs change
@@ -279,24 +280,42 @@ const roving = computed(() => active.value ?? center.value)
 const plateStyle = (i) => (geo.value ? { '--i': i, width: geo.value.d + 'px', height: geo.value.d * TILT + 'px', visibility: lifted.value === i ? 'hidden' : undefined } : null)
 
 /* ---------- painting ---------- */
+const pc = [] // last values written per plate, so unchanged styles are not rewritten
 function paintPlate(i) {
   const g = geo.value, button = plates[i]
   if (!g || !button) return
   const q = pose(g, sim.offset, i)
   const e = sim.lift[i] ?? 0
+  let c = pc[i]
+  if (!c || c.el !== button) c = pc[i] = { el: button }
   button.style.transform = `translate3d(${(q.x - g.d / 2).toFixed(2)}px,${(q.y - (g.d * TILT) / 2).toFixed(2)}px,0) scale(${q.k.toFixed(4)})`
   const z = i === active.value ? 2000 : 100 + Math.round(q.y)
   if (sim.z[i] !== z) { sim.z[i] = z; button.style.zIndex = String(z) }
   const lane = q.depth >= 0.5 ? 'front' : 'back'
   if (sim.lane[i] !== lane) { sim.lane[i] = lane; button.dataset.lane = lane }
   const lift = lifts[i]
-  if (lift) lift.style.transform = `translateY(${(LIFT_Y * e).toFixed(3)}%) scale(${(1 + LIFT_SCALE * e).toFixed(4)})`
+  if (lift) {
+    const v = `translateY(${(LIFT_Y * e).toFixed(3)}%) scale(${(1 + LIFT_SCALE * e).toFixed(4)})`
+    if (c.lift !== v) { c.lift = v; lift.style.transform = v }
+  }
   const shade = shades[i]
-  if (shade) shade.style.opacity = (BACK_SHADE * clamp(1 - q.depth, 0, 1) * (1 - 0.7 * clamp(e, 0, 1))).toFixed(3)
+  if (shade) {
+    const v = (BACK_SHADE * clamp(1 - q.depth, 0, 1) * (1 - 0.7 * clamp(e, 0, 1))).toFixed(3)
+    if (c.shade !== v) { c.shade = v; shade.style.opacity = v }
+  }
   const sh = shadows[i]
-  if (sh) { sh.style.transform = `translate3d(0,${(g.d * TILT * 0.05 * e).toFixed(2)}px,0) scale(${(1 + 0.14 * e).toFixed(3)})`; sh.style.opacity = (1 - 0.5 * clamp(e, 0, 1)).toFixed(3) }
+  if (sh) {
+    const t = `translate3d(0,${(g.d * TILT * 0.05 * e).toFixed(2)}px,0) scale(${(1 + 0.14 * e).toFixed(3)})`
+    const o = (1 - 0.5 * clamp(e, 0, 1)).toFixed(3)
+    if (c.sht !== t) { c.sht = t; sh.style.transform = t }
+    if (c.sho !== o) { c.sho = o; sh.style.opacity = o }
+  }
+  // the name chip only shows on the active plate, so its counter-scale is only needed then
   const an = anchors[i]
-  if (an) an.style.transform = `scale(${(1 / (q.k * (1 + LIFT_SCALE * e))).toFixed(4)})`
+  if (an && (i === active.value || e > 0.002)) {
+    const v = `scale(${(1 / (q.k * (1 + LIFT_SCALE * e))).toFixed(4)})`
+    if (c.an !== v) { c.an = v; an.style.transform = v }
+  }
 }
 function paintBelt() {
   const g = geo.value
@@ -331,7 +350,7 @@ function tick(now) {
   const g = geo.value
   sim.raf = 0
   if (!g || !sim.visible) { sim.last = 0; return }
-  if (coarse && sim.last && now - sim.last < 30) { sim.raf = requestAnimationFrame(tick); return } // ~30fps on touch devices
+  if (gov.skip(now, sim.last)) { sim.raf = requestAnimationFrame(tick); return } // 30fps on weak / touch devices
   const dt = sim.last ? clamp((now - sim.last) / 1000, 0, 0.25) : 1 / 60
   sim.last = now
   const steps = Math.max(1, Math.ceil(dt / 0.017)), h = dt / steps
@@ -656,6 +675,7 @@ watch([active, paused, openIndex], () => { kick(); startAuto() })
 <style>
 /* theme: everything derives from the site's own variables; plates stay plain black/white */
 body {
+  --stk-gloss: rgba(255,255,255,.7); --stk-gloss-soft: rgba(255,255,255,.45);
   --stk-plate: #ececec; --stk-plate-hi: #ffffff; --stk-plate-lo: #bdbdbd; --stk-plate-edge: #cfcfcf; --stk-plate-line: #b5b5b5; --stk-ink: #0a0a0a;
   --stk-drop: rgba(255,255,255,.07); --stk-glow: rgba(255,255,255,.14); --stk-belt-side-low: color-mix(in oklab, var(--text) 5%, var(--bg-window));
   --stk-belt: color-mix(in oklab, var(--text) 24%, var(--bg-window));
@@ -667,6 +687,7 @@ body {
   --stk-island-wall: color-mix(in oklab, var(--text) 7%, var(--bg-window));
 }
 body.light-theme, html.light-theme body {
+  --stk-gloss: rgba(255,255,255,.24); --stk-gloss-soft: rgba(255,255,255,.08);
   --stk-plate: #141414; --stk-plate-hi: #3c3c3c; --stk-plate-lo: #050505; --stk-plate-edge: #000; --stk-plate-line: #4a4a4a; --stk-ink: #f5f5f5;
   --stk-drop: rgba(0,0,0,.22); --stk-glow: rgba(0,0,0,.16); --stk-belt-side-low: color-mix(in oklab, var(--text) 52%, var(--bg-window));
   --stk-seam: rgba(0,0,0,.4); --stk-glint: rgba(255,255,255,.14);
@@ -697,16 +718,22 @@ body.light-theme, html.light-theme body {
 .stk-stage.swap .stk-plate { opacity: 0; transition: opacity .2s ease; }
 .stk-stage.swap .stk-disc { transform: scale(.8); transition: transform .2s ease, border-color .25s; }
 .stk-plate:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.stk-shadow { position: absolute; inset: 14% 2% -10% 2%; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,0)); }
+.stk-shadow { will-change: transform, opacity; position: absolute; inset: 14% 2% -10% 2%; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,0)); }
 .stk-lift { position: absolute; inset: 0; }
 .stk-disc { position: absolute; inset: 3%; border-radius: 50%; border: 2px solid var(--stk-plate-edge); transition: border-color .25s, transform .45s cubic-bezier(.2,1.25,.4,1) calc(var(--i, 0) * 35ms);
   background: radial-gradient(ellipse at 32% 22%, var(--stk-plate-hi) 0%, var(--stk-plate) 46%, var(--stk-plate-lo) 100%);
-  box-shadow: 0 5px 0 var(--stk-plate-lo), 0 7px 10px rgba(0,0,0,.4), inset 0 2px 1px rgba(255,255,255,.35), inset 0 0 0 6px var(--stk-plate), inset 0 0 0 7px var(--stk-plate-line); }
-.stk-disc::after { content: ''; position: absolute; inset: 17%; border-radius: 50%; border: 1px solid var(--stk-plate-line);
-  background: radial-gradient(ellipse at 68% 78%, var(--stk-plate-hi) 0%, var(--stk-plate) 55%, var(--stk-plate-lo) 130%); box-shadow: inset 0 3px 5px rgba(0,0,0,.28), inset 0 -1px 1px rgba(255,255,255,.18); }
+  box-shadow: 0 4px 0 var(--stk-plate-lo), 0 6px 0 color-mix(in oklab, var(--stk-plate-lo) 65%, #000), 0 10px 12px rgba(0,0,0,.38),
+    inset 0 1.5px 0 var(--stk-gloss), inset 0 -3px 4px rgba(0,0,0,.14), inset 0 0 0 1px color-mix(in oklab, var(--stk-plate-hi) 55%, transparent); }
+/* glaze highlight on the rim */
+.stk-disc::before, .stk-fig-plate::before { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(ellipse 52% 26% at 30% 15%, var(--stk-gloss) 0%, transparent 72%); }
+/* the well: a soft recessed step instead of a hard groove line */
+.stk-disc::after { content: ''; position: absolute; inset: 18%; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 36%, color-mix(in oklab, var(--stk-plate-hi) 45%, var(--stk-plate)) 0%, var(--stk-plate) 60%, color-mix(in oklab, var(--stk-plate-lo) 45%, var(--stk-plate)) 100%);
+  box-shadow: inset 2px 3px 5px rgba(0,0,0,.3), inset -1px -2px 3px var(--stk-gloss-soft), 0 1px 0 var(--stk-gloss), 0 -1px 0 rgba(0,0,0,.1); }
 .stk-plate[data-active] .stk-disc { border-color: var(--accent); }
 .stk-logo { z-index: 1; position: absolute; left: 50%; top: 50%; width: 46%; height: 46%; transform: translate(-50%, -50%); fill: var(--stk-ink); }
-.stk-shade { position: absolute; inset: 3%; border-radius: 50%; background: #000; opacity: 0; pointer-events: none; }
+.stk-shade { will-change: opacity; position: absolute; inset: 3%; border-radius: 50%; background: #000; opacity: 0; pointer-events: none; }
 .stk-anchor { position: absolute; left: 50%; top: 0; width: 0; height: 0; pointer-events: none; }
 .stk-chip { position: absolute; left: 0; bottom: 7px; transform: translate(-50%, 4px); display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; padding: 5px 10px; border-radius: 999px;
   background: var(--bg-elev, var(--bg-window)); color: var(--text); border: 1px solid var(--border); font-size: 11px; font-weight: 600; line-height: 1; opacity: 0; transition: opacity .3s, transform .3s; box-shadow: 0 6px 16px -6px rgba(0,0,0,.45); }
@@ -739,9 +766,11 @@ body.light-theme, html.light-theme body {
 .stk-fig-shadow { position: absolute; inset: 14% 8% -4% 8%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.55), rgba(0,0,0,0)); }
 .stk-fig-plate { position: absolute; inset: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid var(--stk-plate-edge);
   background: radial-gradient(ellipse at 32% 22%, var(--stk-plate-hi) 0%, var(--stk-plate) 46%, var(--stk-plate-lo) 100%);
-  box-shadow: 0 10px 0 var(--stk-plate-lo), 0 16px 26px rgba(0,0,0,.45), inset 0 3px 2px rgba(255,255,255,.35), inset 0 0 0 10px var(--stk-plate), inset 0 0 0 11px var(--stk-plate-line); }
-.stk-fig-plate::after { content: ''; position: absolute; inset: 17%; border-radius: 50%; border: 1px solid var(--stk-plate-line);
-  background: radial-gradient(ellipse at 68% 78%, var(--stk-plate-hi) 0%, var(--stk-plate) 55%, var(--stk-plate-lo) 130%); box-shadow: inset 0 5px 9px rgba(0,0,0,.3); }
+  box-shadow: 0 8px 0 var(--stk-plate-lo), 0 12px 0 color-mix(in oklab, var(--stk-plate-lo) 65%, #000), 0 22px 30px rgba(0,0,0,.45),
+    inset 0 3px 0 var(--stk-gloss), inset 0 -6px 8px rgba(0,0,0,.14), inset 0 0 0 2px color-mix(in oklab, var(--stk-plate-hi) 55%, transparent); }
+.stk-fig-plate::after { content: ''; position: absolute; inset: 18%; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 36%, color-mix(in oklab, var(--stk-plate-hi) 45%, var(--stk-plate)) 0%, var(--stk-plate) 60%, color-mix(in oklab, var(--stk-plate-lo) 45%, var(--stk-plate)) 100%);
+  box-shadow: inset 4px 7px 12px rgba(0,0,0,.3), inset -2px -4px 6px var(--stk-gloss-soft), 0 2px 0 var(--stk-gloss), 0 -2px 0 rgba(0,0,0,.1); }
 .stk-fig-plate svg { width: 42%; height: 42%; fill: var(--stk-ink); position: relative; z-index: 1; }
 .stk-info { position: relative; display: flex; flex-direction: column; gap: .75rem; text-align: center; opacity: 0; transform: translateY(8px); transition: opacity .5s .15s, transform .5s .15s; }
 @media (min-width: 640px) { .stk-info { text-align: left; } }

@@ -185,6 +185,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import LanyardArt from './LanyardArt.vue'
 import { integrate, solve, spinStep, swingAngle } from '../utils/lanyardPhysics'
 import { makeStrap } from '../utils/lanyardStrap'
+import { createFrameGovernor } from '../utils/perf'
 
 const props = defineProps({
   title: { type: String, default: 'The Future Is Handmade' },
@@ -531,6 +532,8 @@ function mountBadge() {
     ctx.stroke()
   }
 
+  const shadeEls = inner.querySelectorAll('.lyd__shade')
+  const pl = {}
   const place = () => {
     const T = pts[iT]
     const C = pts[iC]
@@ -543,16 +546,22 @@ function mountBadge() {
       'px,0) rotate(' +
       (-swing).toFixed(4) +
       'rad)'
-    inner.style.transform = 'perspective(1100px) rotateY(' + spin.a.toFixed(4) + 'rad)'
+    const a = spin.a.toFixed(4)
+    if (pl.a !== a) {
+      pl.a = a
+      inner.style.transform = 'perspective(1100px) rotateY(' + a + 'rad)'
+      if (clipEl) clipEl.style.transform = 'translateX(-50%) perspective(1100px) rotateY(' + a + 'rad)'
+    }
     const edge = 1 - Math.abs(Math.cos(spin.a))
     if (clipEl) {
-      // the clip passes through the hole, so it turns with the card
-      clipEl.style.transform =
-        'translateX(-50%) perspective(1100px) rotateY(' + spin.a.toFixed(4) + 'rad)'
-      clipEl.style.filter = 'brightness(' + (1 - edge * 0.35).toFixed(3) + ')'
+      const f = 'brightness(' + (1 - edge * 0.35).toFixed(2) + ')'
+      if (pl.f !== f) { pl.f = f; clipEl.style.filter = f }
     }
-    inner.style.setProperty('--lyd-dim', (edge * 0.5).toFixed(3))
-    inner.style.setProperty('--lyd-shine', (50 + Math.sin(spin.a) * 70 + swing * 90).toFixed(1) + '%')
+    // custom props go on the two shine overlays, not the whole card, so the card's content isn't restyled each frame
+    const dim = (edge * 0.5).toFixed(2)
+    const shine = (Math.round((50 + Math.sin(spin.a) * 70 + swing * 90) * 2) / 2).toFixed(1) + '%'
+    if (pl.dim !== dim) { pl.dim = dim; shadeEls.forEach((el) => el.style.setProperty('--lyd-dim', dim)) }
+    if (pl.shine !== shine) { pl.shine = shine; shadeEls.forEach((el) => el.style.setProperty('--lyd-shine', shine)) }
   }
 
   // ---- interaction -----------------------------------------------------
@@ -599,7 +608,14 @@ function mountBadge() {
   let acc = 0
   let last = performance.now()
   let t = 0
+  const gov = createFrameGovernor()
+  let lastDraw = 0
   const tick = (now) => {
+    if (gov.skip(now, lastDraw)) { // 30fps on weak devices; physics stays time-based
+      raf = onScreen && !document.hidden ? requestAnimationFrame(tick) : 0
+      return
+    }
+    lastDraw = now
     acc += Math.min(0.05, (now - last) / 1000)
     last = now
     let steps = 0
@@ -807,6 +823,7 @@ onBeforeUnmount(() => {
   z-index: 6;
 }
 .lyd__shade {
+  will-change: transform;
   position: absolute;
   inset: 0;
   pointer-events: none;
