@@ -34,7 +34,7 @@
                             </div>
                         </div>
 
-                        <doodle-crew class="footer__crew" wordmark="dxtnn" :doodle-count="0" />
+                        <doodle-crew class="footer__crew" wordmark="dxtnn" :doodle-count="0" tech />
 
                         <div class="footer__bottom container">
                             <div class="footer__bottom-left">
@@ -76,6 +76,15 @@ export default {
 </script>
 
 <style scoped>
+@media screen and (max-width: 767px) {
+  /* the pin is position:fixed but trapped by .footer's transform, so it adds nothing to .footer's height:
+     on phones the (taller) content spilled upward and .footer's clip-path cut off the top links.
+     Let it flow so the footer grows with its content. */
+  .footer__pin {
+    position: relative;
+    bottom: auto;
+  }
+}
 .footer__bottom-left {
   display: flex;
   align-items: center;

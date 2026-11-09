@@ -5,9 +5,27 @@
     :data-play="play || reduced ? '1' : '0'"
     :data-interactive="interactive ? '1' : '0'"
     :data-tier="tier"
+    :data-tech="tech ? '1' : '0'"
   >
     <div ref="world" class="dcf-world">
-      <div class="dcf-stage">
+      <div ref="stage" class="dcf-stage">
+        <!-- tech mode: back layer (ground + the ghost that sits behind a letter), then the TechText letters, then the front svg -->
+        <svg v-if="tech" ref="svgBack" class="dcf-svg dcf-svg-back" :viewBox="viewBox" aria-hidden="true">
+          <g ref="layerA">
+            <g v-if="!flush" class="dcf-ground">
+              <path class="dcf-draw" pathLength="1" :d="ground.d" :style="{ '--d': tl.ground + 'ms' }" />
+              <path class="dcf-tufts dcf-fade" :d="ground.tufts" :style="{ '--d': tl.ground + 500 + 'ms' }" />
+            </g>
+            <g v-html="crewHtml.behindBody"></g>
+          </g>
+        </svg>
+        <div v-if="tech && techExact" class="dcf-tech" aria-hidden="true">
+          <tech-text
+            :text="word" :font-family="fontFamily" :font-weight="900" :letter-spacing="tracking" :exact="techExact"
+            intro="stamp" :playing="play || reduced" :intro-delays="stampDelays"
+            accent-color="var(--accent)" reveal="letter" :reach="220" :specks="coarse ? 6 : 15" :sweep="!coarse" :draggable="interactive && !coarse" :click-kick="interactive"
+          />
+        </div>
         <svg
           ref="svg"
           class="dcf-svg"
@@ -36,7 +54,7 @@
             </filter>
           </defs>
 
-          <g ref="layerA">
+          <g v-if="!tech" ref="layerA">
             <g v-if="!flush" class="dcf-ground">
               <path class="dcf-draw" pathLength="1" :d="ground.d" :style="{ '--d': tl.ground + 'ms' }" />
               <path class="dcf-tufts dcf-fade" :d="ground.tufts" :style="{ '--d': tl.ground + 500 + 'ms' }" />
@@ -60,7 +78,7 @@
               class="dcf-letter"
               :style="{ '--d': tl.letter(i) + 'ms', '--r': ((hash(i * 2.3) - 0.5) * 9).toFixed(2) + 'deg' }"
             >
-              <g class="dcf-glyph">
+              <g v-if="!tech" class="dcf-glyph">
                 <text :x="layout.x[i]" y="0" :font-size="FONT_SIZE" font-weight="900" :style="{ fontFamily }" :filter="tier === 'full' ? 'url(#' + uid + '-ink)' : null">{{ c }}</text>
               </g>
               <path
@@ -71,7 +89,7 @@
           </template>
 
           <rect
-            v-if="tier !== 'full'"
+            v-if="tier !== 'full' && !tech"
             class="dcf-tex dcf-fade"
             :style="{ '--d': tl.letter(chars.length - 1) + 600 + 'ms' }"
             :x="view.x" :y="-cap - 4" :width="view.w" :height="cap + 8"
@@ -138,6 +156,7 @@ import {
   ART, FONT_SIZE, DEFAULT_FONT, hash, clamp, layoutWord, seatPoint, lookAt,
   stepFloater, timeline, doodleSvg, estimate, measure,
 } from '../utils/doodleCrew'
+import TechText from './TechText.vue'
 
 let UID = 0
 
@@ -154,7 +173,7 @@ function pickTier() {
 
 const DEFAULT_CREW = [
   { kind: 'yeti', letter: 0, seat: 'front', offset: -0.32, name: 'Bruno', says: 'Laper nih. Ada cemilan?' },
-  { kind: 'bird', letter: 1, seat: 'top', offset: 0.02, name: 'Pip', says: 'Chat aja kak, serius.' },
+  { kind: 'bird', letter: 1, seat: 'top', offset: 0.26, name: 'Pip', says: 'Chat aja kak, serius.' },
   { kind: 'mushroom', letter: 2, seat: 'front', offset: 0.12, scale: 0.95, name: 'Morel', says: 'Gw jamur, bukan fun guy.' },
   { kind: 'kid', letter: 3, seat: 'top', offset: -0.05, name: 'Juno', says: 'Di atas sini view terbaik!' },
   { kind: 'ghost', letter: 4, seat: 'behind', offset: -0.05, name: 'Boo', says: 'Bu! ...sori. Halo.' },
@@ -163,6 +182,7 @@ const DEFAULT_CREW = [
 const DEFAULT_DOODLES = ['gem', 'sandwich', 'star', 'note', 'gem', 'sandwich', 'bolt', 'note', 'sparkle']
 
 export default {
+  components: { TechText },
   name: 'DoodleCrew',
   props: {
     wordmark: { type: String, default: 'DXTNN' },
@@ -174,6 +194,8 @@ export default {
     interactive: { type: Boolean, default: true },
     // stand directly on the bottom edge (the footer's dashed line) instead of drawing a ground of its own
     flush: { type: Boolean, default: true },
+    // draw the wordmark with the interactive TechText canvas (outline reveal, drag, kick) instead of svg text
+    tech: { type: Boolean, default: false },
   },
   data() {
     const word = this.wordmark.toUpperCase()
@@ -186,6 +208,8 @@ export default {
       tier: pickTier(),
       talking: -1,
       layerBox: { width: '100%', height: '100%' },
+      techExact: null,
+      coarse: typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(pointer: coarse)').matches,
     }
   },
   computed: {
@@ -204,6 +228,7 @@ export default {
       return o
     },
     word() { return this.wordmark.toUpperCase() },
+    stampDelays() { return this.chars.map((_, i) => this.tl.letter(i)) },
     chars() { return Array.from(this.word) },
     layout() { return layoutWord(this.metrics.advances, this.tracking, FONT_SIZE) },
     cap() { return this.metrics.cap },
@@ -309,6 +334,8 @@ export default {
     },
   },
   watch: {
+    view() { this.$nextTick(this.measureTech) },
+    metrics() { this.$nextTick(this.measureTech) },
     crewHtml() { this.$nextTick(this.collectEyes) },
     doodleList() { this.$nextTick(() => { this.collectDoodles(); this.sizeWorld() }) },
   },
@@ -344,6 +371,7 @@ export default {
     }
 
     // doodles fall over the whole footer panel (down to the bottom of the crew = the dashed line)
+    window.addEventListener('resize', this.measureTech)
     this._field = this.$el.closest('.footer__bg') || this.$el
     if (this._field === this.$el) this.$el.style.position = 'relative'
     this._field.addEventListener('pointermove', this.onMove)
@@ -354,9 +382,10 @@ export default {
       this.collectEyes()
       this.collectDoodles()
       this.sizeWorld()
+      this.measureTech()
     })
     if (typeof ResizeObserver !== 'undefined') {
-      this._ro = new ResizeObserver(() => this.sizeWorld())
+      this._ro = new ResizeObserver(() => { this.sizeWorld(); this.measureTech() })
       this._ro.observe(this.$refs.world)
       if (this._field !== this.$el) this._ro.observe(this._field)
     }
@@ -370,6 +399,7 @@ export default {
       this._io = new IntersectionObserver((entries) => {
         for (const e of entries) {
           this._s.visible = e.isIntersecting
+          if (e.isIntersecting) this.measureTech()
           if (e.isIntersecting && e.intersectionRatio > 0.3) this.startPlay()
           else if (!e.isIntersecting) this.resetPlay() // left the footer: rewind, so it opens again next visit
         }
@@ -386,6 +416,7 @@ export default {
     this._alive = false
     cancelAnimationFrame(this._raf)
     window.clearTimeout(this._talkTimer)
+    window.removeEventListener('resize', this.measureTech)
     if (this._field) {
       this._field.removeEventListener('pointermove', this.onMove)
       this._field.removeEventListener('pointerdown', this.onMove)
@@ -399,11 +430,36 @@ export default {
   },
   methods: {
     hash,
+    svgAll(sel) {
+      const out = []
+      for (const r of [this.$refs.svgBack, this.$refs.svg]) if (r) out.push(...r.querySelectorAll(sel))
+      return out
+    },
+    svgOne(sel) {
+      return (this.$refs.svgBack && this.$refs.svgBack.querySelector(sel)) || (this.$refs.svg && this.$refs.svg.querySelector(sel)) || null
+    },
+    // where the letters sit inside the stage, in css px, read from the svg's real rendered transform
+    measureTech() {
+      if (!this.tech) return
+      const el = this.$refs.svg
+      const stage = this.$refs.stage
+      if (!el || !stage || !stage.offsetWidth || !el.getScreenCTM) return
+      const m = el.getScreenCTM()
+      if (!m || !m.a) return
+      const r = stage.getBoundingClientRect()
+      const ks = r.width / stage.offsetWidth || 1 // screen px per css px (page zoom / transforms)
+      const next = { size: (FONT_SIZE * m.a) / ks, x: (m.a * this.layout.x[0] + m.e - r.left) / ks, baseline: (m.f - r.top) / ks }
+      const c = this.techExact
+      if (c && Math.abs(c.size - next.size) < 0.05 && Math.abs(c.x - next.x) < 0.05 && Math.abs(c.baseline - next.baseline) < 0.05) return
+      this.techExact = next
+    },
     pct(v, base, span) { return (((v - base) / span) * 100).toFixed(3) + '%' },
     startPlay() {
       if (!this.play) {
         this.play = true
         this._s.start = performance.now()
+        this.measureTech()
+        window.setTimeout(this.measureTech, 1400)
       }
     },
     resetPlay() {
@@ -414,21 +470,18 @@ export default {
       s.floaters = []
       this.talking = -1
       window.clearTimeout(this._talkTimer)
-      const svg = this.$refs.svg
-      if (svg) svg.querySelectorAll('.is-hop').forEach((h) => h.classList.remove('is-hop'))
+      this.svgAll('.is-hop').forEach((h) => h.classList.remove('is-hop'))
       this.$nextTick(this.sizeWorld) // doodles start over from the top
     },
     collectEyes() {
-      const svg = this.$refs.svg
-      if (!svg) return
       const eyes = {}
-      svg.querySelectorAll('[data-eb]').forEach((el) => {
+      this.svgAll('[data-eb]').forEach((el) => {
         const [c, e] = el.getAttribute('data-eb').split(',')
         if (!eyes[c]) eyes[c] = []
         if (!eyes[c][e]) eyes[c][e] = {}
         eyes[c][e].blink = el
       })
-      svg.querySelectorAll('[data-ep]').forEach((el) => {
+      this.svgAll('[data-ep]').forEach((el) => {
         const [c, e] = el.getAttribute('data-ep').split(',')
         if (!eyes[c]) eyes[c] = []
         if (!eyes[c][e]) eyes[c][e] = {}
@@ -503,7 +556,7 @@ export default {
     poke(i) {
       if (!this.interactive) return
       this.talking = i
-      const hop = this.$refs.svg.querySelector('[data-hop="' + i + '"]')
+      const hop = this.svgOne('[data-hop="' + i + '"]')
       if (hop) {
         hop.classList.remove('is-hop')
         void hop.getBoundingClientRect() // restart the animation
@@ -512,7 +565,7 @@ export default {
       window.clearTimeout(this._talkTimer)
       this._talkTimer = window.setTimeout(() => {
         this.talking = -1
-        const h = this.$refs.svg && this.$refs.svg.querySelector('[data-hop].is-hop')
+        const h = this.svgOne('[data-hop].is-hop')
         if (h) h.classList.remove('is-hop')
       }, 2600)
     },
@@ -629,6 +682,11 @@ export default {
 .dcf-world{}
 .dcf-stage{position:relative;z-index:1}
 .dcf-svg{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+/* tech mode: back svg / TechText canvas / front svg are stacked, only the crew hit-boxes take pointer events */
+.dcf[data-tech='1'] .dcf-svg{position:relative;pointer-events:none}
+.dcf[data-tech='1'] .dcf-svg-back{position:absolute;left:0;top:0;width:100%;height:100%}
+.dcf[data-tech='1'] .dcf-hit{pointer-events:all}
+.dcf-tech{position:absolute;left:0;top:0;right:0;bottom:-14px}
 .dcf-svg text{fill:var(--dcf-ink)}
 .dcf-art{fill:var(--dcf-bg);stroke:var(--dcf-ink);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .dcf-art .n{fill:none}.dcf-art .k{fill:var(--dcf-ink)}.dcf-art .a{fill:var(--dcf-accent)}.dcf-art .o{fill:#ff9f1c}.dcf-art .r{fill:#ff4d4d}
