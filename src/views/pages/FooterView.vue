@@ -77,6 +77,13 @@ export default {
 
 <style scoped>
 @media screen and (max-width: 767px) {
+  /* on phones the role line + tagline under the brand just add height, the hero already says it */
+  .footer__subtitle,
+  .footer__tagline {
+    display: none;
+  }
+}
+@media screen and (max-width: 767px) {
   /* the pin is position:fixed but trapped by .footer's transform, so it adds nothing to .footer's height:
      on phones the (taller) content spilled upward and .footer's clip-path cut off the top links.
      Let it flow so the footer grows with its content. */

@@ -113,7 +113,7 @@
               rx="12"
               role="button"
               tabindex="0"
-              :aria-label="(p.m.name || p.m.kind) + (p.m.says ? ': ' + p.m.says : '')"
+              :aria-label="p.m.name || p.m.kind"
               @click="poke(p.i)"
               @keydown.enter.prevent="poke(p.i)"
               @keydown.space.prevent="poke(p.i)"
@@ -124,11 +124,11 @@
         <div class="dcf-bubbles" aria-live="polite">
           <template v-for="p in placed" :key="'bub' + p.i">
             <div
-              v-if="talking === p.i && p.m.says"
+              v-if="talking === p.i && speech"
               class="dcf-bubble"
-              :class="{ 'is-left': p.x > view.x + view.w * 0.72 }"
+              :class="{ 'is-left': p.x > view.x + view.w * 0.72, 'is-right': p.x < view.x + view.w * 0.2 }"
               :style="{ left: pct(p.x, view.x, view.w), top: pct(p.y + p.art.box.t * p.scale - 6, view.y, view.h) }"
-            >{{ p.m.says }}</div>
+            >{{ speech }}</div>
           </template>
         </div>
       </div>
@@ -171,13 +171,52 @@ function pickTier() {
   } catch (e) { return 'lite' }
 }
 
+// `says` can be one line or a list; a click picks one at random (never the same twice in a row)
 const DEFAULT_CREW = [
-  { kind: 'yeti', letter: 0, seat: 'front', offset: -0.32, name: 'Bruno', says: 'Laper nih. Ada cemilan?' },
-  { kind: 'bird', letter: 1, seat: 'top', offset: 0.26, name: 'Pip', says: 'Chat aja kak, serius.' },
-  { kind: 'mushroom', letter: 2, seat: 'front', offset: 0.12, scale: 0.95, name: 'Morel', says: 'Gw jamur, bukan fun guy.' },
-  { kind: 'kid', letter: 3, seat: 'top', offset: -0.05, name: 'Juno', says: 'Di atas sini view terbaik!' },
-  { kind: 'ghost', letter: 4, seat: 'behind', offset: -0.05, name: 'Boo', says: 'Bu! ...sori. Halo.' },
-  { kind: 'cat', letter: 4, seat: 'front', offset: 0.42, flip: true, name: 'Patch', says: 'Arr. Kursor mantap.' },
+  { kind: 'yeti', letter: 0, seat: 'front', offset: -0.32, name: 'Bruno', says: [
+    'Aduh laper nyo, nasi goreng berapaan?',
+    'Ada yang jual bakso? Gw traktir... eh, lu dulu deh.',
+    'Porsi gw dua ya, jangan pelit.',
+    'Bukan gendut, ini fluffy.',
+    'Jam segini enaknya ngopi sama gorengan.',
+    'Diet? Besok aja, gw lagi sibuk.',
+  ] },
+  { kind: 'bird', letter: 1, seat: 'top', offset: 0.26, name: 'Pip', says: [
+    'Cit cit! Mau tanya-tanya? Chat aja.',
+    'Cuit~ dari atas sini keliatan semua.',
+    'Tuit tuit, jangan begadang ya.',
+    'Cit! Sini gw bantu, serius.',
+    'Gw bukan burung hantu, jangan ajak lembur.',
+  ] },
+  { kind: 'mushroom', letter: 2, seat: 'front', offset: 0.12, scale: 0.95, name: 'Morel', says: [
+    'Gw jamur, bukan fun guy. ...ya, fun guy sih.',
+    'Jangan diinjek, baru tumbuh nih.',
+    'Lembab dikit gpp, gw suka.',
+    'Jangan jadiin topping pizza ya.',
+    'Hujan? Mantap, gw seneng.',
+  ] },
+  { kind: 'kid', letter: 3, seat: 'top', offset: -0.05, dy: 3, name: 'Juno', says: [
+    'Di atas sini view terbaik!',
+    'Kaki gw gantung, tapi santai.',
+    'Jangan dorong ya, serius.',
+    'Dari sini keliatan lu scroll sampe mana.',
+    'Gw lagi ngawas, tenang aja.',
+  ] },
+  { kind: 'ghost', letter: 4, seat: 'behind', offset: -0.05, name: 'Boo', says: [
+    'Bu! ...sori, kaget ya?',
+    'Gw ghosting, tapi bukan yang itu.',
+    'Cuma lewat. Jangan di-seen doang ya.',
+    'Boo. Tapi sopan.',
+    'Malem-malem gw lebih produktif.',
+  ] },
+  { kind: 'cat', letter: 4, seat: 'front', offset: 0.42, flip: true, name: 'Patch', says: [
+    'Meow.',
+    'Meow meow.',
+    'Meong. Mana snack-nya?',
+    'Mrrow... kursor lu enak dikejar.',
+    'Prrr. Elusnya pelan-pelan ya.',
+    'Meow. Gw lagi ngawas kulkas.',
+  ] },
 ]
 const DEFAULT_DOODLES = ['gem', 'sandwich', 'star', 'note', 'gem', 'sandwich', 'bolt', 'note', 'sparkle']
 
@@ -207,6 +246,7 @@ export default {
       reduced: false,
       tier: pickTier(),
       talking: -1,
+      speech: '',
       layerBox: { width: '100%', height: '100%' },
       techExact: null,
       coarse: typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(pointer: coarse)').matches,
@@ -241,6 +281,7 @@ export default {
         const scale = (this.cap / 144) * art.k * (m.scale != null ? m.scale : 1)
         const seat = m.seat || art.seat
         const p = seatPoint(seat, this.layout.x[li], this.layout.w[li], this.cap, m.offset || 0, scale)
+        p.y += (m.dy || 0) * scale // per-member nudge, in art units
         const flip = m.flip ? -1 : 1
         const bx = flip > 0 ? [art.box.l, art.box.r] : [-art.box.r, -art.box.l]
         const top = art.box.t
@@ -348,6 +389,7 @@ export default {
     this._eyes = {}
     this._doodleEls = []
     this._talkTimer = 0
+    this._lastLine = {}
   },
   mounted() {
     const m = measure(this.word, this.fontFamily)
@@ -555,6 +597,12 @@ export default {
     onLeave() { this._s.inside = false },
     poke(i) {
       if (!this.interactive) return
+      const who = this.placed.find((q) => q.i === i)
+      const lines = who ? [].concat(who.m.says || []) : []
+      let k = Math.floor(Math.random() * lines.length)
+      if (lines.length > 1 && k === this._lastLine[i]) k = (k + 1 + Math.floor(Math.random() * (lines.length - 1))) % lines.length
+      this._lastLine[i] = k
+      this.speech = lines[k] || ''
       this.talking = i
       const hop = this.svgOne('[data-hop="' + i + '"]')
       if (hop) {
@@ -711,10 +759,12 @@ export default {
 .dcf-arrive{transform-box:fill-box;transform-origin:50% 100%}
 /* bubbles */
 .dcf-bubbles{position:absolute;inset:0;pointer-events:none;z-index:2}
-.dcf-bubble{position:absolute;transform:translate(-50%,-100%) rotate(-2deg);transform-origin:50% 100%;background:var(--dcf-bg);color:var(--dcf-ink);border:2px solid var(--dcf-ink);border-radius:16px;padding:6px 11px;font-size:12px;font-weight:700;line-height:1.25;white-space:nowrap;box-shadow:3px 3px 0 var(--dcf-ink);animation:dcf-bubble .32s cubic-bezier(.3,1.6,.5,1) both;margin-top:-4px}
+.dcf-bubble{position:absolute;transform:translate(-50%,-100%) rotate(-2deg);transform-origin:50% 100%;background:var(--dcf-bg);color:var(--dcf-ink);border:2px solid var(--dcf-ink);border-radius:16px;padding:6px 11px;font-size:12px;font-weight:700;line-height:1.3;white-space:normal;width:max-content;max-width:min(190px,56vw);text-align:center;box-shadow:3px 3px 0 var(--dcf-ink);animation:dcf-bubble .32s cubic-bezier(.3,1.6,.5,1) both;margin-top:-4px}
 .dcf-bubble::after{content:'';position:absolute;left:50%;bottom:-9px;width:14px;height:14px;background:var(--dcf-bg);border-right:2px solid var(--dcf-ink);border-bottom:2px solid var(--dcf-ink);transform:translateX(-50%) rotate(45deg) skew(8deg,8deg)}
 .dcf-bubble.is-left{transform:translate(-88%,-100%) rotate(2deg);transform-origin:88% 100%}
 .dcf-bubble.is-left::after{left:88%}
+.dcf-bubble.is-right{transform:translate(-14%,-100%) rotate(-2deg);transform-origin:14% 100%}
+.dcf-bubble.is-right::after{left:14%}
 /* doodles */
 .dcf-doodles{position:absolute;left:0;top:0;pointer-events:none;z-index:2;overflow:hidden}
 .dcf-doodle{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;will-change:transform;touch-action:manipulation}
