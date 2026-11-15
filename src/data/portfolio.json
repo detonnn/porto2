@@ -15,7 +15,7 @@
     "socials": [
       {
         "icon": "uil-instagram",
-        "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh"
+        "url": "https://www.instagram.com/dxtnn_"
       },
       {
         "icon": "uil-github-alt",
@@ -23,7 +23,7 @@
       },
       {
         "icon": "uil-music",
-        "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc"
+        "url": "https://www.tiktok.com/@dxtnn"
       }
     ]
   },
@@ -483,7 +483,7 @@
       {
         "label": "Instagram",
         "icon": "uil-instagram",
-        "url": "https://instagram.com/dxtnn_?igsh=dGo0ZmFnczF2dWhh"
+        "url": "https://www.instagram.com/dxtnn_"
       },
       {
         "label": "GitHub",
@@ -493,7 +493,7 @@
       {
         "label": "TikTok",
         "icon": "uil-music",
-        "url": "https://www.tiktok.com/@risemss?is_from_webapp=1&sender_device=pc"
+        "url": "https://www.tiktok.com/@dxtnn"
       }
     ]
   }

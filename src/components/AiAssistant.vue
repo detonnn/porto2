@@ -259,7 +259,7 @@ const CONTACT_LINKS = {
   },
   tiktok: {
     label: "Buka TikTok",
-    url: "https://www.tiktok.com/@risemss",
+    url: "https://www.tiktok.com/@dxtnn",
     iconClass: "uil uil-video",
   },
   email: {
