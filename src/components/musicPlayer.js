@@ -1,11 +1,11 @@
 import { reactive } from "vue";
 export const MUSIC_TRACKS = [
   {
-    title: "What If I Call",
-    artist: "Alex Crichton",
-    src: "/frontend/assets/audio/whatif.mp3",
-    duration: "2:40",
-    cover: "/frontend/assets/img/list1.jpeg",
+    title: "Alonica",
+    artist: "LANY",
+    src: "/frontend/assets/audio/alonica.mp3",
+    duration: "3:57",
+    cover: "/frontend/assets/img/alonica.jpg",
   },
   {
     title: "A Sorrowful Reunion",
@@ -15,11 +15,11 @@ export const MUSIC_TRACKS = [
     cover: "/frontend/assets/img/list2.jpeg",
   },
   {
-    title: "The Night We Met",
-    artist: "Lord Huron",
-    src: "/frontend/assets/audio/want.mp3",
-    duration: "3:28",
-    cover: "/frontend/assets/img/list3.jpeg",
+    title: "It's You",
+    artist: "Ali Gatie",
+    src: "/frontend/assets/audio/itsyou.mp3",
+    duration: "3:34",
+    cover: "/frontend/assets/img/itsyou.jpg",
   },
   {
     title: "multo",
@@ -29,11 +29,11 @@ export const MUSIC_TRACKS = [
     cover: "/frontend/assets/img/list4.jpeg",
   },
   {
-    title: "Love Songs",
-    artist: "Kaash Paige",
-    src: "/frontend/assets/audio/ls.mp3",
-    duration: "2:40",
-    cover: "/frontend/assets/img/list5.jpeg",
+    title: "White Ferrari",
+    artist: "Frank Ocean",
+    src: "/frontend/assets/audio/whiteferrari.mp3",
+    duration: "4:09",
+    cover: "/frontend/assets/img/whiteferrari.jpg",
   },
 ];
 

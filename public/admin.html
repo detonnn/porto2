@@ -58,7 +58,9 @@ async function load() {
     }));
   } catch (e) { $('msg').textContent = 'gagal load'; }
 }
-$('load').onclick = load; load();
+$('load').onclick = () => { try { if (key()) localStorage.setItem('porto2_admin', key()); } catch (e) {} load(); };
+try { $('key').value = localStorage.getItem('porto2_admin') || ''; } catch (e) {}
+load();
 </script>
 </body>
 </html>

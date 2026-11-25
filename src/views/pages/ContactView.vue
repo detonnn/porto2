@@ -98,7 +98,7 @@ export default {
             if (!this.form.rating) return this.triggerError('⚠ Kasih bintang dulu — rating required.')
             this.error = ''; this.showError = false; this.sending = true
             // ponytail: POST ke /api/review -> Upstash + email ke owner, lalu langsung muncul di reviews.log
-            fetch('/api/review', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.form) })
+            fetch('/api/review', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-key': (() => { try { return localStorage.getItem('porto2_admin') || '' } catch (e) { return '' } })() }, body: JSON.stringify(this.form) })
                 .then(async r => {
                     const d = await r.json().catch(() => ({}))
                     if (r.status === 429) return this.triggerError(`⚠ Tunggu ${Math.ceil((d.retryAfter || 3600) / 60)} menit lagi buat kirim review berikutnya.`)

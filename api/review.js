@@ -21,6 +21,13 @@ const sha = s => crypto.createHash('sha256').update(String(s)).digest('hex');
 const getIp = req => req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'anon';
 const body = req => (typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {});
 
+// owner bypass: kalo header x-admin-key cocok ADMIN_KEY, cooldown di-skip (buat testing)
+const isAdmin = req => {
+  const admin = process.env.ADMIN_KEY || '';
+  const given = String(req.headers['x-admin-key'] || '');
+  return !!admin && crypto.timingSafeEqual(Buffer.from(sha(admin)), Buffer.from(sha(given)));
+};
+
 async function sendMail({ name, email, message, rating }) {
   const key = process.env.RESEND_API_KEY;
   if (!key) { console.error('RESEND_API_KEY belum diset'); return false; }
@@ -67,7 +74,8 @@ export default async function handler(req, res) {
       }
 
       const rlKey = `porto2:reviews:rl:${sha(getIp(req))}`;
-      const ok = await redisCmd(['SET', rlKey, '1', 'NX', 'EX', COOLDOWN], URL_, TOKEN);
+      const owner = isAdmin(req);
+      const ok = owner || await redisCmd(['SET', rlKey, '1', 'NX', 'EX', COOLDOWN], URL_, TOKEN);
       if (!ok) {
         const ttl = await redisCmd(['TTL', rlKey], URL_, TOKEN);
         return res.status(429).json({ error: 'Cooldown 1 jam per review', retryAfter: Math.max(ttl, 1) });
@@ -87,7 +95,7 @@ export default async function handler(req, res) {
           ['ZADD', IDX, review.ts, id],
         ], URL_, TOKEN);
       } catch (e) {
-        await redisCmd(['DEL', rlKey], URL_, TOKEN).catch(() => {});
+        if (!owner) await redisCmd(['DEL', rlKey], URL_, TOKEN).catch(() => {});
         throw e;
       }
       await sendMail({ name, email, message, rating }).catch(e => console.error('mail fail', e));

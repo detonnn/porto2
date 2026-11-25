@@ -321,7 +321,7 @@ const ANSWERS = {
   ansFavAsk:
     'Kamu mau nanya favorit yang mana dulu? Ada makanan favorit, game favorit, musik favorit, sama content creator favorit. Ketik aja misal "musik favorit" atau "creator favorit" — atau ketik "semuanya" kalau mau rangkuman lengkap.',
   ansMusicFav:
-    "Musik favorit: Alex Crichton – What If I Call, Reality Club – A Sorrowful Reunion, Lord Huron – The Night We Met, Cup of Joe – Multo, Kaash Paige – Love Songs. Ketik aja “putar musik” kalau mau dengerin langsung!",
+    "Musik favorit: LANY – Alonica, Reality Club – A Sorrowful Reunion, Ali Gatie – It's You, Cup of Joe – Multo, Frank Ocean – White Ferrari. Ketik aja “putar musik” kalau mau dengerin langsung!",
   ansTestimonial: "Siap! Ke Reviews ya — aku scroll-in ke kata-kata klien.",
   ansAge: "Umur 19 tahun, domisili Tangerang — kuliah di Universitas Pamulang.",
   ansServices:
@@ -461,12 +461,14 @@ const KEYWORD_MAP = [
       "musik kesukaan",
       "lagu fav",
       "musik fav",
-      "what if i call",
-      "alex crichton",
+      "alonica",
+      "lany",
       "reality club",
-      "lord huron",
+      "ali gatie",
+      "its you",
       "cup of joe",
-      "kaash paige",
+      "frank ocean",
+      "white ferrari",
     ],
     answer: "ansMusicFav",
   },
@@ -716,6 +718,7 @@ export default {
       activeReactBelow: false,
       idleTimer: null,
       hasSentIdle: false,
+      promoShown: false,
       lastIdleIdx: -1,
       audioElements: {},
       isNearBottom: true,
@@ -886,15 +889,27 @@ export default {
         "Santai aja, butuh info kontak atau mau liat karya Dexton yang lain?",
         "Ada yang kurang jelas tentang portfolio ini? Tanyain aja bre!",
       ];
-      let idx;
-      do {
-        idx = Math.floor(Math.random() * idleMessages.length);
-      } while (idx === this.lastIdleIdx && idleMessages.length > 1);
-      this.lastIdleIdx = idx;
+      // ponytail: promo fitur review cuma tampil 1x per pengunjung (flag localStorage), sisanya idle biasa
+      const promo = "Info: sekarang kamu bisa kirim review asli ke portfolio ini. Isi form di bagian contact, kasih bintang sesuka kamu, dan review-nya langsung tampil di reviews.log.";
+      let seen = this.promoShown;
+      try { seen = seen || localStorage.getItem("porto2_review_promo") === "1"; } catch (e) {}
+      let idx = -1;
+      let text;
+      if (!seen) {
+        text = promo;
+        this.promoShown = true;
+        try { localStorage.setItem("porto2_review_promo", "1"); } catch (e) {}
+      } else {
+        do {
+          idx = Math.floor(Math.random() * idleMessages.length);
+        } while (idx === this.lastIdleIdx && idleMessages.length > 1);
+        this.lastIdleIdx = idx;
+        text = idleMessages[idx];
+      }
       this.hasSentIdle = true;
 
       this.showTyping(() => {
-        this.addMessage(idleMessages[idx], "bot");
+        this.addMessage(text, "bot");
         setTimeout(() => {
           this.resetOnlineTimer();
         }, 2000);

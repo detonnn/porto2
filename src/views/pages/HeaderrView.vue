@@ -54,11 +54,14 @@
         </nav>
 
         <transition name="now-playing-fade">
-            <div class="now-playing" v-if="currentTrack" :class="{ paused: !musicPlaying }" @click="toggleTrack" :title="musicPlaying ? 'Mute musik' : 'Putar musik'">
-                <i class="uil now-playing__icon" :class="musicPlaying ? 'uil-music' : 'uil-volume-mute'"></i>
-                <div class="now-playing__info">
-                    <span class="now-playing__title">{{ currentTrack.title }}</span>
-                    <span class="now-playing__artist">{{ currentTrack.artist }}</span>
+            <div class="now-playing" v-if="currentTrack" :class="{ paused: !musicPlaying, 'is-moving': moving }" @click="toggleTrack" :title="musicPlaying ? 'Mute musik' : 'Putar musik'">
+                <div class="now-playing__mini"><i class="uil now-playing__icon" :class="musicPlaying ? 'uil-music' : 'uil-volume-mute'"></i></div>
+                <div class="now-playing__full">
+                    <i class="uil now-playing__icon" :class="musicPlaying ? 'uil-music' : 'uil-volume-mute'"></i>
+                    <div class="now-playing__info">
+                        <span class="now-playing__title">{{ currentTrack.title }}</span>
+                        <span class="now-playing__artist">{{ currentTrack.artist }}</span>
+                    </div>
                 </div>
             </div>
         </transition>
@@ -70,6 +73,24 @@ import { musicState, toggleMusic } from '../../components/musicPlayer';
 
 export default {
     name: 'Header',
+    data() {
+        return { moving: false }
+    },
+    mounted() {
+        // ponytail: widget lagu di HP mengecil (icon doang) saat user scroll/swipe, melebar lagi setelah diem ~1.2 detik
+        this._idle = null
+        this.onMove = () => {
+            this.moving = true
+            clearTimeout(this._idle)
+            this._idle = setTimeout(() => { this.moving = false }, 1200)
+        }
+        this._evs = ['touchstart', 'touchmove', 'scroll', 'wheel']
+        this._evs.forEach(e => window.addEventListener(e, this.onMove, { passive: true }))
+    },
+    beforeUnmount() {
+        clearTimeout(this._idle)
+        this._evs.forEach(e => window.removeEventListener(e, this.onMove))
+    },
     computed: {
         musicPlaying() {
             return musicState.isPlaying;
