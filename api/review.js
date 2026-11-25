@@ -12,6 +12,7 @@ const OWNER_EMAIL = 'ibnudexton@gmail.com';
 const IDX = 'porto2:reviews:idx';   // sorted set (score = timestamp, member = id)
 const DATA = 'porto2:reviews:data'; // hash (id -> json)
 const AVATARS = 9;
+const AVKEY = 'porto2:reviews:avatar';
 const COOLDOWN = 3600;              // 1 jam per IP
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -55,8 +56,8 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // cache edge 20 dtk: ngurangin hit Redis & load lebih cepat (admin.html pake ?t= biar selalu fresh)
-      if (!req.query?.t) res.setHeader('Cache-Control', 'public, s-maxage=20, stale-while-revalidate=60');
+      // cache edge 5 dtk: ngurangin hit Redis & load lebih cepat (admin.html pake ?t= biar selalu fresh)
+      if (!req.query?.t) res.setHeader('Cache-Control', 'public, s-maxage=5');
       const ids = await redisCmd(['ZREVRANGE', IDX, 0, 29], URL_, TOKEN);
       if (!ids?.length) return res.status(200).json({ reviews: [] });
       const rows = await redisCmd(['HMGET', DATA, ...ids], URL_, TOKEN);
@@ -77,36 +78,48 @@ export default async function handler(req, res) {
 
       const rlKey = `porto2:reviews:rl:${sha(getIp(req))}`;
       const owner = isAdmin(req);
-      const ok = owner || await redisCmd(['SET', rlKey, '1', 'NX', 'EX', COOLDOWN], URL_, TOKEN);
-      if (!ok) {
-        const ttl = await redisCmd(['TTL', rlKey], URL_, TOKEN);
-        return res.status(429).json({ error: 'Cooldown 1 jam per review', retryAfter: Math.max(ttl, 1) });
+      // 1 round-trip: cek cooldown + ambil nomor avatar sekaligus (lebih cepet, terutama di jaringan HP)
+      let n;
+      if (owner) {
+        n = await redisCmd(['INCR', AVKEY], URL_, TOKEN);
+      } else {
+        const [ok, c] = await redisPipeline([['SET', rlKey, '1', 'NX', 'EX', COOLDOWN], ['INCR', AVKEY]], URL_, TOKEN);
+        if (!ok) {
+          const [, ttl] = await redisPipeline([['DECR', AVKEY], ['TTL', rlKey]], URL_, TOKEN); // balikin nomor avatar yang kepake
+          return res.status(429).json({ error: 'Cooldown 1 jam per review', retryAfter: Math.max(ttl, 1) });
+        }
+        n = c;
       }
 
-      // avatar bergilir (1,2,3,4,5,1,...) pake counter Redis, bukan random
-      const n = await redisCmd(['INCR', 'porto2:reviews:avatar'], URL_, TOKEN);
       const id = Date.now().toString(36) + crypto.randomBytes(3).toString('hex');
       const review = {
         id, name, role: 'Client', rating, text: message,
         image: `/frontend/assets/img/avatars/av${((n - 1) % AVATARS) + 1}.jpg`,
         ts: Date.now(),
       };
+      let card = 0;
       try {
-        await redisPipeline([
+        const out = await redisPipeline([
           ['HSET', DATA, id, JSON.stringify(review)],
           ['ZADD', IDX, review.ts, id],
+          ['ZCARD', IDX],
         ], URL_, TOKEN);
+        card = out[2];
       } catch (e) {
         if (!owner) await redisCmd(['DEL', rlKey], URL_, TOKEN).catch(() => {});
         throw e;
       }
-      // batasin penyimpanan: simpen 200 review terbaru aja
-      try {
-        const old = await redisCmd(['ZRANGE', IDX, 0, -201], URL_, TOKEN);
-        if (old?.length) await redisPipeline([['ZREM', IDX, ...old], ['HDEL', DATA, ...old]], URL_, TOKEN);
-      } catch (e) { console.error('trim fail', e); }
+      // simpen 200 review terbaru aja (cuma dicek kalo udah lewat)
+      if (card > 200) {
+        try {
+          const old = await redisCmd(['ZRANGE', IDX, 0, card - 201], URL_, TOKEN);
+          if (old?.length) await redisPipeline([['ZREM', IDX, ...old], ['HDEL', DATA, ...old]], URL_, TOKEN);
+        } catch (e) { console.error('trim fail', e); }
+      }
+      // balas dulu ke pengunjung (review udah kesimpen), baru kirim email
+      res.status(200).json({ ok: true, review });
       await sendMail({ name, email, message, rating }).catch(e => console.error('mail fail', e));
-      return res.status(200).json({ ok: true, review });
+      return;
     }
 
     if (req.method === 'DELETE') {

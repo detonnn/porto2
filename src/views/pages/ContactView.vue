@@ -104,6 +104,15 @@ export default {
                     if (r.status === 429) return this.triggerError(`⚠ Tunggu ${Math.ceil((d.retryAfter || 3600) / 60)} menit lagi buat kirim review berikutnya.`)
                     if (!r.ok) return this.triggerError('⚠ ' + (d.error || 'Gagal kirim, coba lagi.'))
                     if (d.review) window.dispatchEvent(new CustomEvent('review:added', { detail: d.review }))
+                    // kalo bagian review lagi gak keliatan (misal di HP), scroll ke sana biar kartunya langsung kelihatan
+                    setTimeout(() => {
+                        const el = document.getElementById('testimonial')
+                        if (!el) return
+                        const r = el.getBoundingClientRect(), vh = window.innerHeight
+                        if (r.bottom > vh * 0.3 && r.top < vh * 0.7) return
+                        if (window.lenis && typeof window.lenis.scrollTo === 'function') window.lenis.scrollTo(el, { offset: -70, duration: 1.1 })
+                        else el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }, 500)
                     this.sent = true; this.form = { name: '', email: '', message: '', rating: 0, website: '' }
                     setTimeout(() => { this.sent = false }, 4000)
                 })
