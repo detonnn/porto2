@@ -311,11 +311,11 @@
         "url": "https://atticsstd.vercel.app/"
       },
       {
-        "image": "frontend/assets/img/1.jpg",
-        "title": "Print Media Design & Packaging Workflow",
-        "description": "Six months of internship experience in the printing and online shop packing industry, handling the preparation of design files prior to printing.",
-        "url": "https://www.instagram.com/azkaprint.official/"
-      },
+      "image": "frontend/assets/img/pet-heist.jpg",
+      "title": "Pet Heist — Roblox Game",
+      "description": "Roblox game concept in development that mixes stealth egg-stealing with pet collection and riding. Sneak past guards to steal eggs, hatch them into pets of different rarities, and ride them to reach farther farms. Built in Roblox Studio.",
+      "url": "/pet-heist.html"
+    },
       {
         "image": "frontend/assets/img/3.jpg",
         "title": "Esports Video Editing & Social Content",

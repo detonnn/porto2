@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pet Heist — Curi. Tetaskan. Tunggangi.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Hallmark · genre: playful · macrostructure: Narrative Workflow · theme: Hum
+ * nav: N5 Floating pill · footer: Ft8 Marquee scroll
+ * pre-emit critique: P4 H4 E4 S4 R4 V5
+ */
+:root{
+  --color-paper:    oklch(97% 0.012 95);
+  --color-paper-2:  oklch(94% 0.016 95);
+  --color-paper-3:  oklch(91% 0.020 95);
+  --color-ink:      oklch(20% 0.012 250);
+  --color-ink-2:    oklch(20% 0.012 250 / 0.62);
+  --color-accent:      oklch(86% 0.18 95);
+  --color-accent-deep: oklch(68% 0.16 95);
+  --color-accent-2:      oklch(66% 0.18 235);
+  --color-accent-2-deep: oklch(50% 0.15 235);
+  --color-accent-3:      oklch(68% 0.24 18);
+  --color-accent-3-deep: oklch(52% 0.20 18);
+  --color-mint:     oklch(80% 0.16 150);
+  --color-lavender: oklch(74% 0.16 305);
+  --color-rule: oklch(20% 0.012 250 / 0.12);
+  --color-focus: oklch(55% 0.20 235);
+
+  --font-body:  'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-label: 'JetBrains Mono', ui-monospace, monospace;
+
+  --space-3xs: 0.125rem; --space-2xs: 0.25rem; --space-xs: 0.5rem;
+  --space-sm: 0.75rem; --space-md: 1rem; --space-lg: 1.5rem;
+  --space-xl: 2.5rem; --space-2xl: 4rem; --space-3xl: 6rem; --space-4xl: 9rem;
+
+  --radius-card: 20px; --radius-pill: 999px; --radius-input: 12px;
+  --page-gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --page-max: 72rem;
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --z-raised: 10; --z-sticky: 200;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth; overflow-x:clip;}
+body{
+  background:var(--color-paper); color:var(--color-ink);
+  font-family:var(--font-body); line-height:1.6;
+  overflow-x:clip; -webkit-font-smoothing:antialiased;
+  font-feature-settings:"ss01" on; font-variant-numeric:tabular-nums;
+}
+::selection{ background:var(--color-accent); color:var(--color-ink); }
+a{color:inherit;}
+img,svg{max-width:100%;display:block;}
+.wrap{max-width:var(--page-max); margin:0 auto; padding-inline:var(--page-gutter);}
+h1,h2,h3,h4{ font-family:var(--font-body); font-weight:600; letter-spacing:-0.02em; font-style:normal;
+  overflow-wrap:anywhere; min-width:0; }
+:focus-visible{ outline:3px solid var(--color-focus); outline-offset:3px; border-radius:6px; }
+.mono, .eyebrow{ font-family:var(--font-label); font-size:0.72rem; letter-spacing:0.10em; text-transform:uppercase; color:var(--color-ink-2); }
+
+/* ===== emphasis highlighter — tracks text, not a floating bar ===== */
+em, .hl{
+  font-style:normal; color:inherit;
+  background-image:linear-gradient(var(--hl, color-mix(in oklch, var(--color-accent) 55%, transparent)) 0 0);
+  background-repeat:no-repeat; background-size:100% 0.32em; background-position:0 82%;
+  -webkit-box-decoration-break:clone; box-decoration-break:clone; padding-bottom:0.02em;
+}
+.hl--cyan{ --hl: color-mix(in oklch, var(--color-accent-2) 45%, transparent); }
+.hl--coral{ --hl: color-mix(in oklch, var(--color-accent-3) 40%, transparent); }
+
+/* ===== button system — Hallmark Hum canonical ===== */
+.btn{
+  --btn-face:var(--color-accent); --btn-ink:var(--color-ink);
+  --btn-edge:var(--color-accent-deep); --btn-cast: oklch(76% 0.20 95 / 0.4);
+  display:inline-flex; align-items:center; justify-content:center; gap:0.5em;
+  padding:0.85rem 1.5rem; font-family:var(--font-body); font-weight:600; font-size:0.98rem;
+  border:0; border-radius:var(--radius-pill); color:var(--btn-ink); background:var(--btn-face);
+  cursor:pointer; position:relative; isolation:isolate; text-decoration:none; min-height:44px;
+  box-shadow:0 4px 0 0 var(--btn-edge), 0 6px 12px -3px var(--btn-cast);
+  transform:translateY(0);
+  transition:transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background-color 160ms;
+}
+.btn:hover{ transform:translateY(-2px); box-shadow:0 6px 0 0 var(--btn-edge), 0 12px 22px -4px var(--btn-cast); }
+.btn:active{ transform:translateY(3px); box-shadow:0 1px 0 0 var(--btn-edge), 0 2px 6px -2px var(--btn-cast); transition-duration:70ms; }
+.btn:focus-visible{ outline:3px solid color-mix(in oklch, var(--btn-edge) 70%, var(--color-focus)); outline-offset:3px; }
+.btn--coral{ --btn-face:var(--color-accent-3); --btn-edge:var(--color-accent-3-deep); --btn-ink:var(--color-paper); --btn-cast: oklch(54% 0.22 18 / 0.4); }
+.btn--outline{
+  --btn-face:transparent; background:transparent; box-shadow:none; border:1.5px solid var(--color-rule); color:var(--color-ink);
+}
+.btn--outline:hover{ transform:translateY(-2px); background:var(--color-paper-2); box-shadow:none; }
+.btn--outline:active{ transform:translateY(1px); }
+.btn__arrow{ display:inline-block; transition:transform 140ms var(--ease-out); }
+.btn:hover .btn__arrow{ transform:translateX(3px); }
+
+/* ===== nav — N5 floating pill ===== */
+.nav-pill{
+  position:fixed; inset:var(--space-md) auto auto 50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:var(--space-lg);
+  padding:0.55rem 0.6rem 0.55rem 1rem;
+  background:color-mix(in oklch, var(--color-paper) 80%, transparent);
+  backdrop-filter:blur(14px) saturate(120%);
+  border:1px solid var(--color-rule); border-radius:var(--radius-pill);
+  box-shadow:0 8px 24px -12px oklch(20% 0.012 250 / 0.18);
+  z-index:var(--z-sticky); max-width:calc(100vw - 2rem);
+  transition:padding 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+}
+.nav-pill.is-scrolled{ box-shadow:0 10px 28px -10px oklch(20% 0.012 250 / 0.24); }
+.nav-pill__brand{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:0.95rem; text-decoration:none; flex-shrink:0; }
+.nav-pill__brand svg{ width:26px; height:26px; transition:transform 200ms var(--ease-spring); }
+.nav-pill__brand:hover svg{ transform:rotate(-8deg) scale(1.06); }
+.nav-pill__links{ display:flex; gap:var(--space-lg); list-style:none; font-size:0.86rem; font-weight:500; }
+.nav-pill__links a{ text-decoration:none; color:var(--color-ink-2); transition:color 160ms; }
+.nav-pill__links a:hover{ color:var(--color-ink); }
+@media (max-width:56rem){ .nav-pill__links{ display:none; } }
+.nav-pill .btn{ padding:0.6rem 1.1rem; font-size:0.86rem; min-height:38px; }
+
+/* ===== section shell — one model, every edge matches ===== */
+.section{ max-width:var(--page-max); margin-inline:auto; padding:var(--space-3xl) var(--page-gutter); position:relative; }
+.section--tight{ padding-block:var(--space-2xl); }
+.section--band{ max-width:none; padding-inline:0; }
+.section--band > .band-inner{ max-width:var(--page-max); margin-inline:auto; padding-inline:var(--page-gutter); padding-block:var(--space-3xl); }
+.band--pear{ background:color-mix(in oklch, var(--color-accent) 14%, var(--color-paper)); }
+.band--cyan{ background:color-mix(in oklch, var(--color-accent-2) 9%, var(--color-paper)); }
+.band--ink{ background:var(--color-ink); color:var(--color-paper); }
+
+.kicker{ display:block; margin-bottom:var(--space-sm); }
+.sec-title{ font-size:clamp(1.8rem,1.2rem + 2.6vw,2.75rem); max-width:38ch; line-height:1.06; }
+.sec-sub{ color:var(--color-ink-2); max-width:52ch; margin-top:var(--space-md); font-size:1.02rem; }
+.band--ink .sec-sub{ color:oklch(97% 0.012 95 / 0.7); }
+
+/* view-enter reveal, staggered */
+.reveal{ opacity:0; transform:translateY(14px); transition:opacity 560ms var(--ease-out), transform 560ms var(--ease-out); }
+.reveal.is-in{ opacity:1; transform:translateY(0); }
+
+/* ===== hero — off-centre split, asymmetric ===== */
+.hero{ padding-top:calc(var(--space-4xl) + var(--space-md)); padding-bottom:var(--space-3xl); position:relative; overflow:visible; }
+.hero__grid{ display:grid; grid-template-columns:1.15fr 0.85fr; gap:var(--space-2xl); align-items:center; }
+@media (max-width:60rem){ .hero__grid{ grid-template-columns:1fr; gap:var(--space-2xl); } }
+.hero__eyebrow{ display:inline-flex; align-items:center; gap:8px; margin-bottom:var(--space-lg); }
+.hero__eyebrow::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--color-accent-3); flex-shrink:0; }
+.hero h1{
+  font-size:clamp(2.4rem, 1.7rem + 3.6vw, 4.4rem); line-height:0.98; font-weight:700;
+}
+.hero p.tagline{ max-width:46ch; margin-top:var(--space-lg); color:var(--color-ink-2); font-size:1.12rem; }
+.hero-ctas{ display:flex; gap:var(--space-md); margin-top:var(--space-xl); flex-wrap:wrap; }
+
+.hero__art{ position:relative; display:flex; align-items:center; justify-content:center; }
+.hero__art-plate{
+  position:relative; width:min(360px,100%); aspect-ratio:1/1; border-radius:28px;
+  background:var(--color-paper-2); border:1px solid var(--color-rule);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 24px 48px -28px oklch(20% 0.012 250 / 0.22);
+}
+.logo-mark{ width:58%; filter:drop-shadow(0 14px 26px oklch(20% 0.012 250 / 0.18)); animation:egg-pulse 4s ease-in-out infinite; cursor:pointer; }
+@keyframes egg-pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.045); } }
+.hero__art-tag{
+  position:absolute; bottom:-14px; right:-10px; background:var(--color-paper);
+  border:1px solid var(--color-rule); border-radius:var(--radius-pill);
+  padding:0.5rem 0.9rem; font-family:var(--font-label); font-size:0.7rem; letter-spacing:0.06em;
+  box-shadow:0 10px 20px -10px oklch(20% 0.012 250 / 0.2);
+  transform:rotate(-3deg);
+}
+.star-burst{ position:absolute; width:22px; height:22px; pointer-events:none;
+  background:linear-gradient(90deg, transparent 47%, var(--color-accent-3) 47% 53%, transparent 53%),
+             linear-gradient(0deg, transparent 47%, var(--color-accent-3) 47% 53%, transparent 53%);
+  animation:star-burst 420ms ease-out forwards; }
+@keyframes star-burst{ 0%{ transform:scale(0) rotate(0deg); opacity:1; } 60%{ transform:scale(1.2) rotate(35deg); opacity:0.9; } 100%{ transform:scale(1.4) rotate(45deg); opacity:0; } }
+
+/* ===== concept — asymmetric split ===== */
+.concept-grid{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:var(--space-2xl); align-items:start; margin-top:var(--space-2xl); }
+@media (max-width:56rem){ .concept-grid{ grid-template-columns:1fr; } }
+.concept-art{
+  background:var(--color-paper-2); border:1px solid var(--color-rule); border-radius:var(--radius-card);
+  padding:var(--space-xl); display:flex; align-items:center; justify-content:center; aspect-ratio:1/1;
+  position:sticky; top:6.5rem;
+}
+@media (max-width:56rem){ .concept-art{ position:static; aspect-ratio:16/10; } }
+.concept-copy p{ color:var(--color-ink-2); margin-bottom:var(--space-md); font-size:1.02rem; }
+.concept-copy strong{ color:var(--color-ink); font-weight:600; }
+.pill-row{ display:flex; gap:var(--space-xs); flex-wrap:wrap; margin-top:var(--space-lg); }
+.pill{ font-family:var(--font-label); font-size:0.72rem; letter-spacing:0.04em; padding:0.45rem 0.85rem;
+  border-radius:var(--radius-pill); border:1px solid var(--color-rule); color:var(--color-ink-2); background:var(--color-paper); }
+
+/* ===== demo carousel ===== */
+.demo-shell{ margin-top:var(--space-2xl); border-radius:var(--radius-card); border:1px solid var(--color-rule); background:var(--color-paper); overflow:hidden;
+  box-shadow:0 20px 40px -28px oklch(20% 0.012 250 / 0.18); }
+.demo-stage{ position:relative; aspect-ratio:16/8.5; overflow:hidden; background:var(--color-paper-2); }
+.demo-scene{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0;
+  transition:opacity 420ms var(--ease-out); flex-direction:column; text-align:center; padding:var(--space-lg); }
+.demo-scene.active{ opacity:1; }
+.demo-scene svg{ width:min(230px,48%); height:auto; margin-bottom:var(--space-md); }
+.demo-scene h3{ font-size:1.24rem; }
+.demo-scene p{ color:var(--color-ink-2); max-width:38ch; margin:var(--space-xs) auto 0; font-size:0.95rem; }
+.demo-scene .tag{ display:inline-block; font-family:var(--font-label); font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase;
+  padding:0.3rem 0.75rem; border-radius:var(--radius-pill); margin-bottom:var(--space-sm); }
+.demo-controls{ display:flex; align-items:center; gap:var(--space-md); padding:var(--space-md) var(--space-lg);
+  border-top:1px solid var(--color-rule); background:var(--color-paper); }
+.demo-play{ width:38px; height:38px; border-radius:50%; border:0; cursor:pointer; background:var(--color-accent); color:var(--color-ink);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.9rem;
+  transition:transform 140ms var(--ease-out); }
+.demo-play:hover{ transform:scale(1.08); }
+.demo-dots{ display:flex; gap:var(--space-xs); flex:1; }
+.demo-dot{ flex:1; height:5px; min-height:0; border-radius:4px; background:var(--color-rule); border:none; cursor:pointer; position:relative; overflow:hidden; padding:0; }
+.demo-dot .fill{ position:absolute; inset:0; background:var(--color-accent); width:0%; }
+.demo-dot.done .fill{ width:100%; background:var(--color-ink-2); }
+.demo-label{ font-family:var(--font-label); font-size:0.76rem; color:var(--color-ink-2); white-space:nowrap; }
+
+/* ===== narrative workflow — step sequence spine ===== */
+.timeline{ margin-top:var(--space-2xl); position:relative; }
+.timeline::before{ content:''; position:absolute; left:31px; top:6px; bottom:6px; width:2px;
+  background:linear-gradient(180deg, var(--color-accent), var(--color-accent-2), var(--color-accent-3)); opacity:0.55; }
+@media (max-width:44rem){ .timeline::before{ left:23px; } }
+.step{ display:flex; gap:var(--space-lg); position:relative; padding-bottom:var(--space-xl); }
+.step:last-child{ padding-bottom:0; }
+.step-num{ width:64px; height:64px; border-radius:50%; background:var(--color-paper); border:1.5px solid var(--color-rule);
+  flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:var(--font-label); font-weight:600; font-size:0.95rem; color:var(--color-ink); position:relative; z-index:1; }
+.step-num small{ font-size:0.58rem; color:var(--color-ink-2); letter-spacing:0.06em; }
+@media (max-width:44rem){ .step-num{ width:46px; height:46px; font-size:0.78rem; } .step-num small{ display:none; } }
+.step-body{ flex:1; border-radius:var(--radius-card); padding:var(--space-lg); cursor:pointer;
+  transform-origin:left center; transition:box-shadow 220ms; }
+.step-body h4{ font-size:1.08rem; display:flex; justify-content:space-between; align-items:center; gap:var(--space-md); }
+.step-body h4 .chev{ transition:transform 250ms var(--ease-out); color:var(--color-ink-2); font-size:0.85rem; flex-shrink:0; }
+.step-body.open h4 .chev{ transform:rotate(180deg); }
+.step-body p.brief{ color:var(--color-ink-2); font-size:0.94rem; margin-top:var(--space-xs); }
+.step-more{ max-height:0; overflow:hidden; transition:max-height 350ms var(--ease-out); }
+.step-body.open .step-more{ max-height:220px; margin-top:var(--space-md); }
+.step-more p{ color:var(--color-ink-2); font-size:0.9rem; border-top:1px solid var(--color-rule); padding-top:var(--space-md); }
+.step-body[data-accent="pear"]{ background:color-mix(in oklch, var(--color-accent) 12%, var(--color-paper)); }
+.step-body[data-accent="cyan"]{ background:color-mix(in oklch, var(--color-accent-2) 8%, var(--color-paper)); }
+.step-body[data-accent="coral"]{ background:color-mix(in oklch, var(--color-accent-3) 8%, var(--color-paper)); }
+.step-body[data-accent="mint"]{ background:color-mix(in oklch, var(--color-mint) 10%, var(--color-paper)); }
+.step-body[data-accent="lav"]{ background:color-mix(in oklch, var(--color-lavender) 10%, var(--color-paper)); }
+
+/* ===== pet catalogue — colour-shift cards ===== */
+.pet-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-md); margin-top:var(--space-2xl); }
+@media (max-width:56rem){ .pet-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:30rem){ .pet-grid{ grid-template-columns:1fr; } }
+.pet-card{ border-radius:var(--radius-card); padding:var(--space-lg); border:1px solid var(--color-rule);
+  transition:transform 220ms var(--ease-spring), box-shadow 220ms, background-color 220ms; position:relative; overflow:hidden; }
+.pet-card:hover{ transform:translateY(-4px); box-shadow:0 20px 34px -20px oklch(20% 0.012 250 / 0.22); }
+.pet-card__glyph{ width:44px; height:44px; margin-bottom:var(--space-md); }
+.pet-card .rname{ font-weight:600; font-size:1.05rem; }
+.pet-card .rrate{ font-size:0.82rem; color:var(--color-ink-2); margin-top:var(--space-2xs); }
+.rbadge{ display:inline-flex; align-items:baseline; gap:4px; font-family:var(--font-label); font-size:0.7rem; font-weight:600;
+  padding:0.28rem 0.7rem; border-radius:var(--radius-pill); margin-top:var(--space-sm); }
+.rbadge .num{ font-variant-numeric:tabular-nums; }
+.pet-card[data-tier="common"]{ background:var(--color-paper-2); }
+.pet-card[data-tier="common"]:hover{ background:var(--color-paper-3); }
+.pet-card[data-tier="uncommon"]{ background:color-mix(in oklch, var(--color-accent-2) 6%, var(--color-paper)); }
+.pet-card[data-tier="uncommon"]:hover{ background:color-mix(in oklch, var(--color-accent-2) 12%, var(--color-paper)); }
+.pet-card[data-tier="rare"]{ background:color-mix(in oklch, var(--color-accent-3) 6%, var(--color-paper)); }
+.pet-card[data-tier="rare"]:hover{ background:color-mix(in oklch, var(--color-accent-3) 12%, var(--color-paper)); }
+.pet-card[data-tier="epic"]{ background:color-mix(in oklch, var(--color-lavender) 8%, var(--color-paper)); }
+.pet-card[data-tier="epic"]:hover{ background:color-mix(in oklch, var(--color-lavender) 15%, var(--color-paper)); }
+.pet-card[data-tier="legendary"]{ background:color-mix(in oklch, var(--color-accent) 14%, var(--color-paper)); border-color:color-mix(in oklch, var(--color-accent-deep) 40%, transparent); }
+.pet-card[data-tier="legendary"]:hover{ background:color-mix(in oklch, var(--color-accent) 24%, var(--color-paper)); }
+.pet-card[data-tier="mythic"]{ grid-column:span 2; background:linear-gradient(135deg, color-mix(in oklch, var(--color-accent) 22%, var(--color-paper)), color-mix(in oklch, var(--color-accent-3) 14%, var(--color-paper)));
+  border-color:color-mix(in oklch, var(--color-accent-3-deep) 30%, transparent); }
+@media (max-width:30rem){ .pet-card[data-tier="mythic"]{ grid-column:span 1; } }
+.rate-num{ font-variant-numeric:tabular-nums; }
+
+/* ===== fitur — bento, custom marks ===== */
+.bento{ display:grid; grid-template-columns:repeat(6,1fr); gap:var(--space-md); margin-top:var(--space-2xl); }
+.bento .card{ border-radius:var(--radius-card); padding:var(--space-lg); background:var(--color-paper-2);
+  box-shadow:0 12px 32px -20px oklch(20% 0.012 250 / 0.14);
+  transition:transform 220ms var(--ease-spring), box-shadow 220ms; }
+.bento .card:hover{ transform:translateY(-4px); box-shadow:0 20px 36px -18px oklch(20% 0.012 250 / 0.2); }
+.bento .card h4{ font-size:1.05rem; margin-bottom:var(--space-xs); }
+.bento .card p{ color:var(--color-ink-2); font-size:0.92rem; }
+.bento .card .mark{ width:34px; height:34px; margin-bottom:var(--space-md); }
+.bento .c1{ grid-column:span 4; } .bento .c2{ grid-column:span 2; background:color-mix(in oklch, var(--color-accent-2) 8%, var(--color-paper)); }
+.bento .c3{ grid-column:span 2; background:color-mix(in oklch, var(--color-accent-3) 7%, var(--color-paper)); }
+.bento .c4{ grid-column:span 2; } .bento .c5{ grid-column:span 2; background:color-mix(in oklch, var(--color-accent) 14%, var(--color-paper)); }
+@media (max-width:56rem){ .bento{ grid-template-columns:repeat(2,1fr); } .bento .card{ grid-column:span 1 !important; } }
+
+/* ===== counter tick-up ===== */
+.tick{ font-variant-numeric:tabular-nums; }
+
+/* ===== footer — Ft8 marquee scroll ===== */
+.foot-marquee{ overflow:hidden; border-top:2px solid var(--color-ink); margin-top:var(--space-3xl); background:var(--color-ink); }
+.foot-marquee__track{ display:flex; gap:var(--space-2xl); white-space:nowrap; padding-block:var(--space-lg); animation:foot-marquee 28s linear infinite; }
+.foot-marquee__track span{ font-weight:700; letter-spacing:0.04em; font-size:clamp(1.1rem, 3vw, 1.9rem); color:var(--color-paper); }
+@keyframes foot-marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+.foot-meta{ background:var(--color-ink); color:oklch(97% 0.012 95 / 0.62); padding:var(--space-lg) var(--page-gutter) var(--space-2xl); }
+.foot-meta .wrap{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-lg); flex-wrap:wrap; font-size:0.86rem; }
+.foot-meta .brand-mini{ display:flex; align-items:center; gap:8px; color:var(--color-paper); font-weight:600; }
+.foot-meta .brand-mini svg{ width:22px; }
+.visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  .demo-scene, .step-more, .reveal{ transition:none; }
+  .logo-mark{ animation:none; }
+  .foot-marquee__track{ animation:none; }
+  .reveal{ opacity:1; transform:none; }
+  .pet-card, .bento .card, .btn, .nav-pill__brand svg{ transition:none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav-pill" id="navPill" aria-label="Navigasi utama">
+  <a href="#top" class="nav-pill__brand">
+    <svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><ellipse cx="20" cy="22" rx="13" ry="16" fill="#FFC857"/><path d="M11 20 L18 24 L14 30" stroke="#14102B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><ellipse cx="15" cy="16" rx="2.6" ry="3.4" fill="#14102B"/><ellipse cx="25" cy="16" rx="2.6" ry="3.4" fill="#14102B"/></svg>
+    Pet Heist
+  </a>
+  <ul class="nav-pill__links">
+    <li><a href="#konsep">Konsep</a></li>
+    <li><a href="#cara-main">Cara Main</a></li>
+    <li><a href="#pet">Pet</a></li>
+    <li><a href="#fitur">Fitur</a></li>
+  </ul>
+  <a href="#cara-main" class="btn">Main <span class="btn__arrow">→</span></a>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero__grid">
+    <div>
+      <span class="hero__eyebrow mono">Konsep game Roblox · belum dirilis</span>
+      <h1>Curi telurnya.<br>Tetaskan <em>pet</em>-nya.<br>Kabur naik <em class="hl--cyan">tunggangan</em>.</h1>
+      <p class="tagline">Pet Heist gabungin ketegangan menyelinap ala <strong>Steal a Egg</strong> dengan koleksi &amp; tunggangan ala <strong>Ride a Pet</strong> — satu putaran permainan yang berakhir cuma buat mulai lagi.</p>
+      <div class="hero-ctas">
+        <a href="#cara-main" class="btn">Lihat Cara Main <span class="btn__arrow">→</span></a>
+        <a href="#konsep" class="btn btn--outline">Baca Konsepnya</a>
+      </div>
+    </div>
+    <div class="hero__art">
+      <div class="hero__art-plate">
+        <svg class="logo-mark" id="heroLogo" viewBox="0 0 160 160" fill="none" role="img" aria-label="Maskot telur Pet Heist">
+          <ellipse cx="80" cy="88" rx="52" ry="64" fill="#FFC857"/>
+          <ellipse cx="80" cy="88" rx="52" ry="64" fill="url(#eggshade)"/>
+          <path d="M40 78 L68 96 L52 122" stroke="#14102B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <circle cx="62" cy="58" r="9" fill="#14102B"/>
+          <circle cx="98" cy="58" r="9" fill="#14102B"/>
+          <path d="M50 40 Q60 24 74 34" stroke="#14102B" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path d="M110 40 Q100 24 86 34" stroke="#14102B" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <defs>
+            <linearGradient id="eggshade" x1="30" y1="30" x2="130" y2="150" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#FFE3A3"/>
+              <stop offset="1" stop-color="#FFB238"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="hero__art-tag">ketuk buat cek 🐣</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="konsep" class="section reveal">
+  <span class="kicker mono">01 · Konsep</span>
+  <h2 class="sec-title">Dua genre favorit Roblox, dijahit jadi satu loop</h2>
+  <p class="sec-sub">Bukan simulator koleksi biasa — setiap telur yang sampai di tas lu adalah hasil risiko yang lu ambil sendiri, detik demi detik.</p>
+
+  <div class="concept-grid">
+    <div class="concept-art">
+      <svg viewBox="0 0 200 200" width="220" aria-hidden="true">
+        <rect x="20" y="120" width="160" height="60" rx="10" fill="var(--color-paper-3)"/>
+        <circle cx="60" cy="70" r="26" fill="var(--color-accent-2)" opacity="0.9"/>
+        <ellipse cx="60" cy="65" rx="8" ry="10" fill="var(--color-accent)"/>
+        <circle cx="140" cy="55" r="18" fill="var(--color-accent-3)" opacity="0.85"/>
+        <path d="M40 150 L90 110 L130 145 L170 100" stroke="var(--color-accent)" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="2 10"/>
+        <circle cx="90" cy="110" r="6" fill="var(--color-ink)"/>
+        <circle cx="170" cy="100" r="6" fill="var(--color-ink)"/>
+      </svg>
+    </div>
+    <div class="concept-copy">
+      <p><strong>Fase mencuri.</strong> Tiap farm punya guard dengan rute patroli tetap dan radius pandang sendiri — lu punya jendela beberapa detik buat masuk-nyelinap-keluar sebelum rute mereka muter balik. Nest telur langka biasanya diapit dua guard, bukan satu.</p>
+      <p><strong>Fase koleksi.</strong> Telur yang berhasil dibawa pulang ditetaskan di Hatchery jadi pet dengan rarity acak — dari Common yang gampang ketemu sampai Mythic yang cuma muncul dua dari seribu tetasan.</p>
+      <p>Bedanya dari simulator sejenis: pet bukan pajangan. <em>Pet ditunggangi</em>, dan bonus mobility-nya langsung ngubah cara main — kabur lebih cepat, jangkauan curi lebih jauh, sampai buka farm yang jalan kaki nggak bakal nyampe.</p>
+      <div class="pill-row">
+        <span class="pill">RISK VS REWARD</span>
+        <span class="pill">KOLEKSI PET</span>
+        <span class="pill">MOBILITY UPGRADE</span>
+        <span class="pill">PROGRES TANPA AKHIR</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="demo" class="section reveal">
+  <span class="kicker mono">02 · Cuplikan</span>
+  <h2 class="sec-title">Begini rasanya satu putaran permainan</h2>
+  <p class="sec-sub">Empat momen ini berulang tiap sesi — makin jago baca pola guard, makin dalam farm yang bisa lu tembus.</p>
+
+  <div class="demo-shell">
+    <div class="demo-stage" id="demoStage">
+      <div class="demo-scene active" data-scene="0">
+        <span class="tag" style="background:color-mix(in oklch, var(--color-accent-2) 18%, var(--color-paper)); color:var(--color-accent-2-deep);">01 · Menyusup</span>
+        <svg viewBox="0 0 200 140" aria-hidden="true"><rect x="10" y="20" width="180" height="100" rx="14" fill="var(--color-paper-3)"/><circle cx="70" cy="90" r="16" fill="var(--color-accent-2)"/><rect x="120" y="40" width="14" height="50" rx="4" fill="var(--color-accent)" opacity="0.5"/><circle cx="150" cy="55" r="10" fill="var(--color-accent-3)"/><path d="M60 92 Q80 70 110 60" stroke="var(--color-ink)" stroke-width="2" stroke-dasharray="3 6" fill="none"/></svg>
+        <h3>Masuk diam-diam</h3>
+        <p>Lu menyelinap ke farm, hindari radius pandang guard, dan mendekati nest telur yang paling langka.</p>
+      </div>
+      <div class="demo-scene" data-scene="1">
+        <span class="tag" style="background:color-mix(in oklch, var(--color-accent-3) 16%, var(--color-paper)); color:var(--color-accent-3-deep);">02 · Ketahuan &amp; Kabur</span>
+        <svg viewBox="0 0 200 140" aria-hidden="true"><rect x="10" y="20" width="180" height="100" rx="14" fill="var(--color-paper-3)"/><circle cx="150" cy="55" r="12" fill="var(--color-accent-3)"/><circle cx="60" cy="90" r="16" fill="var(--color-accent-2)"/><path d="M60 90 L100 60 L145 58" stroke="var(--color-accent-3)" stroke-width="3" stroke-dasharray="1 6" fill="none"/><text x="145" y="35" font-size="20">❗</text></svg>
+        <h3>Alarm nyala!</h3>
+        <p>Guard sadar lu ada di sana. Lari ke Safe Zone sebelum tertangkap dan telur curianmu jatuh sia-sia.</p>
+      </div>
+      <div class="demo-scene" data-scene="2">
+        <span class="tag" style="background:color-mix(in oklch, var(--color-accent) 22%, var(--color-paper)); color:var(--color-accent-deep);">03 · Menetas</span>
+        <svg viewBox="0 0 200 140" aria-hidden="true"><circle cx="100" cy="70" r="34" fill="var(--color-accent)"/><path d="M80 60 L100 72 L88 90" stroke="var(--color-ink)" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="100" cy="30" r="3" fill="var(--color-ink)"/><circle cx="70" cy="45" r="2" fill="var(--color-ink)"/><circle cx="130" cy="45" r="2" fill="var(--color-ink)"/></svg>
+        <h3>Telur retak, pet lahir</h3>
+        <p>Bawa telur ke Hatchery — rarity yang keluar acak, dari yang umum sampai Mythic yang bikin geger server.</p>
+      </div>
+      <div class="demo-scene" data-scene="3">
+        <span class="tag" style="background:color-mix(in oklch, var(--color-accent-2) 18%, var(--color-paper)); color:var(--color-accent-2-deep);">04 · Menunggangi</span>
+        <svg viewBox="0 0 200 140" aria-hidden="true"><ellipse cx="90" cy="90" rx="34" ry="20" fill="var(--color-accent-2)"/><circle cx="90" cy="75" r="4" fill="var(--color-ink)"/><circle cx="70" cy="80" r="14" fill="var(--color-accent)"/><path d="M40 90 L20 90 M35 80 L15 78 M35 100 L15 102" stroke="var(--color-ink)" stroke-width="2" stroke-linecap="round"/></svg>
+        <h3>Melesat lebih jauh</h3>
+        <p>Tunggangi pet buat buka farm baru yang lebih dalam — makin langka pet-nya, makin jauh dunia yang bisa dijelajah.</p>
+      </div>
+    </div>
+    <div class="demo-controls">
+      <button class="demo-play" id="demoPlay" aria-label="Jeda pemutaran otomatis">⏸</button>
+      <div class="demo-dots" id="demoDots"></div>
+      <span class="demo-label" id="demoLabel">1 / 4</span>
+    </div>
+  </div>
+</section>
+
+<section id="cara-main" class="section reveal">
+  <span class="kicker mono">03 · Alur Bermain</span>
+  <h2 class="sec-title">Enam tahap dari nol sampai jago</h2>
+  <p class="sec-sub">Ketuk tiap tahap buat lihat detail teknis dan tips-nya. Prosesnya berulang setiap sesi — makin sering diulang, makin jauh farm yang bisa dijangkau.</p>
+
+  <div class="timeline">
+    <div class="step">
+      <div class="step-num">1.0<small>SCOUT</small></div>
+      <div class="step-body" data-accent="cyan">
+        <h4>Pilih farm, amati pola patrolinya <span class="chev">⌄</span></h4>
+        <p class="brief">Tiap farm punya rute dan kecepatan guard yang beda — perhatikan dulu sebelum nyelonong masuk.</p>
+        <div class="step-more"><p>Backyard Farm cocok buat pemula: guard-nya lambat, area kecil, satu putaran patroli. Farm tingkat tinggi punya dua-tiga guard dengan rute saling silang — telurnya lebih langka, tapi jendela aman buat masuk jauh lebih sempit.</p></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2.0<small>STEAL</small></div>
+      <div class="step-body" data-accent="pear">
+        <h4>Curi telur dari nest <span class="chev">⌄</span></h4>
+        <p class="brief">Dekati nest, tahan tombol interaksi. Makin langka telurnya, makin lama waktu curinya — dan makin lama lu kepapar radius guard.</p>
+        <div class="step-more"><p>Kapasitas bawa default cuma 3 telur sekali masuk. Upgrade Carry Capacity di shop kalau mau angkut lebih banyak dalam satu putaran tanpa harus bolak-balik ke Safe Zone.</p></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3.0<small>EVADE</small></div>
+      <div class="step-body" data-accent="coral">
+        <h4>Hindari guard dan trap <span class="chev">⌄</span></h4>
+        <p class="brief">Ketahuan bikin alarm nyala dan guard ngejar. Kalau tertangkap, semua telur yang lu bawa jatuh dan hilang.</p>
+        <div class="step-more"><p>Upgrade Stealth mengecilkan radius deteksi guard secara bertahap — investasi paling worth-it buat masuk lebih dalam ke farm tanpa harus selalu lari.</p></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4.0<small>ESCAPE</small></div>
+      <div class="step-body" data-accent="mint">
+        <h4>Kabur ke Safe Zone <span class="chev">⌄</span></h4>
+        <p class="brief">Begitu nyampe Safe Zone, telur yang lu bawa otomatis masuk inventori dengan aman — nggak bisa direbut lagi.</p>
+        <div class="step-more"><p>Lagi dikejar? Pet ridable jadi penentu. Selisih bonus speed 10–20% antar rarity bisa jadi beda tipis antara lolos bersih atau kehilangan semua hasil curian.</p></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5.0<small>HATCH</small></div>
+      <div class="step-body" data-accent="pear">
+        <h4>Tetaskan telur di Hatchery <span class="chev">⌄</span></h4>
+        <p class="brief">Bawa telur hasil curian ke Hatchery buat ditetaskan jadi pet dengan rarity acak — lihat tabel drop rate di bawah.</p>
+        <div class="step-more"><p>Ada peluang kecil (di bawah 1 dari 500 tetasan) dapat varian Shiny atau Golden dari pet apapun — jadi item pamer paling dicari di server.</p></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6.0<small>RIDE</small></div>
+      <div class="step-body" data-accent="lav">
+        <h4>Tunggangi pet, buka farm baru <span class="chev">⌄</span></h4>
+        <p class="brief">Pet ridable kasih bonus speed, jump, atau bahkan terbang — beberapa farm cuma bisa diakses lewat pet tertentu.</p>
+        <div class="step-more"><p>Pet lu level-in sendiri lewat pemakaian berulang saat mencuri. Pet yang paling sering dipakai jadi makin cepat dan bonusnya makin besar seiring waktu.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pet" class="section--band band--pear reveal">
+  <div class="band-inner">
+    <span class="kicker mono">04 · Koleksi</span>
+    <h2 class="sec-title">Enam tingkat rarity, satu chase abadi</h2>
+    <p class="sec-sub">Setiap kartu di bawah pakai peluang tetas yang sama seperti di Hatchery — angkanya lagi dihitung ulang lewat playtest.</p>
+
+    <div class="pet-grid">
+      <div class="pet-card" data-tier="common">
+        <svg class="pet-card__glyph" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="16" fill="var(--color-ink)" opacity="0.12"/><circle cx="22" cy="22" r="9" fill="var(--color-ink)" opacity="0.35"/></svg>
+        <div class="rname">Chicken</div>
+        <span class="rbadge" style="background:var(--color-paper); color:var(--color-ink-2);">Common · <span class="num tick" data-target="55">0</span>%</span>
+        <div class="rrate">+<span class="tick" data-target="5">0</span>% speed</div>
+      </div>
+      <div class="pet-card" data-tier="uncommon">
+        <svg class="pet-card__glyph" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="16" fill="var(--color-accent-2)" opacity="0.22"/><circle cx="22" cy="22" r="9" fill="var(--color-accent-2)"/></svg>
+        <div class="rname">Rabbit</div>
+        <span class="rbadge" style="background:color-mix(in oklch, var(--color-accent-2) 20%, var(--color-paper)); color:var(--color-accent-2-deep);">Uncommon · <span class="num tick" data-target="25">0</span>%</span>
+        <div class="rrate">+<span class="tick" data-target="10">0</span>% speed</div>
+      </div>
+      <div class="pet-card" data-tier="rare">
+        <svg class="pet-card__glyph" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="16" fill="var(--color-accent-3)" opacity="0.22"/><path d="M14 26 L22 14 L30 26 Z" fill="var(--color-accent-3)"/></svg>
+        <div class="rname">Fox</div>
+        <span class="rbadge" style="background:color-mix(in oklch, var(--color-accent-3) 18%, var(--color-paper)); color:var(--color-accent-3-deep);">Rare · <span class="num tick" data-target="12">0</span>%</span>
+        <div class="rrate">+<span class="tick" data-target="20">0</span>% speed</div>
+      </div>
+      <div class="pet-card" data-tier="epic">
+        <svg class="pet-card__glyph" viewBox="0 0 44 44" aria-hidden="true"><rect x="8" y="8" width="28" height="28" rx="8" fill="var(--color-lavender)" opacity="0.28"/><rect x="16" y="16" width="12" height="12" rx="4" fill="var(--color-lavender)"/></svg>
+        <div class="rname">Wolf</div>
+        <span class="rbadge" style="background:color-mix(in oklch, var(--color-lavender) 24%, var(--color-paper)); color:oklch(42% 0.14 305);">Epic · <span class="num tick" data-target="6">0</span>%</span>
+        <div class="rrate">+<span class="tick" data-target="35">0</span>% speed</div>
+      </div>
+      <div class="pet-card" data-tier="legendary">
+        <svg class="pet-card__glyph" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 6 L36 22 L22 38 L8 22 Z" fill="var(--color-accent)"/><circle cx="22" cy="22" r="6" fill="var(--color-accent-deep)"/></svg>
+        <div class="rname">Dragon Hatchling</div>
+        <span class="rbadge" style="background:color-mix(in oklch, var(--color-accent) 30%, var(--color-paper)); color:var(--color-accent-deep);">Legendary · <span class="num tick" data-target="1.8">0</span>%</span>
+        <div class="rrate">+<span class="tick" data-target="55">0</span>% &amp; Glide</div>
+      </div>
+      <div class="pet-card" data-tier="mythic">
+        <svg class="pet-card__glyph" viewBox="0 0 44 44" aria-hidden="true"><path d="M22 4 L27 18 L41 22 L27 26 L22 40 L17 26 L3 22 L17 18 Z" fill="var(--color-accent-3)"/></svg>
+        <div class="rname">Phoenix</div>
+        <span class="rbadge" style="background:color-mix(in oklch, var(--color-accent-3) 22%, var(--color-paper)); color:var(--color-accent-3-deep);">Mythic · <span class="num tick" data-target="0.2">0</span>%</span>
+        <div class="rrate">+<span class="tick" data-target="80">0</span>% &amp; Terbang</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fitur" class="section reveal">
+  <span class="kicker mono">05 · Fitur Utama</span>
+  <h2 class="sec-title">Yang bikin Pet Heist beda dari simulator lain</h2>
+
+  <div class="bento">
+    <div class="card c1">
+      <svg class="mark" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="14" fill="none" stroke="var(--color-ink)" stroke-width="2" opacity="0.7"/><circle cx="17" cy="17" r="8" fill="none" stroke="var(--color-ink)" stroke-width="2" opacity="0.4"/><circle cx="17" cy="17" r="2.4" fill="var(--color-ink)"/></svg>
+      <h4>Stealth heist sungguhan, bukan klik-klik</h4>
+      <p>Pola patroli guard nyata, bukan sekadar animasi latar — keputusan lu tiap detik yang menentukan aman atau ketahuan.</p>
+    </div>
+    <div class="card c2">
+      <svg class="mark" viewBox="0 0 34 34" aria-hidden="true"><path d="M8 26 Q12 12 20 14 Q26 16 26 8" fill="none" stroke="var(--color-accent-2-deep)" stroke-width="2.4" stroke-linecap="round"/><circle cx="26" cy="8" r="3" fill="var(--color-accent-2)"/></svg>
+      <h4>Pet yang benar-benar berguna</h4>
+      <p>Bukan pajangan — tiap pet punya bonus mobility nyata yang buka cara main baru, bukan cuma beda warna doang.</p>
+    </div>
+    <div class="card c3">
+      <svg class="mark" viewBox="0 0 34 34" aria-hidden="true"><rect x="5" y="5" width="24" height="24" rx="3" fill="none" stroke="var(--color-accent-3-deep)" stroke-width="2"/><path d="M5 13 H29 M13 5 V29" stroke="var(--color-accent-3-deep)" stroke-width="1.4" opacity="0.5"/></svg>
+      <h4>Dunia berlapis</h4>
+      <p>Dari Backyard Farm sampai Sky Island — sebagian area cuma bisa ditembus dengan pet tertentu.</p>
+    </div>
+    <div class="card c4">
+      <svg class="mark" viewBox="0 0 34 34" aria-hidden="true"><circle cx="12" cy="17" r="6" fill="none" stroke="var(--color-ink)" stroke-width="2"/><circle cx="24" cy="17" r="6" fill="none" stroke="var(--color-ink)" stroke-width="2"/><path d="M17 14 L19 14 M17 20 L19 20" stroke="var(--color-ink)" stroke-width="2"/></svg>
+      <h4>Trading &amp; leaderboard</h4>
+      <p>Tukar pet duplikat, kejar rank Top Thief, dan pamer koleksi ke pemain lain di server.</p>
+    </div>
+    <div class="card c5">
+      <svg class="mark" viewBox="0 0 34 34" aria-hidden="true"><path d="M18 4 L9 19 H16 L14 30 L26 14 H19 Z" fill="var(--color-accent-deep)"/></svg>
+      <h4>Event server-wide</h4>
+      <p>Momen "Farm Alarm" bikin drop rate naik tapi guard makin waspada — adrenalin ekstra tiap minggu.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-marquee" aria-hidden="true">
+    <div class="foot-marquee__track">
+      <span>CURI · TETASKAN · TUNGGANGI · CURI · TETASKAN · TUNGGANGI · CURI · TETASKAN · TUNGGANGI ·</span>
+      <span>CURI · TETASKAN · TUNGGANGI · CURI · TETASKAN · TUNGGANGI · CURI · TETASKAN · TUNGGANGI ·</span>
+    </div>
+  </div>
+  <div class="foot-meta">
+    <div class="wrap">
+      <div class="brand-mini">
+        <svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><ellipse cx="20" cy="22" rx="13" ry="16" fill="#FFC857"/><path d="M11 20 L18 24 L14 30" stroke="#14102B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><ellipse cx="15" cy="16" rx="2.6" ry="3.4" fill="#14102B"/><ellipse cx="25" cy="16" rx="2.6" ry="3.4" fill="#14102B"/></svg>
+        Pet Heist
+      </div>
+      <p>Dokumen konsep visual, dikembangkan dari draft PRD internal. Angka rarity &amp; mekanik masih bisa berubah lewat playtest.</p>
+    </div>
+  </div>
+  <p class="visually-hidden">Pet Heist · konsep game Roblox · dokumen belum final</p>
+</footer>
+
+<script>
+(function(){
+  /* nav pill scroll state */
+  var navPill = document.getElementById('navPill');
+  window.addEventListener('scroll', function(){
+    navPill.classList.toggle('is-scrolled', window.scrollY > 12);
+  }, { passive:true });
+
+  /* demo carousel */
+  var scenes = document.querySelectorAll('.demo-scene');
+  var dotsWrap = document.getElementById('demoDots');
+  var label = document.getElementById('demoLabel');
+  var playBtn = document.getElementById('demoPlay');
+  var total = scenes.length;
+  var current = 0;
+  var playing = true;
+  var duration = 4200;
+  var timer = null;
+  var startTime = null;
+
+  var dots = [];
+  for(var i=0;i<total;i++){
+    var d = document.createElement('button');
+    d.className = 'demo-dot';
+    d.setAttribute('aria-label', 'Ke adegan ' + (i+1));
+    var fill = document.createElement('div');
+    fill.className = 'fill';
+    d.appendChild(fill);
+    (function(idx){ d.addEventListener('click', function(){ goTo(idx); restart(); }); })(i);
+    dotsWrap.appendChild(d);
+    dots.push(d);
+  }
+
+  function render(){
+    scenes.forEach(function(s,i){ s.classList.toggle('active', i===current); });
+    dots.forEach(function(d,i){
+      d.classList.toggle('done', i < current);
+      var f = d.querySelector('.fill');
+      f.style.width = i < current ? '100%' : '0%';
+    });
+    label.textContent = (current+1) + ' / ' + total;
+  }
+  function goTo(i){ current = i % total; render(); }
+  function tick(ts){
+    if(!startTime) startTime = ts;
+    var elapsed = ts - startTime;
+    var pct = Math.min(100, (elapsed/duration)*100);
+    var f = dots[current].querySelector('.fill');
+    if(f) f.style.width = pct + '%';
+    if(elapsed >= duration){ goTo(current+1); startTime = ts; }
+    if(playing) timer = requestAnimationFrame(tick);
+  }
+  function restart(){
+    startTime = null;
+    if(timer) cancelAnimationFrame(timer);
+    if(playing) timer = requestAnimationFrame(tick);
+  }
+  playBtn.addEventListener('click', function(){
+    playing = !playing;
+    playBtn.textContent = playing ? '⏸' : '▶';
+    playBtn.setAttribute('aria-label', playing ? 'Jeda pemutaran otomatis' : 'Lanjutkan pemutaran otomatis');
+    if(playing) restart(); else if(timer) cancelAnimationFrame(timer);
+  });
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  render();
+  if(!reduceMotion){ restart(); } else { playing = false; playBtn.textContent = '▶'; }
+
+  /* tutorial accordion */
+  document.querySelectorAll('.step-body').forEach(function(step){
+    step.addEventListener('click', function(){ step.classList.toggle('open'); });
+  });
+
+  /* view-enter reveal, staggered */
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !reduceMotion){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry, idx){
+        if(entry.isIntersecting){
+          setTimeout(function(){ entry.target.classList.add('is-in'); }, idx * 40);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-in'); });
+  }
+
+  /* counter tick-up on view-enter */
+  var ticks = document.querySelectorAll('.tick');
+  function animateTick(el){
+    var target = parseFloat(el.getAttribute('data-target'));
+    var isDecimal = target % 1 !== 0;
+    var dur = 1100, start = null;
+    function step(ts){
+      if(!start) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      var eased = 1 - Math.pow(1 - p, 3);
+      var val = target * eased;
+      el.textContent = isDecimal ? val.toFixed(1) : Math.round(val);
+      if(p < 1) requestAnimationFrame(step);
+      else el.textContent = isDecimal ? target.toFixed(1) : target;
+    }
+    if(reduceMotion){ el.textContent = isDecimal ? target.toFixed(1) : target; return; }
+    requestAnimationFrame(step);
+  }
+  if('IntersectionObserver' in window){
+    var tickIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){ animateTick(entry.target); tickIO.unobserve(entry.target); }
+      });
+    }, { threshold: 0.4 });
+    ticks.forEach(function(el){ tickIO.observe(el); });
+  } else {
+    ticks.forEach(function(el){ el.textContent = el.getAttribute('data-target'); });
+  }
+
+  /* character moment: star-burst on logo click */
+  var heroLogo = document.getElementById('heroLogo');
+  if(heroLogo){
+    heroLogo.addEventListener('click', function(e){
+      if(reduceMotion) return;
+      var plate = heroLogo.closest('.hero__art-plate');
+      var rect = heroLogo.getBoundingClientRect();
+      var plateRect = plate.getBoundingClientRect();
+      var burst = document.createElement('div');
+      burst.className = 'star-burst';
+      burst.style.left = (rect.left - plateRect.left + rect.width/2 - 11) + 'px';
+      burst.style.top = (rect.top - plateRect.top - 4) + 'px';
+      plate.appendChild(burst);
+      setTimeout(function(){ burst.remove(); }, 450);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
