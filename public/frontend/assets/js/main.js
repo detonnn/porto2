@@ -506,8 +506,11 @@ function initReveal() {
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting && ready) e.target.classList.add("is-visible");
-        else e.target.classList.remove("is-visible");
+        // sekali tampil, tetap tampil (sebelumnya di-toggle bolak-balik => kartu naik-turun tiap scroll, apalagi di HP)
+        if (e.isIntersecting && ready) {
+          e.target.classList.add("is-visible");
+          io.unobserve(e.target);
+        }
       });
     },
     { threshold: 0.12 },

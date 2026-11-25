@@ -67,7 +67,8 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       const b = body(req);
-      if (b.website) return res.status(200).json({ ok: true }); // honeypot: bot pura-pura sukses
+      // honeypot (nama field sengaja gak umum biar gak di-autofill browser HP). Kalo keisi => tolak jelas, bukan pura-pura sukses
+      if (b.hp) return res.status(400).json({ error: 'Data tidak valid, muat ulang halaman lalu coba lagi' });
       const name = clean(b.name, 40);
       const email = clean(b.email, 100);
       const message = clean(b.message, 500);

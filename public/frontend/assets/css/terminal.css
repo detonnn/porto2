@@ -193,54 +193,15 @@ body {
   touch-action: pan-y;
 }
 
-/* ponytail: glow statis di html::before, grid doang yang gerak (body::before) pake transform biar jalan di GPU,
-   bukan animasi background-position yang repaint seluruh layar tiap frame */
-html::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  opacity: 0.5;
-  background: radial-gradient(
-      circle at 12% 18%,
-      rgba(126, 200, 227, 0.07),
-      transparent 42%
-    ),
-    radial-gradient(
-      circle at 88% 82%,
-      rgba(67, 217, 224, 0.06),
-      transparent 45%
-    );
-}
-body::before {
-  content: "";
-  position: fixed;
-  top: -46px;
-  left: -46px;
-  right: 0;
-  bottom: 0;
-  z-index: -2;
-  pointer-events: none;
-  background: linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 46px 46px, 46px 46px;
-  opacity: 0.5;
-  will-change: transform;
-  animation: gridDrift 24s linear infinite;
-}
-@keyframes gridDrift {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(46px, 46px, 0); }
+/* background grid sekarang dirender komponen SunlitMat.vue (cahaya WebGL + grid/penggaris DOM) */
+body {
+  position: relative;
 }
 /* Lenis ngatur scroll sendiri: CSS smooth-scroll bawaan browser bikin dobel animasi (patah-patah) */
 html.lenis,
 html.lenis-smooth,
 .lenis.lenis-smooth {
   scroll-behavior: auto !important;
-}
-html.is-scrolling body::before {
-  animation-play-state: paused;
 }
 html.is-hidden *,
 html.is-hidden::before,
@@ -611,6 +572,14 @@ body.light-theme .term-window__title {
   }
 }
 
+/* HP: section contact diem aja, tanpa animasi masuk */
+@media (max-width: 767px) {
+  #contact .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
 /* generic reveal-on-scroll */
 .reveal {
   opacity: 0;
