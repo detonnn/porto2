@@ -73,10 +73,12 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Cooldown 1 jam per review', retryAfter: Math.max(ttl, 1) });
       }
 
+      // avatar bergilir (1,2,3,4,5,1,...) pake counter Redis, bukan random
+      const n = await redisCmd(['INCR', 'porto2:reviews:avatar'], URL_, TOKEN);
       const id = Date.now().toString(36) + crypto.randomBytes(3).toString('hex');
       const review = {
         id, name, role: 'Client', rating, text: message,
-        image: `/frontend/assets/img/avatars/av${1 + crypto.randomInt(AVATARS)}.jpg`,
+        image: `/frontend/assets/img/avatars/av${((n - 1) % AVATARS) + 1}.jpg`,
         ts: Date.now(),
       };
       try {

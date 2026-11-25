@@ -7,10 +7,10 @@
             <div v-for="(col, ci) in columns" :key="ci" class="tcol">
                 <div class="tcol__track" :style="{ animationDuration: (Math.max(col.length, 3) * 4) + 's' }">
                     <div v-for="loop in 2" :key="loop" class="tcol__group">
-                        <div class="testimonial__content" v-for="(item, i) in col" :key="i">
+                        <div class="testimonial__content" v-for="(item, i) in col" :key="item.id || 'd' + i">
                             <div class="testimonial__data">
                                 <div class="testimonial__header">
-                                    <img :src="item.image" class="testimonial__img" alt="" loading="lazy" decoding="async">
+                                    <img :src="item.image" class="testimonial__img" alt="" decoding="async">
                                     <div>
                                         <h3 class="testimonial__name">{{ item.name }}</h3>
                                         <span class="testimonial__client">{{ item.role }}</span>
@@ -49,8 +49,8 @@ export default {
     computed: {
         columns() {
             const items = [...this.live, ...(this.testimonials.items || [])]
-            const per = Math.ceil(items.length / this.colCount)
-            return Array.from({ length: this.colCount }, (_, i) => items.slice(i * per, i * per + per))
+            // bagi bergantian biar review baru nyebar ke semua kolom, bukan numpuk di kiri
+            return Array.from({ length: this.colCount }, (_, ci) => items.filter((_, i) => i % this.colCount === ci))
         }
     }
 }
@@ -73,5 +73,6 @@ export default {
 @-webkit-keyframes tcol-scroll { to { -webkit-transform: translateY(-50%); transform: translateY(-50%); } }
 @media (prefers-reduced-motion: reduce) { .tcol__track { animation-duration: 80s !important; -webkit-animation-duration: 80s !important; } }
 /* ponytail: cards reuse global .testimonial__* vars so light/dark follows body.light-theme automatically */
-.testimonial__content { margin-bottom: 0; }
+.testimonial__content { margin-bottom: 0; contain: layout paint; }
+.tcol__track { backface-visibility: hidden; transform: translateZ(0); }
 </style>
