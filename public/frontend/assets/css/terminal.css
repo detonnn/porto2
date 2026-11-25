@@ -193,12 +193,15 @@ body {
   touch-action: pan-y;
 }
 
-/* animated background grid + glow */
-body::before {
+/* ponytail: glow statis di html::before, grid doang yang gerak (body::before) pake transform biar jalan di GPU,
+   bukan animasi background-position yang repaint seluruh layar tiap frame */
+html::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
+  pointer-events: none;
+  opacity: 0.5;
   background: radial-gradient(
       circle at 12% 18%,
       rgba(126, 200, 227, 0.07),
@@ -208,20 +211,33 @@ body::before {
       circle at 88% 82%,
       rgba(67, 217, 224, 0.06),
       transparent 45%
-    ),
-    linear-gradient(var(--border) 1px, transparent 1px),
+    );
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: -46px;
+  left: -46px;
+  right: 0;
+  bottom: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 46px 46px, 46px 46px;
+  background-size: 46px 46px, 46px 46px;
   opacity: 0.5;
+  will-change: transform;
   animation: gridDrift 24s linear infinite;
 }
 @keyframes gridDrift {
-  from {
-    background-position: 0 0, 0 0, 0 0, 0 0;
-  }
-  to {
-    background-position: 0 0, 0 0, 46px 46px, 46px 46px;
-  }
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(46px, 46px, 0); }
+}
+/* Lenis ngatur scroll sendiri: CSS smooth-scroll bawaan browser bikin dobel animasi (patah-patah) */
+html.lenis,
+html.lenis-smooth,
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 html.is-scrolling body::before {
   animation-play-state: paused;
@@ -2768,7 +2784,7 @@ body.light-theme .contact__form {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
   flex-shrink: 0;
 }
 
@@ -2798,7 +2814,7 @@ body.light-theme .contact__form {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
 }
 
 .chatbot-menu-btn:hover,
@@ -2884,7 +2900,7 @@ body.light-theme .contact__form {
   border-radius: 6px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   white-space: nowrap;
   outline: none;
   -webkit-appearance: none;
@@ -2928,7 +2944,7 @@ body.light-theme .chatbot-menu-item:hover {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
   flex-shrink: 0;
 }
 
@@ -3116,7 +3132,7 @@ body.light-theme .chatbot-menu-item:hover {
   padding: 7px 12px;
   border-radius: 20px;
   text-decoration: none;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
   white-space: nowrap;
 }
 
@@ -3150,7 +3166,7 @@ body.light-theme .chatbot-menu-item:hover {
   border-radius: 12px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.22s ease;
+  transition: color 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease, opacity 0.22s ease;
 }
 
 .chatbot-playlist-btn span {
@@ -3227,7 +3243,7 @@ body.light-theme .chatbot-menu-item:hover {
   padding: 6px 12px;
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   white-space: nowrap;
   flex-shrink: 0;
 }

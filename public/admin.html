@@ -35,7 +35,7 @@ const el = (t, p = {}, kids = []) => { const e = Object.assign(document.createEl
 async function load() {
   $('msg').textContent = 'loading...';
   try {
-    const r = await fetch('/api/review');
+    const r = await fetch('/api/review?t=' + Date.now());
     const { reviews = [] } = await r.json();
     $('msg').textContent = reviews.length + ' review';
     $('list').replaceChildren(...reviews.map(v => {

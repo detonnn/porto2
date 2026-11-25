@@ -175,7 +175,7 @@
         </div>
         <div v-if="typing" class="chatbot-typing">
           <span></span><span></span><span></span>
-          <em class="chatbot-typing-label">Assistant Is Typing...</em>
+          <em class="chatbot-typing-label">Assistant is typing...</em>
         </div>
       </div>
 
@@ -291,7 +291,7 @@ const QUICK_REPLIES = [
 const ANSWERS = {
   ans1: "Muhammad Ibnu Dexton Alfathir — 19 tahun, Tangerang, mahasiswa Universitas Pamulang. Lulusan SMKN 5 Kota Tangerang DKV, fokus di UI/UX, graphic design, motion design, dan frontend dev.",
   ans2: "Keahlian: Graphic Design 95% (Illustrator/Photoshop), UI/UX 90% (Figma), Motion & Video Editing 80% (CapCut), Frontend 75% (React, Tailwind, Vite, Vanilla JS, Canvas/Web Audio), Layout & Print 85%.",
-  ans3: "Proyek: Brand Identity Garuda Private Server, Custom Vector Logo & Typography, Internship Azka Print (packaging workflow), Brand fashion Attics (katalog), Packaging Keripik Tempe & Social Media Kit sneaker lokal.",
+  ans3: "Proyek: attics.std (brand streetwear), Pet Heist (game Roblox yang masih dikembangkan), Esports Video Editing untuk EVOS Street, Technical & Digital Asset Support di DISPORA, dan 9Router Telegram Ops Bot.",
   ans4: "Gampang! Scroll ke section kontak di bawah, isi form, atau langsung klik salah satu link ini",
   greeting:
     "Halo Saya Assistantnya Dexton! Tanyakan sesuatu seputar portfolio ini",

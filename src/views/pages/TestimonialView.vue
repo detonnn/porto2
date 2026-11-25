@@ -6,8 +6,8 @@
         <div class="tcol__wrap" ref="wrap" :class="{ 'is-paused': !inView }">
             <template v-if="ready">
             <div v-for="(col, ci) in columns" :key="ci" class="tcol">
-                <div class="tcol__track" :style="{ animationDuration: (Math.max(col.length, 3) * 4) + 's' }">
-                    <div v-for="loop in 2" :key="loop" class="tcol__group">
+                <div class="tcol__track" :style="{ animationDuration: (Math.max(col.length, 3) * 4) + 's', '--shift': (-100 / groups(col)) + '%' }">
+                    <div v-for="loop in groups(col)" :key="loop" class="tcol__group">
                         <div class="testimonial__content" v-for="(item, i) in col" :key="item.id || 'd' + i">
                             <div class="testimonial__data">
                                 <div class="testimonial__header">
@@ -56,16 +56,23 @@ export default {
         }
     },
     beforeUnmount() { window.removeEventListener('resize', this.onResize); window.removeEventListener('review:added', this.onAdded); if (this._io) this._io.disconnect() },
+    methods: {
+        // ponytail: kolom pendek diulang lebih dari 2x biar tinggi loop >= tinggi area tampil (gak ada ruang kosong di bawah)
+        groups(col) { return Math.max(2, Math.ceil(800 / (Math.max(col.length, 1) * 170)) + 1) },
+    },
     computed: {
         columns() {
             const n = this.colCount
             const base = this.testimonials.items || []
-            const per = Math.ceil(base.length / n)
-            // review asli: posisi kolom tetap (dari yang terlama), jadi review baru gak mindahin kartu lain
             const total = this.live.length
-            return Array.from({ length: n }, (_, ci) => [
-                ...this.live.filter((_, i) => (total - 1 - i) % n === ci),
-                ...base.slice(ci * per, ci * per + per),
+            // dummy dibagi bergantian ke tiap kolom; review asli ke-k masuk kolom k % n dan ngehapus 1 dummy paling bawah di kolom yang sama
+            // -> jumlah kartu per kolom tetap seimbang (gak ada kolom kosong / kartu dobel)
+            const dcols = Array.from({ length: n }, () => [])
+            base.forEach((d, i) => dcols[i % n].push(d))
+            for (let k = 0; k < total; k++) dcols[k % n].pop()
+            return dcols.map((dl, c) => [
+                ...this.live.filter((_, i) => (total - 1 - i) % n === c),
+                ...dl,
             ])
         }
     }
@@ -87,8 +94,8 @@ export default {
 .tcol__track { display: flex; flex-direction: column; gap: 1.25rem; animation: tcol-scroll linear infinite; -webkit-animation: tcol-scroll linear infinite; will-change: transform; }
 .tcol__wrap.is-paused .tcol__track { animation-play-state: paused; -webkit-animation-play-state: paused; }
 .tcol__group { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 1.25rem; }
-@keyframes tcol-scroll { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, -50%, 0); } }
-@-webkit-keyframes tcol-scroll { to { -webkit-transform: translateY(-50%); transform: translateY(-50%); } }
+@keyframes tcol-scroll { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, var(--shift, -50%), 0); } }
+@-webkit-keyframes tcol-scroll { to { -webkit-transform: translateY(var(--shift, -50%)); transform: translateY(var(--shift, -50%)); } }
 @media (prefers-reduced-motion: reduce) { .tcol__track { animation-duration: 80s !important; -webkit-animation-duration: 80s !important; } }
 /* ponytail: cards reuse global .testimonial__* vars so light/dark follows body.light-theme automatically */
 .testimonial__content { margin-bottom: 0; }

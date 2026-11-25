@@ -131,13 +131,13 @@ export default {
         ctx.clearRect(0,0,width,height); ctx.fillStyle=space.star; stars.forEach(s=>{ ctx.globalAlpha=s.alpha; ctx.fillRect(s.x,s.y,s.size,s.size); }); ctx.globalAlpha=1; bullets.forEach(b=>{ ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,b.width,b.height); }); particles.forEach(p=>{ ctx.fillStyle=p.color; ctx.globalAlpha=p.alpha; ctx.fillRect(p.x,p.y,p.size,p.size); }); ctx.globalAlpha=1;
         players.forEach(p=>{ ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=6; ctx.beginPath(); ctx.moveTo(p.x+p.width/2,p.y); ctx.lineTo(p.x+p.width,p.y+p.height); ctx.lineTo(p.x+p.width*0.7,p.y+p.height*0.75); ctx.lineTo(p.x+p.width*0.3,p.y+p.height*0.75); ctx.lineTo(p.x,p.y+p.height); ctx.closePath(); ctx.fill(); }); ctx.shadowBlur=0;
       };
-      let _hidden=false; const onVis=()=>{ _hidden=document.hidden; }; document.addEventListener('visibilitychange',onVis); this._onVisGame=onVis;
-      const loop=()=>{ if(_hidden||document.hidden){ this._rafId=requestAnimationFrame(loop); return; } update(); render(); this._rafId=requestAnimationFrame(loop); };
+      let _vis=true; if('IntersectionObserver' in window){ this._ioGame=new IntersectionObserver(([e])=>{ _vis=e.isIntersecting; },{ rootMargin:'120px' }); this._ioGame.observe(canvas); } let _hidden=false; const onVis=()=>{ _hidden=document.hidden; }; document.addEventListener('visibilitychange',onVis); this._onVisGame=onVis;
+      const loop=()=>{ if(_hidden||!_vis||document.hidden){ this._rafId=requestAnimationFrame(loop); return; } update(); render(); this._rafId=requestAnimationFrame(loop); };
       this._rafId=requestAnimationFrame(loop);
     },
     stopGame() {
       if(this._onVisGame) document.removeEventListener('visibilitychange',this._onVisGame); this._onVisGame=null;
-      if(this._rafId) cancelAnimationFrame(this._rafId); this._rafId=null;
+      if(this._rafId) cancelAnimationFrame(this._rafId); this._rafId=null; if(this._ioGame){ this._ioGame.disconnect(); this._ioGame=null; }
       if(this._manualTimer) clearTimeout(this._manualTimer); this._isManual=false; this._manualTimer=null; this._stars=null;
       const canvas=this._gameCanvas; if(canvas){ if(this._onMouseEnter) canvas.removeEventListener('mouseenter',this._onMouseEnter); if(this._onMouseMove) canvas.removeEventListener('mousemove',this._onMouseMove); if(this._onMouseLeave) canvas.removeEventListener('mouseleave',this._onMouseLeave); if(this._onTouchMove){ canvas.removeEventListener('touchmove',this._onTouchMove); canvas.removeEventListener('touchstart',this._onTouchMove); canvas.removeEventListener('touchend',this._onTouchEnd); canvas.removeEventListener('touchcancel',this._onTouchEnd);} canvas.style.touchAction=''; }
       const box=this._scrollBox; if(box){ if(this._onTouchMove) box.removeEventListener('touchmove',this._onTouchMove); if(this._onTouchEnd) box.removeEventListener('touchend',this._onTouchEnd); }

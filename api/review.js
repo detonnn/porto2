@@ -11,7 +11,7 @@ import { redisCmd, redisPipeline } from './_redis.js';
 const OWNER_EMAIL = 'ibnudexton@gmail.com';
 const IDX = 'porto2:reviews:idx';   // sorted set (score = timestamp, member = id)
 const DATA = 'porto2:reviews:data'; // hash (id -> json)
-const AVATARS = 5;
+const AVATARS = 9;
 const COOLDOWN = 3600;              // 1 jam per IP
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -55,6 +55,8 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
+      // cache edge 20 dtk: ngurangin hit Redis & load lebih cepat (admin.html pake ?t= biar selalu fresh)
+      if (!req.query?.t) res.setHeader('Cache-Control', 'public, s-maxage=20, stale-while-revalidate=60');
       const ids = await redisCmd(['ZREVRANGE', IDX, 0, 29], URL_, TOKEN);
       if (!ids?.length) return res.status(200).json({ reviews: [] });
       const rows = await redisCmd(['HMGET', DATA, ...ids], URL_, TOKEN);
@@ -98,6 +100,11 @@ export default async function handler(req, res) {
         if (!owner) await redisCmd(['DEL', rlKey], URL_, TOKEN).catch(() => {});
         throw e;
       }
+      // batasin penyimpanan: simpen 200 review terbaru aja
+      try {
+        const old = await redisCmd(['ZRANGE', IDX, 0, -201], URL_, TOKEN);
+        if (old?.length) await redisPipeline([['ZREM', IDX, ...old], ['HDEL', DATA, ...old]], URL_, TOKEN);
+      } catch (e) { console.error('trim fail', e); }
       await sendMail({ name, email, message, rating }).catch(e => console.error('mail fail', e));
       return res.status(200).json({ ok: true, review });
     }

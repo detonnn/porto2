@@ -223,7 +223,7 @@ export default {
 </script>
 
 <style scoped>
-.shiny-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;padding:.65rem 1.5rem;border-radius:8px;font-size:var(--small-font-size,.85rem);font-weight:var(--font-medium,500);text-transform:uppercase;letter-spacing:.5px;text-decoration:none;cursor:pointer;transition:all .3s ease;background:var(--bg-window);border:1px solid var(--border);color:var(--green);box-shadow:0 4px 15px rgba(0,0,0,.2)}
+.shiny-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;padding:.65rem 1.5rem;border-radius:8px;font-size:var(--small-font-size,.85rem);font-weight:var(--font-medium,500);text-transform:uppercase;letter-spacing:.5px;text-decoration:none;cursor:pointer;transition: color .3s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease, transform .3s ease, opacity .3s ease;background:var(--bg-window);border:1px solid var(--border);color:var(--green);box-shadow:0 4px 15px rgba(0,0,0,.2)}
 .shiny-btn:hover{border-color:var(--green);box-shadow:0 0 20px var(--accent-glow);transform:translateY(-2px)}
 .shiny-btn__label{position:relative;z-index:10;display:inline-flex;align-items:center;gap:.5rem}
 .shiny-btn__shimmer{position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,var(--shine-color,rgba(255,255,255,.35)),transparent);transform:skewX(-20deg);animation:shine 5s infinite}

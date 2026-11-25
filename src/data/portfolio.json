@@ -44,8 +44,8 @@
         "label": "projects\nshipped"
       },
       {
-        "value": "04+",
-        "label": "tahun pengalaman"
+        "value": "02+",
+        "label": "years\nexperience"
       }
     ],
     "cv": "frontend/assets/pdf/MUHAMMAD IBNU DEXTON ALFATHIR.pdf"
@@ -72,7 +72,7 @@
             "desc": "A library for building interactive interfaces. It is the one I know best, and my first portfolio was built with it."
           },
           {
-            "name": "Next Js",
+            "name": "Next.js",
             "level": 67,
             "icon": "next",
             "desc": "A React framework for fast, well-structured sites, routing included. I am confident with it and still digging deeper."
@@ -96,7 +96,7 @@
       {
         "icon": "uil-server-network",
         "title": "Backend developer",
-        "subtitle": "More than 1 years",
+        "subtitle": "More than 1 year",
         "items": [
           {
             "name": "PHP",
@@ -156,7 +156,7 @@
             "desc": "Packages an app so it runs the same on any machine. I can handle the basics and still check the docs often."
           },
           {
-            "name": "Github",
+            "name": "GitHub",
             "level": 70,
             "icon": "github",
             "desc": "Where I store and track my code versions. I use it daily, including a bot that automates my contributions. I am confident with it."
@@ -188,7 +188,7 @@
             "desc": "For photo editing, mockups, and posters. One of my strongest design tools and the one I open most."
           },
           {
-            "name": "Corel Draw",
+            "name": "CorelDRAW",
             "level": 50,
             "icon": "corel",
             "desc": "For vector design and print layouts. It works for me, but I open it less often than Illustrator."
@@ -227,13 +227,13 @@
     ],
     "work": [
       {
-        "title": "Internship-Administrasi & Operasional",
+        "title": "Internship - Administration & Operations",
         "place": "Azka Group",
-        "date": "Januari 2025-juni 2025"
+        "date": "January 2025 - June 2025"
       },
       {
-        "title": "Internship-digital assets support",
-        "place": "dispora",
+        "title": "Internship - Digital Assets Support",
+        "place": "DISPORA",
         "date": "2025-2026"
       },
       {
@@ -242,12 +242,12 @@
         "date": "2025-2026"
       },
       {
-        "title": "Freelancer Editing(EVOS)",
+        "title": "Freelance Video Editor (EVOS)",
         "place": "Freelancer",
         "date": "2025-present"
       },
       {
-        "title": "UI UX Design",
+        "title": "UI/UX Design",
         "place": "Pamulang University",
         "date": "2026-present"
       }
@@ -262,8 +262,8 @@
         "title": "Developer Engineer",
         "modalTitle": "Software Quality",
         "services": [
-          "I create testcase and idea for test strategies.",
-          "Implementations in the automation tools."
+          "I create test cases and ideas for test strategies.",
+          "Implementations in automation tools."
         ]
       },
       {
@@ -272,9 +272,9 @@
         "modalTitle": "Frontend Developer",
         "services": [
           "Client-side development",
-          "Test web for usability.",
-          "Operation a API between server.",
-          "maintenance features."
+          "Testing web usability.",
+          "Operating APIs between server and client.",
+          "Feature maintenance."
         ]
       },
       {
@@ -282,19 +282,19 @@
         "title": "Backend Developer",
         "modalTitle": "Backend Developer",
         "services": [
-          "Make a system.",
-          "adding features and maintenance.",
-          "make API between client side."
+          "Building systems.",
+          "Adding features and maintenance.",
+          "Building APIs between client and server."
         ]
       },
       {
         "icon": "uil-web-grid",
-        "title": "Ui/Ux Designer",
-        "modalTitle": "Ui/Ux Designer",
+        "title": "UI/UX Designer",
+        "modalTitle": "UI/UX Designer",
         "services": [
           "I develop the user interface.",
           "Web page development.",
-          "I create ux element interactions.",
+          "I create UX element interactions.",
           "I position your company brand."
         ]
       }
@@ -319,13 +319,13 @@
       {
         "image": "frontend/assets/img/3.jpg",
         "title": "Esports Video Editing & Social Content",
-        "description": "video editor for Evos Street, crafting engaging short-form and long-form content optimized for YouTube and TikTok audience retention.",
+        "description": "Video editor for EVOS Street, crafting engaging short-form and long-form content optimized for YouTube and TikTok audience retention.",
         "url": "https://youtu.be/WwLDZrngERA"
       },
       {
         "image": "frontend/assets/img/2.jpg",
         "title": "Technical & Digital Asset Support",
-        "description": "Four months of internship experience at the Department of Youth and Sports (DISPORA), managing digital technical operations, IT support, and media asset distribution for institutional events",
+        "description": "Four months of internship experience at the Department of Youth and Sports (DISPORA), managing digital technical operations, IT support, and media asset distribution for institutional events.",
         "url": "https://dispora.tangerangkota.go.id/"
       },
       {
@@ -438,7 +438,7 @@
     "title": "dxtnn",
     "subtitle": "Fullstack Developer · UI/UX Designer · Developer Engineer",
     "tagline": "Bikin website & tools yang rapi, cepat, dan nggak asal jadi.",
-    "copyright": "Ibnu Dexton. All right reserved",
+    "copyright": "Ibnu Dexton. All rights reserved",
     "linkGroups": [
       {
         "label": "Navigate",
