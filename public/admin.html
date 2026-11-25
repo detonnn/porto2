@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>admin / reviews</title>
+<style>
+  body{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0f1115;color:#e6e6e6;margin:0;padding:1.5rem;max-width:720px;margin-inline:auto}
+  input,button{font:inherit;padding:.55rem .8rem;border-radius:6px;border:1px solid #333;background:#181b21;color:inherit}
+  button{cursor:pointer} button:hover{border-color:#777}
+  .row{display:flex;gap:.5rem;margin-bottom:1rem}
+  .row input{flex:1}
+  .card{border:1px solid #2a2e36;border-radius:8px;padding:.8rem 1rem;margin-bottom:.7rem;display:flex;gap:.8rem;align-items:flex-start}
+  .card img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+  .card .b{flex:1;min-width:0;word-break:break-word}
+  .stars{color:#fcd34d} .meta{opacity:.55;font-size:.8rem}
+  .del{border-color:#7a2b2b;color:#ff8a8a}
+  #msg{opacity:.7;margin:.5rem 0}
+</style>
+</head>
+<body>
+<h2>reviews.log / admin</h2>
+<div class="row">
+  <input id="key" type="password" placeholder="ADMIN_KEY" autocomplete="current-password">
+  <button id="load">load</button>
+</div>
+<div id="msg"></div>
+<div id="list"></div>
+<script>
+const $ = id => document.getElementById(id);
+const key = () => $('key').value;
+const el = (t, p = {}, kids = []) => { const e = Object.assign(document.createElement(t), p); kids.forEach(k => e.append(k)); return e; };
+
+async function load() {
+  $('msg').textContent = 'loading...';
+  try {
+    const r = await fetch('/api/review');
+    const { reviews = [] } = await r.json();
+    $('msg').textContent = reviews.length + ' review';
+    $('list').replaceChildren(...reviews.map(v => {
+      const del = el('button', { className: 'del', textContent: 'hapus' });
+      del.onclick = async () => {
+        if (!key()) return alert('isi ADMIN_KEY dulu');
+        if (!confirm('Hapus review dari ' + v.name + '?')) return;
+        const d = await fetch('/api/review', { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'x-admin-key': key() }, body: JSON.stringify({ id: v.id }) });
+        if (d.ok) load(); else alert(d.status === 401 ? 'ADMIN_KEY salah' : 'Gagal: ' + d.status);
+      };
+      return el('div', { className: 'card' }, [
+        el('img', { src: v.image, alt: '' }),
+        el('div', { className: 'b' }, [
+          el('div', {}, [v.name + ' ', el('span', { className: 'stars', textContent: '★'.repeat(v.rating) + '☆'.repeat(5 - v.rating) })]),
+          el('div', { textContent: v.text }),
+          el('div', { className: 'meta', textContent: new Date(v.ts).toLocaleString('id-ID') }),
+        ]),
+        del,
+      ]);
+    }));
+  } catch (e) { $('msg').textContent = 'gagal load'; }
+}
+$('load').onclick = load; load();
+</script>
+</body>
+</html>

@@ -31,13 +31,19 @@
                     <textarea v-model.trim="form.message" @focus="msgFocus=true" @blur="msgFocus=false" cols="0" rows="7" class="contact__input" placeholder="echo 'your message here...'" required></textarea>
                 </div>
 
+                <input v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
+                <div class="contact__rating" role="radiogroup" aria-label="Rate your experience" @mouseleave="hover = 0">
+                    <span class="contact__rating-label">rating *</span>
+                    <button v-for="n in 5" :key="n" type="button" class="contact__star" :class="{ on: n <= (hover || form.rating), pop: popStar === n }" role="radio" :aria-checked="n === form.rating" :aria-label="`Rate ${n} out of 5`" @mouseenter="hover = n" @click="setRating(n)">★</button>
+                </div>
+
                 <div>
                     <button type="submit" class="button button--flex" :disabled="sending" :class="{ 'button--error': showError, 'shake': shake }" :style="showError ? 'background:var(--red,#ff5a5a);border-color:var(--red,#ff5a5a);color:#fff' : ''">
                         {{ sent ? '✓ delivered' : sending ? 'sending…' : showError ? '✗ fill all fields!' : 'send --message' }}
                         <i class="uil button__icon" :class="sent ? 'uil-check' : showError ? 'uil-exclamation-triangle' : 'uil-message'"></i>
                     </button>
                     <p v-if="error" style="margin-top:.6rem;color:var(--red,#ff5a5a);font-size:var(--small-font-size)">{{ error }}</p>
-                    <p v-if="sent" style="margin-top:.6rem;color:var(--green);font-size:var(--small-font-size)">✓ Membuka aplikasi email — tinggal tekan kirim ke ibnudexton@gmail.com</p>
+                    <p v-if="sent" style="margin-top:.6rem;color:var(--green);font-size:var(--small-font-size)">✓ Review terkirim — makasih! Udah muncul di reviews.log</p>
                 </div>
             </form>
         </div>
@@ -50,7 +56,7 @@ import data from '../../data/portfolio.json'
 export default {
     name: 'Contact',
     data() {
-        return { contact: data.contact, form: { name: '', email: '', message: '' }, sending: false, sent: false, error: '', showError: false, shake: false, msgFocus: false }
+        return { contact: data.contact, form: { name: '', email: '', message: '', rating: 0, website: '' }, hover: 0, popStar: 0, sending: false, sent: false, error: '', showError: false, shake: false, msgFocus: false }
     },
     computed: {
         canSend() { return this.form.name && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email) && this.form.message }
@@ -75,6 +81,10 @@ export default {
             if (info.icon.includes('github')) return info.href || '#'
             return null
         },
+        setRating(n) {
+            this.form.rating = n; this.popStar = n
+            setTimeout(() => { this.popStar = 0 }, 300)
+        },
         triggerError(msg) {
             this.error = msg; this.showError = true; this.shake = true
             setTimeout(() => this.shake = false, 400)
@@ -85,13 +95,30 @@ export default {
             if (!this.form.name) return this.triggerError('⚠ Harap isi kolom contact terlebih dahulu — name required.')
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) return this.triggerError('⚠ Harap isi kolom contact terlebih dahulu — valid email required.')
             if (!this.form.message) return this.triggerError('⚠ Harap isi kolom contact terlebih dahulu — message required.')
+            if (!this.form.rating) return this.triggerError('⚠ Kasih bintang dulu — rating required.')
             this.error = ''; this.showError = false; this.sending = true
-            // ponytail: belum ada backend — buka mailto biar pesan beneran kekirim
-            const subject = encodeURIComponent('Portfolio contact dari ' + this.form.name)
-            const body = encodeURIComponent(this.form.message + '\n\n— ' + this.form.name + ' (' + this.form.email + ')')
-            window.location.href = `mailto:ibnudexton@gmail.com?subject=${subject}&body=${body}`
-            setTimeout(() => { this.sending = false; this.sent = true; this.form = { name: '', email: '', message: '' }; setTimeout(() => this.sent = false, 4000) }, 900)
+            // ponytail: POST ke /api/review -> Upstash + email ke owner, lalu langsung muncul di reviews.log
+            fetch('/api/review', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.form) })
+                .then(async r => {
+                    const d = await r.json().catch(() => ({}))
+                    if (r.status === 429) return this.triggerError(`⚠ Tunggu ${Math.ceil((d.retryAfter || 3600) / 60)} menit lagi buat kirim review berikutnya.`)
+                    if (!r.ok) return this.triggerError('⚠ ' + (d.error || 'Gagal kirim, coba lagi.'))
+                    if (d.review) window.dispatchEvent(new CustomEvent('review:added', { detail: d.review }))
+                    this.sent = true; this.form = { name: '', email: '', message: '', rating: 0, website: '' }
+                    setTimeout(() => { this.sent = false }, 4000)
+                })
+                .catch(() => this.triggerError('⚠ Koneksi bermasalah, coba lagi.'))
+                .finally(() => { this.sending = false })
         }
     }
 }
 </script>
+
+<style scoped>
+.contact__rating { display: flex; align-items: center; gap: .15rem; }
+.contact__rating-label { font-size: var(--small-font-size); margin-right: .5rem; opacity: .8; }
+.contact__star { background: none; border: 0; padding: .1rem .15rem; font-size: 1.7rem; line-height: 1; cursor: pointer; color: var(--text-color-light, #8a8f98); transition: color .15s, transform .15s; }
+.contact__star.on { color: #fcd34d; }
+.contact__star.pop { animation: star-pop .28s ease-out; }
+@keyframes star-pop { 50% { transform: scale(1.35); } }
+</style>

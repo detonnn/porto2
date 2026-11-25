@@ -35,16 +35,20 @@ import data from '../../data/portfolio.json'
 export default {
     name: 'Testimonial',
     data() {
-        return { testimonials: data.testimonials, colCount: window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3 }
+        return { testimonials: data.testimonials, live: [], colCount: window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3 }
     },
     mounted() {
         this.onResize = () => { this.colCount = window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3 }
         window.addEventListener('resize', this.onResize)
+        // ponytail: review asli dari /api/review (gagal fetch = tetap tampil dummy)
+        this.onAdded = e => { this.live = [e.detail, ...this.live.filter(r => r.id !== e.detail.id)] }
+        window.addEventListener('review:added', this.onAdded)
+        fetch('/api/review').then(r => r.ok ? r.json() : Promise.reject()).then(d => { if (Array.isArray(d.reviews)) this.live = d.reviews }).catch(() => {})
     },
-    beforeUnmount() { window.removeEventListener('resize', this.onResize) },
+    beforeUnmount() { window.removeEventListener('resize', this.onResize); window.removeEventListener('review:added', this.onAdded) },
     computed: {
         columns() {
-            const items = this.testimonials.items || []
+            const items = [...this.live, ...(this.testimonials.items || [])]
             const per = Math.ceil(items.length / this.colCount)
             return Array.from({ length: this.colCount }, (_, i) => items.slice(i * per, i * per + per))
         }
