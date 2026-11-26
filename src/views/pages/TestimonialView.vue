@@ -3,7 +3,7 @@
         <h2 class="section__title">{{ testimonials.title }}</h2>
         <span class="section__subtitle">{{ testimonials.subtitle }}</span>
 
-        <div class="tcol__wrap" ref="wrap" :class="{ 'is-paused': !inView }">
+        <div class="tcol__wrap" ref="wrap" :class="{ 'is-paused': !inView || !!newId, 'is-highlight': !!newId }">
             <template v-if="ready">
             <div v-for="(col, ci) in columns" :key="ci + '-' + restart" class="tcol">
                 <div class="tcol__track" :style="{ animationDuration: (Math.max(col.length, 3) * 4) + 's', '--shift': (-100 / groups(col)) + '%' }">
@@ -101,14 +101,17 @@ export default {
     display: flex;
     justify-content: center;
     gap: 1.25rem;
-    max-height: 740px;
+    /* tinggi grep fix: konten review (jumlah kartu/panjang teks) gak boleh nggeser section contact di bawahnya */
+    height: clamp(480px, 80vh, 740px);
+    contain: layout; /* apapun yang happen di dalam marquee, gak boleh jadi anchor scroll halaman */
+    overflow-anchor: none;
     overflow: hidden;
     -webkit-mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
     mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
 }
 .tcol { width: 100%; max-width: 320px; overflow: hidden; }
-.tcol__wrap { min-height: 480px; }
-.tcol__track { display: flex; flex-direction: column; gap: 1.25rem; animation: tcol-scroll linear infinite; -webkit-animation: tcol-scroll linear infinite; will-change: transform; }
+/* gap track bikin --shift (persentase dari tinggi track) gak pas sama 1 group => loncatan tiap loop; spacing cukup dari padding group */
+.tcol__track { display: flex; flex-direction: column; animation: tcol-scroll linear infinite; -webkit-animation: tcol-scroll linear infinite; will-change: transform; }
 .tcol__wrap.is-paused .tcol__track { animation-play-state: paused; -webkit-animation-play-state: paused; }
 .tcol__group { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 1.25rem; }
 @keyframes tcol-scroll { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, var(--shift, -50%), 0); } }

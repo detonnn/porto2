@@ -22,11 +22,11 @@ export const MUSIC_TRACKS = [
     cover: "/frontend/assets/img/itsyou.jpg",
   },
   {
-    title: "multo",
-    artist: "cup of joe",
-    src: "/frontend/assets/audio/multo.mp3",
+    title: "How To Stop Time",
+    artist: "34XP",
+    src: "/frontend/assets/audio/34.mp3",
     duration: "4:00",
-    cover: "/frontend/assets/img/list4.jpeg",
+    cover: "/frontend/assets/img/xp.jpg",
   },
   {
     title: "White Ferrari",

@@ -611,8 +611,8 @@ body.light-theme .term-window__title {
   }
 }
 
-/* HP: section contact diem aja, tanpa animasi masuk */
-@media (max-width: 767px) {
+/* HP/tablet: section contact diem aja, tanpa animasi masuk (termasuk HP landscape yang width-nya >767) */
+@media (max-width: 767px), (pointer: coarse) {
   #contact .reveal {
     opacity: 1 !important;
     transform: none !important;

@@ -12,7 +12,8 @@
                     </a>
                 </div>
 
-                <img :src="project.image" alt="" class="project__img" loading="lazy" decoding="async">
+                <!-- ponytail: ukuran asli di-reserve biar gambar lazy gak nambah 316px pas load (contact ikut ngeser) -->
+                <img :src="project.image" alt="" class="project__img" width="139" height="200" loading="lazy" decoding="async">
             </div>
         </div>
     </section>

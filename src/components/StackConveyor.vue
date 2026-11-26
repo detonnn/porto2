@@ -703,7 +703,7 @@ body.light-theme, html.light-theme body {
 .stk-side { min-width: 0; }
 .stk-main { min-width: 0; }
 .stk-wrap.wide .stk-head { align-items: flex-start; text-align: left; padding: 0; }
-.stk-wrap.wide .stk-caption { margin: 1rem 0 0; text-align: left; padding: 0; min-height: 4.5rem; }
+.stk-wrap.wide .stk-caption { margin: 1rem 0 0; text-align: left; padding: 0; }
 .stk-head { display: flex; flex-direction: column; align-items: center; gap: .5rem; text-align: center; padding: 0 .5rem; }
 .stk-eyebrow { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: var(--text-dim); margin: 0; }
 .stk-heading { font-size: clamp(1.2rem, 3.4vw, 1.75rem); font-weight: 600; letter-spacing: -.01em; text-wrap: balance; margin: 0; color: var(--text); }
@@ -745,8 +745,9 @@ body.light-theme, html.light-theme body {
 .stk-ctl:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .stk-ctl svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .stk-ctl svg.fill { fill: currentColor; stroke: none; }
-.stk-caption { margin: .5rem auto 0; max-width: 28rem; padding: 0 .5rem; text-align: center; min-height: 3.6rem; }
-.stk-caption p { margin: 0; font-size: .85rem; color: var(--text-dim); }
+/* caption ganti tiap beberapa detik: tinggi di-patok (HP + desktop) biar gak ngeser section di bawahnya (termasuk contact) */
+.stk-caption { margin: .5rem auto 0; max-width: 28rem; padding: 0 .5rem; text-align: center; min-height: 6rem; }
+.stk-caption p { margin: 0; font-size: .85rem; color: var(--text-dim); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .stk-caption p.strong { color: var(--text); font-weight: 600; }
 .stk-caption p.strong span { font-weight: 400; color: var(--text-dim); }
 .stk-caption .sub { margin-top: 2px; font-size: .78rem; line-height: 1.4; }
