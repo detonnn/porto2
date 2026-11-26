@@ -31,7 +31,6 @@
                     <textarea v-model.trim="form.message" @focus="msgFocus=true" @blur="msgFocus=false" cols="0" rows="7" class="contact__input" placeholder="echo 'your message here...'" required></textarea>
                 </div>
 
-                <input v-model="form.hp" type="text" name="hp_note" tabindex="-1" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
                 <div class="contact__rating" role="radiogroup" aria-label="Rate your experience" @mouseleave="hover = 0">
                     <span class="contact__rating-label">rating *</span>
                     <button v-for="n in 5" :key="n" type="button" class="contact__star" :class="{ on: n <= (hover || form.rating), pop: popStar === n }" role="radio" :aria-checked="n === form.rating" :aria-label="`Rate ${n} out of 5`" @mouseenter="hover = n" @click="setRating(n)">★</button>
@@ -56,7 +55,7 @@ import data from '../../data/portfolio.json'
 export default {
     name: 'Contact',
     data() {
-        return { contact: data.contact, form: { name: '', email: '', message: '', rating: 0, hp: '' }, hover: 0, popStar: 0, sending: false, sent: false, error: '', showError: false, shake: false, msgFocus: false }
+        return { contact: data.contact, form: { name: '', email: '', message: '', rating: 0 }, hover: 0, popStar: 0, sending: false, sent: false, error: '', showError: false, shake: false, msgFocus: false }
     },
     computed: {
         canSend() { return this.form.name && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email) && this.form.message }
@@ -100,7 +99,7 @@ export default {
                         if (window.lenis && typeof window.lenis.scrollTo === 'function') window.lenis.scrollTo(el, { offset: -70, duration: 1.1 })
                         else el.scrollIntoView({ behavior: 'smooth', block: 'start' })
                     }, 500)
-                    this.sent = true; this.form = { name: '', email: '', message: '', rating: 0, hp: '' }
+                    this.sent = true; this.form = { name: '', email: '', message: '', rating: 0 }
                     setTimeout(() => { this.sent = false }, 4000)
                 })
                 .catch(() => this.triggerError('⚠ Koneksi bermasalah, coba lagi.'))

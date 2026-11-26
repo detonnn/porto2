@@ -67,8 +67,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       const b = body(req);
-      // honeypot (nama field sengaja gak umum biar gak di-autofill browser HP). Kalo keisi => tolak jelas, bukan pura-pura sukses
-      if (b.hp) return res.status(400).json({ error: 'Data tidak valid, muat ulang halaman lalu coba lagi' });
+      // (honeypot dibuang: autofill browser dalam Instagram ngisi field tersembunyi => review asli ikut ketolak. Anti-spam cukup cooldown per IP)
       const name = clean(b.name, 40);
       const email = clean(b.email, 100);
       const message = clean(b.message, 500);
