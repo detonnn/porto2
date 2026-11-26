@@ -173,7 +173,7 @@ function pickTier() {
 
 // `says` can be one line or a list; a click picks one at random (never the same twice in a row)
 const DEFAULT_CREW = [
-  { kind: 'yeti', letter: 0, seat: 'front', offset: -0.32, name: 'Bruno', says: [
+  { kind: 'yeti', letter: 0, seat: 'behind', ground: true, offset: -0.55, name: 'Bruno', says: [
     'Aduh laper nyo, nasi goreng berapaan?',
     'Ada yang jual bakso? Gw traktir... eh, lu dulu deh.',
     'Porsi gw dua ya, jangan pelit.',
@@ -188,21 +188,21 @@ const DEFAULT_CREW = [
     'Cit! Sini gw bantu, serius.',
     'Gw bukan burung hantu, jangan ajak lembur.',
   ] },
-  { kind: 'mushroom', letter: 2, seat: 'front', offset: 0.12, scale: 0.95, name: 'Morel', says: [
+  { kind: 'mushroom', letter: 2, seat: 'behind', ground: true, offset: 0.12, dy: -10, scale: 0.95, name: 'Morel', says: [
     'Gw jamur, bukan fun guy. ...ya, fun guy sih.',
     'Jangan diinjek, baru tumbuh nih.',
     'Lembab dikit gpp, gw suka.',
     'Jangan jadiin topping pizza ya.',
     'Hujan? Mantap, gw seneng.',
   ] },
-  { kind: 'kid', letter: 3, seat: 'top', offset: -0.05, dy: 3, name: 'Juno', says: [
+  { kind: 'kid', letter: 2, seat: 'top', offset: -0.05, dy: 3, name: 'Juno', says: [
     'Di atas sini view terbaik!',
     'Kaki gw gantung, tapi santai.',
     'Jangan dorong ya, serius.',
     'Dari sini keliatan lu scroll sampe mana.',
     'Gw lagi ngawas, tenang aja.',
   ] },
-  { kind: 'ghost', letter: 4, seat: 'behind', offset: -0.05, name: 'Boo', says: [
+  { kind: 'ghost', letter: 4, seat: 'behind', offset: 0.03, dy: 30, name: 'Boo', says: [
     'Bu! ...sori, kaget ya?',
     'Gw ghosting, tapi bukan yang itu.',
     'Cuma lewat. Jangan di-seen doang ya.',
@@ -281,11 +281,12 @@ export default {
         const scale = (this.cap / 144) * art.k * (m.scale != null ? m.scale : 1)
         const seat = m.seat || art.seat
         const p = seatPoint(seat, this.layout.x[li], this.layout.w[li], this.cap, m.offset || 0, scale)
+        if (m.ground) p.y = 0 // behind teks, tapi kaki tetap napak di garis tanah
         p.y += (m.dy || 0) * scale // per-member nudge, in art units
         const flip = m.flip ? -1 : 1
         const bx = flip > 0 ? [art.box.l, art.box.r] : [-art.box.r, -art.box.l]
         const top = art.box.t
-        const bottom = seat === 'behind' ? -30 : art.box.b
+        const bottom = seat === 'behind' && !m.ground ? -30 : art.box.b
         out.push({
           i, m, art, seat, scale, flip, x: p.x, y: p.y,
           hit: { x: p.x + bx[0] * scale, y: p.y + top * scale, w: (bx[1] - bx[0]) * scale, h: (bottom - top) * scale },
@@ -752,6 +753,7 @@ export default {
 .dcf[data-interactive='1'] .dcf-glyph:hover{animation:dcf-jiggle .6s cubic-bezier(.3,1.5,.5,1)}
 .dcf-art.dcf-bob{animation:dcf-bob 3.2s ease-in-out infinite}
 .dcf-art.dcf-sway{transform-box:fill-box;transform-origin:50% 100%;animation:dcf-swing 4s ease-in-out infinite}
+.dcf-art.dcf-shy{transform-box:fill-box;transform-origin:50% 100%;animation:dcf-shy 5.4s ease-in-out infinite}
 .dcf-art.dcf-peck{transform-box:fill-box;transform-origin:50% 100%;animation:dcf-peck 5.5s ease-in-out infinite}
 .dcf-tail{transform-box:fill-box;transform-origin:0% 100%;animation:dcf-tail 2.8s ease-in-out infinite}
 .dcf-hopper{transform-box:fill-box;transform-origin:50% 100%}
@@ -795,6 +797,8 @@ export default {
 @keyframes dcf-hop{0%{transform:none}18%{transform:scale(1.12,.84)}45%{transform:translateY(-28%) scale(.94,1.08)}72%{transform:translateY(0) scale(1.1,.88)}86%{transform:scale(.97,1.03)}100%{transform:none}}
 @keyframes dcf-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes dcf-swing{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2.5deg)}}
+/* jamur malu: ngumpet di balik huruf, nyempil ngintip sebentar, terus ngumpet lagi */
+@keyframes dcf-shy{0%,52%,100%{transform:translate(7px,11px) rotate(3deg) scale(.92)}62%,70%{transform:translate(-4px,2px) rotate(-7deg) scale(1)}80%{transform:translate(7px,11px) rotate(3deg) scale(.92)}}
 @keyframes dcf-peck{0%,62%,100%{transform:none}66%{transform:rotate(14deg) translateY(2px)}70%{transform:none}74%{transform:rotate(12deg) translateY(2px)}78%{transform:none}}
 @keyframes dcf-tail{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-12deg)}}
 @keyframes dcf-bubble{from{opacity:0;scale:.6}to{opacity:1;scale:1}}

@@ -233,7 +233,7 @@ export const ART = {
       { x: -4.5, y: -16, r: 0, pupil: 1.9, max: 1.3 },
       { x: 4.5, y: -16, r: 0, pupil: 1.9, max: 1.3 },
     ],
-    idle: 'dcf-sway',
+    idle: 'dcf-shy',
     body: (h) => `
       <ellipse class="dcf-shadow" cx="0" cy="2" rx="18" ry="3"/>
       <path class="n" d="M-10 -15 L-17 -9 M10 -15 L17 -11"/>

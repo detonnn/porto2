@@ -49,7 +49,7 @@ export default {
             this.restart++ // animasi mulai dari atas lagi biar kartu baru langsung keliatan, gak nunggu loop muter
             this.newId = r.id
             clearTimeout(this._nt)
-            this._nt = setTimeout(() => { this.newId = '' }, 5000)
+            this._nt = setTimeout(() => { this.newId = '' }, 4000)
             // simpen sebentar di browser ini: kalo halaman di-reload sebelum cache server segar, review tetep tampil
             try { const a = JSON.parse(localStorage.getItem('porto2_my_reviews') || '[]').filter(x => Date.now() - x.ts < 60000); a.push(r); localStorage.setItem('porto2_my_reviews', JSON.stringify(a.slice(-5))) } catch (err) {}
         }
@@ -109,6 +109,8 @@ export default {
     -webkit-mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
     mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
 }
+/* review baru: kartu di tengah pandangan, jangan dikaburin mask sampai user sempat baca */
+.tcol__wrap.is-highlight { -webkit-mask-image: none; mask-image: none; }
 .tcol { width: 100%; max-width: 320px; overflow: hidden; }
 /* gap track bikin --shift (persentase dari tinggi track) gak pas sama 1 group => loncatan tiap loop; spacing cukup dari padding group */
 .tcol__track { display: flex; flex-direction: column; animation: tcol-scroll linear infinite; -webkit-animation: tcol-scroll linear infinite; will-change: transform; }
@@ -119,6 +121,9 @@ export default {
 @media (prefers-reduced-motion: reduce) { .tcol__track { animation-duration: 80s !important; -webkit-animation-duration: 80s !important; } }
 /* ponytail: cards reuse global .testimonial__* vars so light/dark follows body.light-theme automatically */
 .testimonial__content { margin-bottom: 0; }
-.testimonial__content.is-new { animation: tnew 2.4s ease-out 1; }
-@keyframes tnew { 0% { box-shadow: 0 0 0 0 rgba(252, 211, 77, 0.6); } 100% { box-shadow: 0 0 0 10px rgba(252, 211, 77, 0); } }
+.testimonial__content.is-new { position: relative; z-index: 2; animation: tnew 1.6s ease-out 2; }
+@keyframes tnew {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(252, 211, 77, 0); }
+  30% { box-shadow: 0 0 0 3px rgba(252, 211, 77, .9), 0 0 30px 8px rgba(252, 211, 77, .55); background: color-mix(in oklab, var(--bg-window) 88%, #fcd34d); }
+}
 </style>
