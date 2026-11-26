@@ -755,6 +755,8 @@ export default {
 .dcf-art.dcf-sway{transform-box:fill-box;transform-origin:50% 100%;animation:dcf-swing 4s ease-in-out infinite}
 .dcf-art.dcf-shy{transform-box:fill-box;transform-origin:50% 100%;animation:dcf-shy 5.4s ease-in-out infinite}
 .dcf-art.dcf-peck{transform-box:fill-box;transform-origin:50% 100%;animation:dcf-peck 5.5s ease-in-out infinite}
+/* kid only waves after the visitor has lingered ~3s, then rarely again */
+.dcf[data-play='1'] .dcf-art .dcf-wave-arm{transform-box:fill-box;transform-origin:0% 0%;animation:dcf-wave 16s ease-in-out 3s infinite}
 .dcf-tail{transform-box:fill-box;transform-origin:0% 100%;animation:dcf-tail 2.8s ease-in-out infinite}
 .dcf-hopper{transform-box:fill-box;transform-origin:50% 100%}
 .dcf-hopper.is-hop{animation:dcf-hop .62s cubic-bezier(.3,.7,.4,1)}
@@ -800,6 +802,7 @@ export default {
 /* jamur malu: ngumpet di balik huruf, nyempil ngintip sebentar, terus ngumpet lagi */
 @keyframes dcf-shy{0%,52%,100%{transform:translate(7px,11px) rotate(3deg) scale(.92)}62%,70%{transform:translate(-4px,2px) rotate(-7deg) scale(1)}80%{transform:translate(7px,11px) rotate(3deg) scale(.92)}}
 @keyframes dcf-peck{0%,62%,100%{transform:none}66%{transform:rotate(14deg) translateY(2px)}70%{transform:none}74%{transform:rotate(12deg) translateY(2px)}78%{transform:none}}
+@keyframes dcf-wave{0%,4%,100%{transform:rotate(0)}5%{transform:rotate(-100deg)}6.5%{transform:rotate(-118deg)}8%{transform:rotate(-102deg)}9.5%{transform:rotate(-116deg)}11%{transform:rotate(-100deg)}12.5%{transform:rotate(0)}}
 @keyframes dcf-tail{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-12deg)}}
 @keyframes dcf-bubble{from{opacity:0;scale:.6}to{opacity:1;scale:1}}
 /* reduced-motion intentionally NOT killing animations: lite tier keeps them cheap */

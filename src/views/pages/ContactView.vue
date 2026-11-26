@@ -17,18 +17,18 @@
             <form class="contact__form grid" @submit.prevent="send" novalidate>
                 <div class="contact__inputs grid">
                     <div class="contact__content">
-                        <label for="" class="contact__label">name *</label>
-                        <input v-model.trim="form.name" type="text" class="contact__input" placeholder="your_name" required>
+                        <label for="contact-name" class="contact__label">name *</label>
+                        <input id="contact-name" v-model.trim="form.name" type="text" class="contact__input" placeholder="your_name" required>
                     </div>
                     <div class="contact__content">
-                        <label for="" class="contact__label">email *</label>
-                        <input v-model.trim="form.email" type="email" class="contact__input" placeholder="you@domain.com" required>
+                        <label for="contact-email" class="contact__label">email *</label>
+                        <input id="contact-email" v-model.trim="form.email" type="email" class="contact__input" placeholder="you@domain.com" required>
                     </div>
                 </div>
                 <div class="contact__content" style="position:relative">
                     <img src="/frontend/assets/img/star.gif" alt="" loading="lazy" decoding="async" :style="{position:'absolute',right:'8px',top:'8px',width:'38px',pointerEvents:'none',zIndex:1,opacity:msgFocus?0:1,transition:'opacity .35s ease'}" />
-                    <label for="" class="contact__label">message *</label>
-                    <textarea v-model.trim="form.message" @focus="msgFocus=true" @blur="msgFocus=false" cols="0" rows="7" class="contact__input" placeholder="echo 'your message here...'" required></textarea>
+                    <label for="contact-message" class="contact__label">message *</label>
+                    <textarea id="contact-message" v-model.trim="form.message" @focus="msgFocus=true" @blur="msgFocus=false" cols="0" rows="7" class="contact__input" placeholder="echo 'your message here...'" required></textarea>
                 </div>
 
                 <div class="contact__rating" role="radiogroup" aria-label="Rate your experience" @mouseleave="hover = 0">

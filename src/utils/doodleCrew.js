@@ -148,8 +148,7 @@ export const ART = {
       <path class="n thick" d="M-19.5 -14 L19.5 -14 M-18.5 -26 L18.5 -26 M-14 -36 L14 -36"/>
       <path class="n" d="M-18 -36 C-28 -28 -30 -14 -26 -5"/>
       <circle cx="-26" cy="-3" r="4"/>
-      <path class="n" d="M18 -36 C27 -30 30 -18 28 -7"/>
-      <circle cx="28" cy="-4" r="4"/>
+      <g class="dcf-wave-arm"><path class="n" d="M18 -36 C27 -30 30 -18 28 -7"/><circle cx="28" cy="-4" r="4"/></g>
       <circle cx="-17" cy="-58" r="4"/>
       <circle cx="17" cy="-58" r="4"/>
       <circle cx="0" cy="-60" r="17"/>

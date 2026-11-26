@@ -226,8 +226,8 @@ export default {
 .shiny-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;padding:.65rem 1.5rem;border-radius:8px;font-size:var(--small-font-size,.85rem);font-weight:var(--font-medium,500);text-transform:uppercase;letter-spacing:.5px;text-decoration:none;cursor:pointer;transition: color .3s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease, transform .3s ease, opacity .3s ease;background:var(--bg-window);border:1px solid var(--border);color:var(--green);box-shadow:0 4px 15px rgba(0,0,0,.2)}
 .shiny-btn:hover{border-color:var(--green);box-shadow:0 0 20px var(--accent-glow);transform:translateY(-2px)}
 .shiny-btn__label{position:relative;z-index:10;display:inline-flex;align-items:center;gap:.5rem}
-.shiny-btn__shimmer{position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,var(--shine-color,rgba(255,255,255,.35)),transparent);transform:skewX(-20deg);animation:shine 5s infinite}
-@keyframes shine{0%{left:-100%}20%{left:200%}100%{left:200%}}
+.shiny-btn__shimmer{position:absolute;top:0;left:0;width:50%;height:100%;background:linear-gradient(90deg,transparent,var(--shine-color,rgba(255,255,255,.35)),transparent);animation:shine 5s infinite}
+@keyframes shine{0%{transform:translateX(-200%) skewX(-20deg)}20%,100%{transform:translateX(400%) skewX(-20deg)}}
 .about__lanyard{position:relative;width:100%;min-height:420px;justify-self:center}
 .about__lanyard-rig{position:absolute;z-index:50;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,transparent var(--fade-start),#000 calc(var(--fade-start) + 40px));mask-image:linear-gradient(to bottom,transparent var(--fade-start),#000 calc(var(--fade-start) + 40px))}
 .about__lanyard-rig :deep([role="button"]){pointer-events:auto}
@@ -238,6 +238,6 @@ export default {
 .about__id img{position:absolute;top:50%;left:50%;max-width:none;object-fit:contain;transform:translate(-50%,-50%) rotate(-90deg);pointer-events:none;user-select:none;-webkit-user-drag:none}
 .about__photo{position:relative;width:100%;height:100%;overflow:hidden}
 .about__photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 22%;pointer-events:none;user-select:none;-webkit-user-drag:none}
-.about__photo-shine{position:absolute;top:0;left:-100%;width:50%;height:100%;pointer-events:none;background:linear-gradient(90deg,transparent,var(--shine-color,rgba(255,255,255,.35)),transparent);transform:skewX(-20deg);animation:badgeShine 5s infinite}
-@keyframes badgeShine{0%{left:-100%}20%{left:200%}100%{left:200%}}
+.about__photo-shine{position:absolute;top:0;left:0;width:50%;height:100%;pointer-events:none;background:linear-gradient(90deg,transparent,var(--shine-color,rgba(255,255,255,.35)),transparent);animation:badgeShine 5s infinite}
+@keyframes badgeShine{0%{transform:translateX(-200%) skewX(-20deg)}20%,100%{transform:translateX(400%) skewX(-20deg)}}
 </style>

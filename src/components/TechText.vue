@@ -114,6 +114,8 @@ onMounted(() => {
   let cursor = ''
   let introClock = 0
   let introKind = ''
+  // re-entry: the stamp clock must restart when the scene is played again, not just on first mount
+  watch(() => props.playing, (now, was) => { if (now && !was) introClock = 0 })
   let introducing = false
   let fontsReady = !document.fonts
   let guideAlpha = 0
@@ -121,6 +123,7 @@ onMounted(() => {
   const kicks = []
   const press = { x: 0, y: 0, time: 0, index: -1 }
   const pointer = { x: 0, y: 0, inside: false }
+  let lastPointerAt = 0
   const grab = { x: 0, y: 0 }
   const lens = { x: 0, y: 0 }
   const frame = { x1: 0, y1: 0, x2: 0, y2: 0, alpha: 0, index: -1 }
@@ -707,7 +710,9 @@ onMounted(() => {
     const progress = stamp ? (introClock >= stampEnd ? 1 : 0) : introOn ? clamp01((introClock - INTRO_DELAY) / Math.max(0.3, s.introDuration)) : 1
     introducing = introOn && progress < 1
 
-    const sweeping = !introducing && s.sweep && !reducedMotion && !pointer.inside && dragging < 0
+    // x-ray follows the cursor only while it's over a letter; near-miss and parked cursor keep the auto sweep alive
+    const overGlyph = pointer.inside && glyphAt(pointer.x, pointer.y) >= 0
+    const sweeping = !introducing && s.sweep && !reducedMotion && dragging < 0 && (!overGlyph || now - lastPointerAt > 2000)
     if (sweeping) clock += dt * s.speed
     pulse += dt
     let targetX = pointer.x
@@ -909,6 +914,7 @@ onMounted(() => {
   const onMove = (e) => {
     locate(e)
     pointer.inside = true
+    lastPointerAt = performance.now()
     wake()
   }
   const onLeave = () => {
@@ -919,6 +925,7 @@ onMounted(() => {
   const onDown = (e) => {
     locate(e)
     pointer.inside = true
+    lastPointerAt = performance.now()
     const primary = e.pointerType !== 'mouse' || e.button === 0
     const index = introducing || !primary ? -1 : glyphAt(pointer.x, pointer.y)
     press.x = pointer.x
