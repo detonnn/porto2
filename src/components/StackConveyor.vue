@@ -7,12 +7,8 @@
       <h2 v-if="heading" class="stk-heading">{{ heading }}</h2>
     </div>
     <slot name="tabs" />
-    <div v-if="wide" class="stk-caption" aria-live="polite">
-      <p :class="{ strong: current }">
-        <template v-if="current">{{ current.name }}</template>
-        <template v-else>{{ caption }}</template>
-      </p>
-      <p v-if="current && current.description" class="sub">{{ current.description }}</p>
+    <div v-if="wide" class="stk-caption">
+      <p>{{ caption }}</p>
     </div>
     </div>
     <div class="stk-main">
@@ -90,12 +86,8 @@
       </button>
     </div>
 
-    <div v-if="!wide" class="stk-caption" aria-live="polite">
-      <p :class="{ strong: current }">
-        <template v-if="current">{{ current.name }}</template>
-        <template v-else>{{ caption }}</template>
-      </p>
-      <p v-if="current && current.description" class="sub">{{ current.description }}</p>
+    <div v-if="!wide" class="stk-caption">
+      <p>{{ caption }}</p>
     </div>
 
     </div>
@@ -274,7 +266,6 @@ const paths = computed(() => {
   return g ? { outer: edgePath(g, g.band / 2), inner: edgePath(g, -g.band / 2), island: edgePath(g, -g.band / 2 - g.d * 0.035) } : null
 })
 const counterTop = computed(() => (geo.value ? Math.max(0, geo.value.edgeTop - geo.value.d * 0.34) : 0))
-const current = computed(() => (active.value === null ? null : list.value[active.value] || null))
 const roving = computed(() => active.value ?? center.value)
 
 const plateStyle = (i) => (geo.value ? { '--i': i, width: geo.value.d + 'px', height: geo.value.d * TILT + 'px', visibility: lifted.value === i ? 'hidden' : undefined } : null)
@@ -748,9 +739,7 @@ body.light-theme, html.light-theme body {
 /* caption ganti tiap beberapa detik: tinggi di-patok (HP + desktop) biar gak ngeser section di bawahnya (termasuk contact) */
 .stk-caption { margin: .5rem auto 0; max-width: 28rem; padding: 0 .5rem; text-align: center; min-height: 6rem; }
 .stk-caption p { margin: 0; font-size: .85rem; color: var(--text-dim); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.stk-caption p.strong { color: var(--text); font-weight: 600; }
-.stk-caption p.strong span { font-weight: 400; color: var(--text-dim); }
-.stk-caption .sub { margin-top: 2px; font-size: .78rem; line-height: 1.4; }
+
 
 .stk-dialog { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 1rem; color: var(--text); font-family: var(--body-font); }
 .stk-backdrop { position: absolute; inset: 0; background: color-mix(in oklab, var(--bg-window) 82%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transition: opacity .3s; }

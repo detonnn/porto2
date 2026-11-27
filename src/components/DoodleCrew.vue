@@ -23,7 +23,7 @@
           <tech-text
             :text="word" :font-family="fontFamily" :font-weight="900" :letter-spacing="tracking" :exact="techExact"
             intro="stamp" :playing="play || reduced" :intro-delays="stampDelays"
-            accent-color="var(--accent)" reveal="letter" :reach="220" :specks="coarse ? 6 : 15" :sweep="!coarse" :draggable="interactive && !coarse" :click-kick="interactive"
+            accent-color="var(--accent)" reveal="letter" :reach="220" :specks="coarse ? 6 : 15" :draggable="interactive && !coarse" :click-kick="interactive"
           />
         </div>
         <svg

@@ -4,7 +4,7 @@
         <span class="section__subtitle">{{ skills.subtitle }}</span>
 
         <div class="skills_container stkC container">
-            <StackConveyor :items="items" :eyebrow="skills.eyebrow" :heading="skills.heading"
+            <StackConveyor :items="items" :heading="skills.heading"
                 :caption="skills.caption" :speed="24" :interval="3200">
                 <template #tabs>
                     <div class="stkTabs" role="tablist" aria-label="Stack categories">
