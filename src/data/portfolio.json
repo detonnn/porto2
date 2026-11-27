@@ -198,7 +198,7 @@
       }
     ],
     "eyebrow": "Tech stack · Skill belt",
-    "heading": "My stack, always on the move.",
+    "heading": "The stack I keep on rotation.",
     "caption": "Hover to pause the belt, drag to spin it, click a plate to learn more."
   },
   "github": {
@@ -345,6 +345,7 @@
   "testimonials": {
     "title": "cat reviews.log",
     "subtitle": "what my clients are saying",
+    "note": "You can submit your review",
     "items": [
       {
         "image": "frontend/assets/img/new1.jpg",

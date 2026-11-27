@@ -17,8 +17,13 @@
         </div>
         <div class="chatbot-header-info">
           <strong>Dexton Assistant</strong>
-          <span class="chatbot-status" :class="{ typing: typing, offline: !isOnline && !typing }">
-            <span :key="typing ? 'typing' : isOnline ? 'online' : 'offline'">{{ typing ? "typing..." : isOnline ? "Online" : "Offline" }}</span>
+          <span
+            class="chatbot-status"
+            :class="{ typing: typing, offline: !isOnline && !typing }"
+          >
+            <span :key="typing ? 'typing' : isOnline ? 'online' : 'offline'">{{
+              typing ? "typing..." : isOnline ? "Online" : "Offline"
+            }}</span>
           </span>
         </div>
         <button
@@ -192,7 +197,7 @@
                   :key="q.key"
                   class="chatbot-quick-btn"
                   type="button"
-                  @click.stop="handleUserInput(q.label, q.answer)"
+                  @click.stop="handleUserInput(q.send, q.answer)"
                 >
                   {{ q.label }}
                 </button>
@@ -212,8 +217,7 @@
             />
           </div>
           <div class="chatbot-actions-row">
-            <div class="chatbot-actions-left">
-            </div>
+            <div class="chatbot-actions-left"></div>
             <button
               class="chatbot-send-btn"
               :class="{ active: inputText.trim().length > 0 }"
@@ -278,14 +282,26 @@ const REACTIONS = [
   { key: "hmm", emoji: "❓" },
 ];
 
+// label = teks tombol (pertanyaan dari bot), send = pesan yang dikirim user
 const QUICK_REPLIES = [
-  { key: "q1", label: "Profil singkat?", answer: "ans1" },
+  {
+    key: "q1",
+    label: "Profil singkat?",
+    send: "Ceritain profil singkat dong",
+    answer: "ans1",
+  },
   {
     key: "q3",
     label: "Mau Dengerin Musik?",
+    send: "Mau denger musik dong",
     answer: "ansMusicPlaylistIntro",
   },
-  { key: "q4", label: "Cara Kontak?", answer: "ans4" },
+  {
+    key: "q4",
+    label: "Cara Kontak?",
+    send: "Kasih tau cara kontak dong",
+    answer: "ans4",
+  },
 ];
 
 const ANSWERS = {
@@ -299,7 +315,7 @@ const ANSWERS = {
     "Halo juga! Mau tanya apa? Bisa profil, skill, proyek, hobi/favorit, game, creator favorit, atau kontak.",
   ansThanks: "Sama-sama! Ada lagi yang mau ditanyain?",
   ansBotId:
-    "Aku asisten virtual di portfolio ini, siap bantu jawab pertanyaan seputar pemiliknya dan karyanya!",
+    "Aku asisten virtual di portfolio ini, siap bantu jawab pertanyaan seputar pemiliknya dan projectnya!",
   ansLocation: "di Tangerang, Ciledug , Banten",
   ansEducation:
     "Lulusan SMKN 5 Kota Tangerang jurusan Desain Komunikasi Visual, sekarang mahasiswa aktif di Universitas Pamulang.",
@@ -327,7 +343,7 @@ const ANSWERS = {
   ansServices:
     "Siap! Aku arahin kamu ke Services ya — klik link ini atau scroll ke section Services di bawah.",
   ansPortfolio:
-    "Siap! Ke Portfolio ya — aku scroll-in ke bagian karya-karya di bawah.",
+    "Siap! Ke Portfolio ya — aku scroll-in ke bagian project-project di bawah.",
   ansAbout:
     "Siap! Ke About ya — aku bawa kamu ke section profil Dexton di bawah.",
   ansContact: "Siap! Ke Contact ya — aku arahin ke form kontak di bawah.",
@@ -608,7 +624,7 @@ const KEYWORD_MAP = [
       "arahin ke portfolio",
       "ke portfolio",
       "halaman portfolio",
-      "karya ibnu",
+      "project ibnu",
       "project ibnu",
     ],
     answer: "ansPortfolio",
@@ -760,7 +776,9 @@ export default {
     Object.values(this.audioElements).forEach((a) => {
       a.volume = 0.5;
       a.preload = "auto";
-      try { a.load(); } catch(e) {}
+      try {
+        a.load();
+      } catch (e) {}
     });
 
     // ponytail: prime real audio sekali, tanpa dummy player yang diputar tiap klik
@@ -772,17 +790,29 @@ export default {
         Object.values(this.audioElements).forEach((a) => {
           const prevVol = a.volume;
           a.volume = 0;
-          a.play().then(() => { a.pause(); a.currentTime = 0; a.volume = prevVol; if (--pending === 0) _realPrimed = true; }).catch(() => { a.volume = prevVol; if (--pending === 0) _realPrimed = true; });
+          a.play()
+            .then(() => {
+              a.pause();
+              a.currentTime = 0;
+              a.volume = prevVol;
+              if (--pending === 0) _realPrimed = true;
+            })
+            .catch(() => {
+              a.volume = prevVol;
+              if (--pending === 0) _realPrimed = true;
+            });
         });
         if (pending === 0) _realPrimed = true;
       }
-      if (window._portoAudioCtx && window._portoAudioCtx.state === "suspended") window._portoAudioCtx.resume();
+      if (window._portoAudioCtx && window._portoAudioCtx.state === "suspended")
+        window._portoAudioCtx.resume();
     };
     this._unlockAll = unlockAll;
     ["click", "touchstart", "keydown", "pointerdown"].forEach((evt) =>
       window.addEventListener(evt, unlockAll, { capture: true }),
     );
-    if (navigator.userActivation && navigator.userActivation.hasBeenActive) unlockAll();
+    if (navigator.userActivation && navigator.userActivation.hasBeenActive)
+      unlockAll();
 
     this.$nextTick(() => {
       const b = this.$refs.body;
@@ -813,7 +843,11 @@ export default {
     onDocClick(e) {
       const menuWrap = this.$refs.menuWrap;
       if (menuWrap && !menuWrap.contains(e.target)) this.menuOpen = false;
-      if (e.target.closest && !e.target.closest(".chatbot-msg") && !e.target.closest(".chatbot-react-bar"))
+      if (
+        e.target.closest &&
+        !e.target.closest(".chatbot-msg") &&
+        !e.target.closest(".chatbot-react-bar")
+      )
         this.activeReact = null;
       // Klik tombol ganti tema jangan nutup widget assistant
       if (e.target.closest && e.target.closest("#theme-button")) return;
@@ -860,7 +894,12 @@ export default {
       }
     },
     setOffline() {
-      if (this.typing || this.pendingReply || this.spamQueue || this.warnPending) {
+      if (
+        this.typing ||
+        this.pendingReply ||
+        this.spamQueue ||
+        this.warnPending
+      ) {
         this.resetOnlineTimer();
         return;
       }
@@ -881,24 +920,30 @@ export default {
       }, 7000);
     },
     showIdleMessage() {
-      if (!this.isOpen || this.typing || this.pendingReply || this.hasSentIdle) return;
+      if (!this.isOpen || this.typing || this.pendingReply || this.hasSentIdle)
+        return;
       const idleMessages = [
         "Masih di situ kan? Ada yang mau ditanyain lagi gak nih?",
         "Bengong ya? Tanya aja bebas — profil, skill, hobi, atau tiktok?!",
         "Kalo bingung mau nanya apa, coba klik quick replies di bawah ya?",
-        "Santai aja, butuh info kontak atau mau liat karya Dexton yang lain?",
-        "Ada yang kurang jelas tentang portfolio ini? Tanyain aja bre!",
+        "Santai aja, butuh info kontak atau mau liat project Dexton yang lain?",
+        "Ada yang kurang jelas tentang portfolio ini? Tanyain aja ya!",
       ];
       // ponytail: promo fitur review cuma tampil 1x per pengunjung (flag localStorage), sisanya idle biasa
-      const promo = "Info: sekarang kamu bisa kirim review asli ke portfolio ini. Isi form di bagian contact, kasih bintang sesuka kamu, dan review-nya langsung tampil di reviews.log.";
+      const promo =
+        "Info: sekarang kamu bisa kirim review asli ke portfolio ini. Isi form di bagian contact, kasih bintang sesuka kamu, dan review-nya langsung tampil di reviews.log.";
       let seen = this.promoShown;
-      try { seen = seen || localStorage.getItem("porto2_review_promo") === "1"; } catch (e) {}
+      try {
+        seen = seen || localStorage.getItem("porto2_review_promo") === "1";
+      } catch (e) {}
       let idx = -1;
       let text;
       if (!seen) {
         text = promo;
         this.promoShown = true;
-        try { localStorage.setItem("porto2_review_promo", "1"); } catch (e) {}
+        try {
+          localStorage.setItem("porto2_review_promo", "1");
+        } catch (e) {}
       } else {
         do {
           idx = Math.floor(Math.random() * idleMessages.length);
@@ -908,11 +953,13 @@ export default {
       }
       this.hasSentIdle = true;
 
-      this.showTyping(() => {
-        this.addMessage(text, "bot");
-        setTimeout(() => {
-          this.resetOnlineTimer();
-        }, 2000);
+      this._goOnline(() => {
+        this.showTyping(() => {
+          this.addMessage(text, "bot");
+          setTimeout(() => {
+            this.resetOnlineTimer();
+          }, 2000);
+        });
       });
     },
     startFreshChat() {
@@ -958,20 +1005,37 @@ export default {
         audio.volume = 0.5;
         this.audioElements[key] = audio;
         // prime the new element immediately if already interacted
-        if (navigator.userActivation && navigator.userActivation.hasBeenActive) {
-          const v = audio.volume; audio.volume = 0;
-          audio.play().then(() => { audio.pause(); audio.currentTime = 0; audio.volume = v; }).catch(() => { audio.volume = v; });
+        if (
+          navigator.userActivation &&
+          navigator.userActivation.hasBeenActive
+        ) {
+          const v = audio.volume;
+          audio.volume = 0;
+          audio
+            .play()
+            .then(() => {
+              audio.pause();
+              audio.currentTime = 0;
+              audio.volume = v;
+            })
+            .catch(() => {
+              audio.volume = v;
+            });
         }
       }
       audio.currentTime = 0;
       const p = audio.play();
-      if (p && p.catch) p.catch(() => {
-        // transient activation habis — retry di gesture berikutnya
-        const retry = () => { audio.currentTime = 0; audio.play().catch(() => {}); };
-        ["click", "touchstart", "pointerdown"].forEach((ev) =>
-          window.addEventListener(ev, retry, { capture: true, once: true }),
-        );
-      });
+      if (p && p.catch)
+        p.catch(() => {
+          // transient activation habis — retry di gesture berikutnya
+          const retry = () => {
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+          };
+          ["click", "touchstart", "pointerdown"].forEach((ev) =>
+            window.addEventListener(ev, retry, { capture: true, once: true }),
+          );
+        });
     },
     toggleReactBar(i) {
       this.activeReact = this.activeReact === i ? null : i;
@@ -1099,10 +1163,7 @@ export default {
           lower.includes("contact") ||
           lower.includes("hubungi"))
       ) {
-        return [
-          CONTACT_LINKS.instagram,
-          CONTACT_LINKS.email,
-        ];
+        return [CONTACT_LINKS.instagram, CONTACT_LINKS.email];
       }
       return matched;
     },
@@ -1172,11 +1233,24 @@ export default {
     },
     detectAnswer(text) {
       const lower = " " + text.toLowerCase() + " ";
-      const isWhatsapp = /\bwa\b/.test(lower) || lower.includes("whatsapp") || lower.includes("whats app") || lower.includes("w a");
+      const isWhatsapp =
+        /\bwa\b/.test(lower) ||
+        lower.includes("whatsapp") ||
+        lower.includes("whats app") ||
+        lower.includes("w a");
       if (isWhatsapp) {
         // jangan override kalau user jelas mau nav: "bawa ke about" bukan "wa"
-        const navHit = ["bawa ke", "arahin ke", "ke about", "ke skills", "ke portfolio", "ke contact", "ke home"].some(k => lower.includes(k) && k !== "wa");
-        if (!navHit || lower.includes("whatsapp") || lower.includes("wa ")) return "ansWhatsapp";
+        const navHit = [
+          "bawa ke",
+          "arahin ke",
+          "ke about",
+          "ke skills",
+          "ke portfolio",
+          "ke contact",
+          "ke home",
+        ].some((k) => lower.includes(k) && k !== "wa");
+        if (!navHit || lower.includes("whatsapp") || lower.includes("wa "))
+          return "ansWhatsapp";
       }
       let best = null;
       let bestScore = 0;
@@ -1273,7 +1347,11 @@ export default {
       } else {
         const links = this.detectContactLinks(displayText);
         this.showTyping(() =>
-          this.addMessage(ANSWERS.fallbackHelp, "bot", links.length ? links : null),
+          this.addMessage(
+            ANSWERS.fallbackHelp,
+            "bot",
+            links.length ? links : null,
+          ),
         );
       }
     },
@@ -1293,19 +1371,25 @@ export default {
         let alreadyClaimed = false;
         try {
           alreadyClaimed = localStorage.getItem("gh_secret_beton_used") === "1";
-        } catch(e) {}
+        } catch (e) {}
 
         if (alreadyClaimed) {
           this.showTyping(() => {
-            this.addMessage("Secret key \"BETON\" sudah pernah kamu klaim sebelumnya! Cuma bisa dipakai 1x saja ya bre 😉", "bot");
+            this.addMessage(
+              'Secret key "BETON" sudah pernah kamu klaim sebelumnya! Cuma bisa dipakai 1x saja ya 😉',
+              "bot",
+            );
           });
         } else {
           try {
             localStorage.setItem("gh_secret_beton_used", "1");
             localStorage.setItem("gh_gameLevel", "10");
-          } catch(e) {}
+          } catch (e) {}
           this.showTyping(() => {
-            this.addMessage("WAAH! Secret key \"BETON\" ditemukan! Selamat, kamu resmi naik ke LEVEL 10 RGB RAINBOW di GitHub Contributions! 🔥🌈", "bot");
+            this.addMessage(
+              'WAAH! Secret key "BETON" ditemukan! Selamat, kamu resmi naik ke LEVEL 10 RGB RAINBOW di GitHub Contributions! 🔥🌈',
+              "bot",
+            );
             window.dispatchEvent(new CustomEvent("set-github-level-10"));
           });
         }
@@ -1329,7 +1413,9 @@ export default {
         if (isSpam && !this.spamWarnScheduled) {
           this.spamWarnScheduled = true;
           this.warnPending = true;
-          setTimeout(() => { this.spamWarnScheduled = false; }, 4000);
+          setTimeout(() => {
+            this.spamWarnScheduled = false;
+          }, 4000);
         }
         this._flushQueue(); // no-op kalau bot masih sibuk, otomatis jalan pas selesai
         return;
@@ -1373,7 +1459,11 @@ export default {
         this.warnPending = false;
         this._goOnline(() =>
           this.showTyping(
-            () => this.addMessage("Woy pelan-pelan, jangan spam chat ya 😅 Kasih jeda bentar!", "bot"),
+            () =>
+              this.addMessage(
+                "Woy pelan-pelan, jangan spam chat ya 😅 Kasih jeda bentar!",
+                "bot",
+              ),
             900,
           ),
         );

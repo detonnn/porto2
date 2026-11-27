@@ -2,6 +2,7 @@
     <section class="testimonial section" id="testimonial">
         <h2 class="section__title">{{ testimonials.title }}</h2>
         <span class="section__subtitle">{{ testimonials.subtitle }}</span>
+        <span class="section__subtitle">{{ testimonials.note }}</span>
 
         <div class="tcol__wrap" ref="wrap" :class="{ 'is-paused': !inView || !!newId, 'is-highlight': !!newId }">
             <template v-if="ready">
@@ -97,6 +98,8 @@ export default {
 </script>
 
 <style scoped>
+/* dua subtitle bersebelahan: jaraknya dipangkas biar nggak ada gap 3rem di antara baris */
+.testimonial > .section__subtitle:first-of-type { margin-bottom: 0; }
 .tcol__wrap {
     display: flex;
     justify-content: center;
